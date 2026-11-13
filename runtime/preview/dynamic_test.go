@@ -412,7 +412,7 @@ FROM (SELECT ID,NAME FROM VENDOR v ${predicate.Builder().CombineAnd($predicate.F
 	facts := access.Facts{Subject: "alice", Tenant: "tenant", Issuer: "trusted", Roles: []string{"reader"}, Entities: []access.Entity{{Type: "publisher", ID: "1"}}, ValidUntil: time.Now().Add(time.Minute)}
 	scoped := Dynamic{StudioDB: studio, RootDir: root, Types: types, AccessTenant: "tenant", Access: &access.Service{Store: previewPolicyStore{access.Resource{Kind: "component", ID: "summary", Version: "2", Tenant: "tenant"}}, Provider: previewFacts{facts}}}
 	caller := sdk.WithVerifiedCredential(sdk.WithPrincipal(ctx, sdk.Principal{Subject: "alice"}), sdk.VerifiedCredential{Bearer: "verified-by-host", Claims: struct{}{}})
-	scopedResult, err := scoped.Execute(caller, "summary", 2, sdk.PreviewInput{Input: json.RawMessage(`{"Name":"Northwind"}`)})
+	scopedResult, err := scoped.Execute(caller, "summary", 2, sdk.PreviewInput{Input: json.RawMessage(`{"name":"Northwind"}`)})
 	if err != nil {
 		t.Fatal(err)
 	}

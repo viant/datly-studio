@@ -124,11 +124,25 @@ type DQLExport struct {
 // reader builder. Structure and Operation use JSON because their nested DQL
 // shape evolves with Datly; versioning and authorization stay in Studio.
 type ReaderInspection struct {
-	Version      *ReportVersion     `json:"version"`
-	DQL          string             `json:"dql,omitempty"`
-	Structure    json.RawMessage    `json:"structure,omitempty"`
-	Diagnostics  []Diagnostic       `json:"diagnostics,omitempty"`
-	Capabilities ReportCapabilities `json:"capabilities"`
+	PreviewInput *PreviewInputContract `json:"previewInput,omitempty"`
+	Version      *ReportVersion        `json:"version"`
+	DQL          string                `json:"dql,omitempty"`
+	Structure    json.RawMessage       `json:"structure,omitempty"`
+	Diagnostics  []Diagnostic          `json:"diagnostics,omitempty"`
+	Capabilities ReportCapabilities    `json:"capabilities"`
+}
+
+// PreviewInputContract describes the advertised full-reader preview arguments.
+// Schema is compiled by the native preview binder, not reconstructed from DQL.
+// A nil PreviewInput means unavailable or not authorized; an object schema with
+// no properties is a successfully compiled reader with no public arguments.
+type PreviewInputContract struct {
+	ReportID       string          `json:"reportId"`
+	VersionNo      int             `json:"versionNo"`
+	SourceRevision int64           `json:"sourceRevision"`
+	Method         string          `json:"method"`
+	Path           string          `json:"path"`
+	Schema         json.RawMessage `json:"schema"`
 }
 
 type ReportCapabilities struct {

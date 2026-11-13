@@ -147,6 +147,10 @@ type ContractInspector interface {
 	InspectContract(context.Context, string, int) (*spec.Component, error)
 }
 
+type PreviewInputInspector interface {
+	InspectPreviewInput(context.Context, string, int) (*sdk.PreviewInputContract, error)
+}
+
 type CandidateContractInspector interface {
 	InspectCandidateContract(context.Context, string, int, string) (*spec.Component, error)
 }
@@ -1487,7 +1491,22 @@ func (t *Transport) inspectVersion(ctx context.Context, input, output any) error
 			response.Diagnostics = append(response.Diagnostics, &transcribe.Diagnostic{Severity: transcribe.SeverityWarning, Code: "column_inspection_unavailable", Message: "Column metadata is unavailable; check the draft source and connector configuration."})
 		}
 	}
-	return assign(output, readerInspection(version, response, capabilities))
+	projected := readerInspection(version, response, capabilities)
+	if capabilities.CanRun {
+		var metadata *sdk.PreviewInputContract
+		if err := t.authorize(ctx, sdk.OperationPreviewExecute, in); err == nil {
+			if inspector, ok := t.Preview.(PreviewInputInspector); ok {
+				previewCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+				metadata, err = inspector.InspectPreviewInput(previewCtx, in.ReportID, in.VersionNo)
+				cancel()
+				if err != nil {
+					metadata = nil
+				}
+			}
+		}
+		readerinspection.SetPreviewInput(projected, metadata)
+	}
+	return assign(output, projected)
 }
 
 type readerBuilderRequest struct {

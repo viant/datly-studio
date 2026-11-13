@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/viant/bindly"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/runtimeadmin"
@@ -32,7 +33,7 @@ func (p releaseStatusProvider) Connector(_ context.Context, name string) (*sql.D
 
 type releaseStatusBinder struct{ provider releaseStatusProvider }
 
-func (b releaseStatusBinder) Bind(_ context.Context, target any) error {
+func (b releaseStatusBinder) Bind(_ context.Context, target any, _ ...bindly.BindOption) error {
 	value := reflect.ValueOf(target)
 	if value.Kind() == reflect.Pointer && value.Elem().Kind() == reflect.Struct {
 		field := value.Elem().FieldByName("Authorization")

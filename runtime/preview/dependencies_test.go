@@ -90,7 +90,7 @@ SELECT vendors.*,type(vendors,'Vendor') FROM (SELECT ID,NAME FROM VENDOR ${predi
 	}}
 	for _, test := range []struct{ token, want, absent string }{{"alice", "Northwind", "Contoso"}, {"bob", "Contoso", "Northwind"}} {
 		verified := sdk.WithVerifiedCredential(sdk.WithPrincipal(ctx, sdk.Principal{Subject: test.token}), sdk.VerifiedCredential{Bearer: test.token, Claims: struct{}{}})
-		result, err := dynamic.Execute(verified, "vendors", 1, sdk.PreviewInput{Input: []byte(`{"From":"2026-09-01"}`), Limit: 10})
+		result, err := dynamic.Execute(verified, "vendors", 1, sdk.PreviewInput{Input: []byte(`{"from":"2026-09-01"}`), Limit: 10})
 		if err != nil {
 			t.Fatal(err)
 		}

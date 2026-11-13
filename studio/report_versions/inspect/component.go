@@ -13,6 +13,7 @@ import (
 
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/versionprojection"
+	"github.com/viant/datly-studio/internal/versionrun"
 	"github.com/viant/datly-studio/runtime/preview"
 	studiors "github.com/viant/datly-studio/runtime/resources"
 	"github.com/viant/datly-studio/sdk"
@@ -46,11 +47,12 @@ type Input struct {
 }
 
 type Output struct {
-	Version      *sdk.ReportVersion     `parameter:"Version,kind=output,in=body,dataType=*sdk.ReportVersion" json:"version"`
-	DQL          string                 `parameter:"DQL,kind=output,in=body,dataType=string" json:"dql,omitempty"`
-	Structure    json.RawMessage        `parameter:"Structure,kind=output,in=body,dataType=json.RawMessage" json:"structure,omitempty"`
-	Diagnostics  []sdk.Diagnostic       `parameter:"Diagnostics,kind=output,in=body,dataType=[]sdk.Diagnostic" json:"diagnostics,omitempty"`
-	Capabilities sdk.ReportCapabilities `parameter:"Capabilities,kind=output,in=body,dataType=sdk.ReportCapabilities" json:"capabilities"`
+	PreviewInput *sdk.PreviewInputContract `parameter:"PreviewInput,kind=output,in=body,dataType=*sdk.PreviewInputContract" json:"previewInput,omitempty"`
+	Version      *sdk.ReportVersion        `parameter:"Version,kind=output,in=body,dataType=*sdk.ReportVersion" json:"version"`
+	DQL          string                    `parameter:"DQL,kind=output,in=body,dataType=string" json:"dql,omitempty"`
+	Structure    json.RawMessage           `parameter:"Structure,kind=output,in=body,dataType=json.RawMessage" json:"structure,omitempty"`
+	Diagnostics  []sdk.Diagnostic          `parameter:"Diagnostics,kind=output,in=body,dataType=[]sdk.Diagnostic" json:"diagnostics,omitempty"`
+	Capabilities sdk.ReportCapabilities    `parameter:"Capabilities,kind=output,in=body,dataType=sdk.ReportCapabilities" json:"capabilities"`
 }
 
 type Component struct {
@@ -201,8 +203,20 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		}
 	}
 	projected := readerinspection.Project(version, &inspected, permissions)
+	if permissions.CanRun {
+		var metadata *sdk.PreviewInputContract
+		previewCtx, engine, cancel, authorizeErr := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportId, input.VersionNo, 0)
+		if authorizeErr == nil {
+			metadata, err = engine.InspectPreviewInput(previewCtx, input.ReportId, input.VersionNo)
+			cancel()
+			if err != nil {
+				metadata = nil
+			}
+		}
+		readerinspection.SetPreviewInput(projected, metadata)
+	}
 	*output = Output{Version: projected.Version, DQL: projected.DQL,
-		Structure: projected.Structure, Diagnostics: projected.Diagnostics, Capabilities: projected.Capabilities}
+		Structure: projected.Structure, Diagnostics: projected.Diagnostics, Capabilities: projected.Capabilities, PreviewInput: projected.PreviewInput}
 	return nil
 }
 

@@ -674,155 +674,155 @@ export type InputFc83F5Dc2E1741A3C0713Acae5C5589D76E1865E7287675353Ca9558C3E7E7D
 };
 
 export type Output0516F5Fffdcbf20Bb491A3F59D6F0B5Efe31353Df52913Cdf49923B03F6156E3 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Output056A233E996244D253928B99E6335Fa0Dfcab4B0Aa7E8Ffd7A088546A10A6442 = {
-    policies: {
+    policies?: {
         [key: string]: OutputE8Ea1801B1Be98B9F440E71042F9D1F205288Fc993De313Deb5492650404E1B8;
     } | null;
-    resource: Output61Da40565Eeef7Dc1D2D89123Fe0033E9B0F0809A66731851Fd56301624B0Dc5;
-    revision: number;
+    resource?: Output61Da40565Eeef7Dc1D2D89123Fe0033E9B0F0809A66731851Fd56301624B0Dc5;
+    revision?: number;
 };
 
 export type Output06244387C0C9169E9E2Dd8C303D1B08D7C46Bddec31314Baa7Fdae523Ab96371 = {
     completedAt?: string | null;
-    completedCases: number;
+    completedCases?: number;
     createdAt?: string | null;
     createdBy?: string | null;
     diagnostics?: Array<Output1D9Bf0079B94D75E2B9B7B33Bb81B13886A46428Db871596012139C64Cc1A4D6> | null;
     duration?: number;
-    entries: number;
+    entries?: number;
     maxCases?: number | null;
-    planKey: string;
-    plannedCases: number;
-    reportId: string;
-    requestedAt: string;
-    requestedBy: string;
+    planKey?: string;
+    plannedCases?: number;
+    reportId?: string;
+    requestedAt?: string;
+    requestedBy?: string;
     rowLimit?: number | null;
-    runId: string;
-    sourceRevision: number;
-    specHash: string;
+    runId?: string;
+    sourceRevision?: number;
+    specHash?: string;
     startedAt?: string | null;
-    status: string;
-    target: OutputEf553E0E338A00Cf70D43289Eb53E588Abb65348804F4Defbd8Fd2Ea4E5691Ee;
+    status?: string;
+    target?: OutputEf553E0E338A00Cf70D43289Eb53E588Abb65348804F4Defbd8Fd2Ea4E5691Ee;
     updatedAt?: string | null;
     updatedBy?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Output0C10F58F77A4F9Aace3043619F64Ad2D1Ae24748776E0959650E6Ae2F89669Aa = {
     authenticationMode?: string;
-    checkedAt: string;
+    checkedAt?: string;
     mcpUrl?: string;
     namespaceId?: string;
     revision?: number;
-    status: string;
+    status?: string;
 };
 
 export type Output0D489Bb6E8D34088F812C6B2A93A0C83B9A5F8Fd2Ac13B17094145376C09065b = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Output1D9Bf0079B94D75E2B9B7B33Bb81B13886A46428Db871596012139C64Cc1A4D6 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Output20D14E6C9E21Afc4A0245Cde30Dbea83A572B7611Ecb2A2D7721E85B2F520260 = {
     entity?: Output8F9918Cf758D7828437221562274Ce1Aadfefc572741F4475E8F668456C57771 | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type Output2180387Bae10Ad30702Ff5F50E131002Ae984342D3Ae82E85F10F7D03794F74c = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Output2554Cffa5D52275Ed88Bc66799A2F7C47Bac9Cf0E050075987Cbda8Ba8D24268 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Output2631F895E856B9Edb7A880Ef06B76A2Fcfcf0Dc9D13Eff46223625680E9A9C89 = {
-    policies: {
+    policies?: {
         [key: string]: OutputC50C4A793548Bb0F3B16Af35D193034D2656958E13E8B0A0Ee655Bd092A1A349;
     } | null;
-    resource: Output89Ec52F68878253D5610456Db46A846Ae520370Ae7D0C82A86F6Fa15Feeccf84;
-    revision: number;
+    resource?: Output89Ec52F68878253D5610456Db46A846Ae520370Ae7D0C82A86F6Fa15Feeccf84;
+    revision?: number;
 };
 
 export type Output2914A64D6F54333C61713839F0D41E0Bc4A70208751189288A2870C3Ee2496F9 = {
-    clientIp: string;
+    clientIp?: string;
     componentId?: string;
-    durationMs: number;
-    id: number;
-    namespaceId: string;
+    durationMs?: number;
+    id?: number;
+    namespaceId?: string;
     request?: string;
     response?: string;
-    responseTruncated: boolean;
-    startedAt: string;
-    status: string;
-    subject: string;
-    toolName: string;
+    responseTruncated?: boolean;
+    startedAt?: string;
+    status?: string;
+    subject?: string;
+    toolName?: string;
 };
 
 export type Output2C9Aea90415Dac647Efe579C8889A77A58C3E88F24A1C30F945E7743E5Dd5Ae2 = {
-    resource: OutputA81D693Fd6E1Ff78672B05458A01513D11113731358Ae9Bfeaca4Fd73D9C722c;
-    revision: number;
+    resource?: OutputA81D693Fd6E1Ff78672B05458A01513D11113731358Ae9Bfeaca4Fd73D9C722c;
+    revision?: number;
 };
 
 export type Output32C4D843C350375Fa1807B89E7Db16553000Af864Bad1017Ad3662F2Db1C9B64 = {
-    clientIp: string;
+    clientIp?: string;
     componentId?: string;
-    durationMs: number;
-    id: number;
-    namespaceId: string;
+    durationMs?: number;
+    id?: number;
+    namespaceId?: string;
     request?: string;
     response?: string;
-    responseTruncated: boolean;
-    startedAt: string;
-    status: string;
-    subject: string;
-    toolName: string;
+    responseTruncated?: boolean;
+    startedAt?: string;
+    status?: string;
+    subject?: string;
+    toolName?: string;
 };
 
 export type Output3C2625259Fdd4Db44D2677D12Aa2F8Cd153Ff19765E0207F189C5B0699B54243 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Output41C3B19Ac03C771407Eb0E4C05284C0E7C1997324Fd4198Bdf3Fd31Fa8D96C5d = {
     archive?: string | null;
-    canManage: boolean;
-    canView: boolean;
+    canManage?: boolean;
+    canView?: boolean;
     componentId?: string;
     count?: number;
-    dropped: number;
-    effective: boolean;
-    enabled: boolean;
-    failed: number;
+    dropped?: number;
+    effective?: boolean;
+    enabled?: boolean;
+    failed?: number;
     filename?: string;
     items?: Array<OutputEc5Ca322E57Ac033E6183E7Ca87A4Dc5A2Dba0223Eb08B4A914E37Bb9E628B8e> | null;
     mediaType?: string;
-    namespaceId: string;
+    namespaceId?: string;
     nextId?: number;
     toolName?: string;
     truncated?: boolean;
-    viewerRole: string;
+    viewerRole?: string;
 };
 
 export type Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B99391 = {
@@ -831,336 +831,336 @@ export type Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B993
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
-    view: string;
+    view?: string;
 };
 
 export type Output4767292Ff45Ca739Fbde17Dcfac16967B1B00630Ad105De675C19514080628F9 = {
     entity?: Output2554Cffa5D52275Ed88Bc66799A2F7C47Bac9Cf0E050075987Cbda8Ba8D24268 | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type Output4Cf988A4800A68Fa7Db9D130C60Eed0B35369D4C3Fc9465E70D61B648Bd34B6d = {
     activatedAt?: string | null;
     componentName?: string;
-    connectorName: string;
+    connectorName?: string;
     mcpExposures?: Array<OutputA6Ddd7942C83Fb7282623Cfc58Da6Bae57F79A4F0284Ea5B91Cf55Fb794Dc186> | null;
     mcpResources?: Array<Output8035Fb9F56E2Dfdb283039Cb87B71Ab1D5F6Fa189D850D698929Cee1B6B6464d> | null;
-    namespace: string;
-    ownerPackage: string;
-    reportId: string;
+    namespace?: string;
+    ownerPackage?: string;
+    reportId?: string;
     runtimeRevision?: string;
     skills?: Array<OutputF2954Ccbc2Dd12Cce598727F4C49Ad7D3D88F3404672F047B6Fb03D041C024Bf> | null;
-    status: string;
-    title: string;
-    versionNo: number;
+    status?: string;
+    title?: string;
+    versionNo?: number;
 };
 
 export type Output4E575822Fc494Cb865728B6Bd562F029Cb8Faec2Fa4F5C96Efdd7Eb001314E68 = {
     defaultResource?: Output0516F5Fffdcbf20Bb491A3F59D6F0B5Efe31353Df52913Cdf49923B03F6156E3 | null;
-    explicitAcl: boolean;
-    inherited: boolean;
-    public: boolean;
-    published: boolean;
-    resource: Output8D5C08B62D8E11C6B7D0078039D84942D60E13602D2B6B0B25Ee4E92D1E8A0Bb;
+    explicitAcl?: boolean;
+    inherited?: boolean;
+    public?: boolean;
+    published?: boolean;
+    resource?: Output8D5C08B62D8E11C6B7D0078039D84942D60E13602D2B6B0B25Ee4E92D1E8A0Bb;
 };
 
 export type Output4Fd42D5Ac7E58Fb29E7Ad717B49Ad43D1Aa3D0A32C5E034148C82Bc6Baebd5A8 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Output586257Ec0A228D28Fb8C1D7B9B6Ceb924795C406B09D9A86111F39A56368B032 = {
     completedAt?: string | null;
-    completedCases: number;
+    completedCases?: number;
     createdAt?: string | null;
     createdBy?: string | null;
     diagnostics?: Array<Output9E0F449C95Fcfb4Ee0592Ebadf3E17Adccbdc32Fa89Bf50Ab9Ae8511C2009041> | null;
     duration?: number;
-    entries: number;
+    entries?: number;
     maxCases?: number | null;
-    planKey: string;
-    plannedCases: number;
-    reportId: string;
-    requestedAt: string;
-    requestedBy: string;
+    planKey?: string;
+    plannedCases?: number;
+    reportId?: string;
+    requestedAt?: string;
+    requestedBy?: string;
     rowLimit?: number | null;
-    runId: string;
-    sourceRevision: number;
-    specHash: string;
+    runId?: string;
+    sourceRevision?: number;
+    specHash?: string;
     startedAt?: string | null;
-    status: string;
-    target: Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B99391;
+    status?: string;
+    target?: Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B99391;
     updatedAt?: string | null;
     updatedBy?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Output5A32149981358E9Db6F11E125B58652C4E124015356F4895Daea2D1E38Cbc5F2 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Output5Ed634D1C74Bb010A08C26559915F494Ded8D053720F174C362Df0724Cd84C89 = {
     entity?: Output819A96401E1C94505523Cbabb8E79D80A54Fa448E4025D35E66Df55D830F8D2f | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type Output6056449Cb6Ff77Eb0E24F9D110Ff3A533C12D36A31Eead7Bf54Ff52E31D48474 = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: OutputC50C4A793548Bb0F3B16Af35D193034D2656958E13E8B0A0Ee655Bd092A1A349;
     } | null;
 };
 
 export type Output61Da40565Eeef7Dc1D2D89123Fe0033E9B0F0809A66731851Fd56301624B0Dc5 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Output644E4D09Ac406B19E7277668F0Cfaf1136C2F29C1D92A8E6Af44Cadd8Ca60Cd1 = {
     archive?: string | null;
-    canManage: boolean;
-    canView: boolean;
+    canManage?: boolean;
+    canView?: boolean;
     componentId?: string;
     count?: number;
-    dropped: number;
-    effective: boolean;
-    enabled: boolean;
-    failed: number;
+    dropped?: number;
+    effective?: boolean;
+    enabled?: boolean;
+    failed?: number;
     filename?: string;
     items?: Array<Output32C4D843C350375Fa1807B89E7Db16553000Af864Bad1017Ad3662F2Db1C9B64> | null;
     mediaType?: string;
-    namespaceId: string;
+    namespaceId?: string;
     nextId?: number;
     toolName?: string;
     truncated?: boolean;
-    viewerRole: string;
+    viewerRole?: string;
 };
 
 export type Output6E81E11A33076E68Bb3D8B58Da936317E65E2Cb7C08F61Adc82433C8705924B4 = {
     archive?: string | null;
-    canManage: boolean;
-    canView: boolean;
+    canManage?: boolean;
+    canView?: boolean;
     componentId?: string;
     count?: number;
-    dropped: number;
-    effective: boolean;
-    enabled: boolean;
-    failed: number;
+    dropped?: number;
+    effective?: boolean;
+    enabled?: boolean;
+    failed?: number;
     filename?: string;
     items?: Array<Output2914A64D6F54333C61713839F0D41E0Bc4A70208751189288A2870C3Ee2496F9> | null;
     mediaType?: string;
-    namespaceId: string;
+    namespaceId?: string;
     nextId?: number;
     toolName?: string;
     truncated?: boolean;
-    viewerRole: string;
+    viewerRole?: string;
 };
 
 export type Output73A8618E3Debe1667F7Aafcc74Ab58Dec2Fbd11494Bb2E579Aae6D2B58F205F3 = {
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    driver: string;
-    dsnConfigured: boolean;
-    etag: number;
+    driver?: string;
+    dsnConfigured?: boolean;
+    etag?: number;
     lastTestErrorCode?: string;
     lastTestStatus?: string;
     lastTestedAt?: string | null;
-    name: string;
+    name?: string;
     options?: unknown;
-    ownerId: string;
-    secretConfigured: boolean;
-    status: string;
-    updatedAt: string;
+    ownerId?: string;
+    secretConfigured?: boolean;
+    status?: string;
+    updatedAt?: string;
 };
 
 export type Output7F617Ddc14B6Df274D226551B825C90A4F977A14591Bdfd1Ddc94B5F6066Bce5 = {
     activeGeneration?: number | null;
-    activeVersionNo: number;
-    desiredGeneration: number;
+    activeVersionNo?: number;
+    desiredGeneration?: number;
     desiredVersionNo?: number | null;
     publishedAt?: string | null;
-    reportId: string;
+    reportId?: string;
     runtimeRevision?: string;
     specHash?: string;
-    status: string;
+    status?: string;
 };
 
 export type Output8035Fb9F56E2Dfdb283039Cb87B71Ab1D5F6Fa189D850D698929Cee1B6B6464d = {
-    namespace: string;
-    rootPath: string;
-    uriPrefix: string;
+    namespace?: string;
+    rootPath?: string;
+    uriPrefix?: string;
 };
 
 export type Output819A96401E1C94505523Cbabb8E79D80A54Fa448E4025D35E66Df55D830F8D2f = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Output86A66B97D8718A98219F5Bea5A2Cc298728F5Dfba2334Ccda5E7A236791Aaff7 = {
     entity?: Output5A32149981358E9Db6F11E125B58652C4E124015356F4895Daea2D1E38Cbc5F2 | null;
-    kind: string;
+    kind?: string;
     rules?: Array<Output86A66B97D8718A98219F5Bea5A2Cc298728F5Dfba2334Ccda5E7A236791Aaff7> | null;
     value?: string;
 };
 
 export type Output89Ec52F68878253D5610456Db46A846Ae520370Ae7D0C82A86F6Fa15Feeccf84 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Output8D5C08B62D8E11C6B7D0078039D84942D60E13602D2B6B0B25Ee4E92D1E8A0Bb = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Output8F9918Cf758D7828437221562274Ce1Aadfefc572741F4475E8F668456C57771 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Output9425F0D8184856B1B2B82B988287De19F673178A98F7561041Bfddbdcaad307a = {
     archive?: string | null;
-    canManage: boolean;
-    canView: boolean;
+    canManage?: boolean;
+    canView?: boolean;
     componentId?: string;
     count?: number;
-    dropped: number;
-    effective: boolean;
-    enabled: boolean;
-    failed: number;
+    dropped?: number;
+    effective?: boolean;
+    enabled?: boolean;
+    failed?: number;
     filename?: string;
     items?: Array<OutputEc019E5831C65213D65F292F7835722945F552D76106B1Cf7C1608395564458e> | null;
     mediaType?: string;
-    namespaceId: string;
+    namespaceId?: string;
     nextId?: number;
     toolName?: string;
     truncated?: boolean;
-    viewerRole: string;
+    viewerRole?: string;
 };
 
 export type Output98Eb7261961A0F07A9564Be0E254F8E95836E8Bb1689Bf42E5Fa490Dcea8Bf1b = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: OutputE8Ea1801B1Be98B9F440E71042F9D1F205288Fc993De313Deb5492650404E1B8;
     } | null;
 };
 
 export type Output9D49Df36A755675144Ae6Bef3Dd7487Cbc740221600721423879D97Bb66Fb067 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Output9E0F449C95Fcfb4Ee0592Ebadf3E17Adccbdc32Fa89Bf50Ab9Ae8511C2009041 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Output9E876C762Bb492C132E790521D9Bfeabfef411C08F89B004511Cfca729Fc5Ff3 = {
-    resource: Output9D49Df36A755675144Ae6Bef3Dd7487Cbc740221600721423879D97Bb66Fb067;
-    revision: number;
+    resource?: Output9D49Df36A755675144Ae6Bef3Dd7487Cbc740221600721423879D97Bb66Fb067;
+    revision?: number;
 };
 
 export type OutputA2A90743713296048071979D14B3Abdfc10B4Ee77E446Ab9Dbd7F2C07Bbe7266 = {
     activeGeneration?: number | null;
-    activeVersionNo: number;
-    desiredGeneration: number;
+    activeVersionNo?: number;
+    desiredGeneration?: number;
     desiredVersionNo?: number | null;
     publishedAt?: string | null;
-    reportId: string;
+    reportId?: string;
     runtimeRevision?: string;
     specHash?: string;
-    status: string;
+    status?: string;
 };
 
 export type OutputA6D9Fb3F70E6B7863E0C88327D238407Dbfc8A53A8Fbbcb08C080358F1491Ec6 = {
     entity?: OutputCa207E9470562713039Abace94A8B79C331512Fc095Ce1E937D8C9887565342b | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type OutputA6Ddd7942C83Fb7282623Cfc58Da6Bae57F79A4F0284Ea5B91Cf55Fb794Dc186 = {
     component?: string;
     description?: string;
-    enabled: boolean;
-    kind: string;
-    method: string;
+    enabled?: boolean;
+    kind?: string;
+    method?: string;
     mimeType?: string;
-    name: string;
-    path: string;
+    name?: string;
+    path?: string;
 };
 
 export type OutputA717Afc38Cbc4D350Bb71Fb00Cf76Bef68Daf27B4650120E47C4D8379356F11f = {
     activeGeneration?: number | null;
-    activeVersionNo: number;
-    desiredGeneration: number;
+    activeVersionNo?: number;
+    desiredGeneration?: number;
     desiredVersionNo?: number | null;
     publishedAt?: string | null;
-    reportId: string;
+    reportId?: string;
     runtimeRevision?: string;
     specHash?: string;
-    status: string;
+    status?: string;
 };
 
 export type OutputA81D693Fd6E1Ff78672B05458A01513D11113731358Ae9Bfeaca4Fd73D9C722c = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type OutputAd75631E8D2823498E11Cfcb0D44Fbcce2C8Be956B896Ed2Be7B2D56Acb36688 = {
     activatedAt?: string | null;
-    activeGeneration: number;
+    activeGeneration?: number;
     diagnostics?: Array<Output4Fd42D5Ac7E58Fb29E7Ad717B49Ad43D1Aa3D0A32C5E034148C82Bc6Baebd5A8> | null;
     host?: Output0C10F58F77A4F9Aace3043619F64Ad2D1Ae24748776E0959650E6Ae2F89669Aa | null;
     readers?: Array<Output4Cf988A4800A68Fa7Db9D130C60Eed0B35369D4C3Fc9465E70D61B648Bd34B6d> | null;
     releaseNamespace?: string;
     releasesAvailable?: boolean;
-    reportCount: number;
-    status: string;
+    reportCount?: number;
+    status?: string;
 };
 
 export type OutputB54579A1Cbe27Afaa9912714Bdb85378479C70D6Bd7A9C3058C8582378Ddcd59 = {
     entity?: Output3C2625259Fdd4Db44D2677D12Aa2F8Cd153Ff19765E0207F189C5B0699B54243 | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type OutputBd7A1B00Fadef6F5E471Ef21Cd4Fe9Df0F1E3F4B9Cabd09814C00B321086588a = {
-    canManage: boolean;
-    choices: OutputC97B7B59C0C99Ea53E6472F7E79Baee9949576F0200174C238C8B514Fcc51B69;
-    source: string;
+    canManage?: boolean;
+    choices?: OutputC97B7B59C0C99Ea53E6472F7E79Baee9949576F0200174C238C8B514Fcc51B69;
+    source?: string;
 };
 
 export type OutputC50C4A793548Bb0F3B16Af35D193034D2656958E13E8B0A0Ee655Bd092A1A349 = {
     definition?: Output6056449Cb6Ff77Eb0E24F9D110Ff3A533C12D36A31Eead7Bf54Ff52E31D48474 | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: Output2C9Aea90415Dac647Efe579C8889A77A58C3E88F24A1C30F945E7743E5Dd5Ae2 | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -1169,94 +1169,94 @@ export type OutputC50C4A793548Bb0F3B16Af35D193034D2656958E13E8B0A0Ee655Bd092A1A3
 
 export type OutputC59B784Ae161Ba492D1C2D5Bf87D71026270B421Ba502Aedbc820D473Bed79Ac = {
     defaultResource?: Output0D489Bb6E8D34088F812C6B2A93A0C83B9A5F8Fd2Ac13B17094145376C09065b | null;
-    explicitAcl: boolean;
-    id: string;
-    inherited: boolean;
-    kind: string;
-    name: string;
+    explicitAcl?: boolean;
+    id?: string;
+    inherited?: boolean;
+    kind?: string;
+    name?: string;
     ownerName?: string;
-    public: boolean;
-    published: boolean;
-    resource: OutputD14887150549E1252499C617Aacbd48B5Aab3C262Cdf2F62Fa7Fbaf8F1Edbaa2;
+    public?: boolean;
+    published?: boolean;
+    resource?: OutputD14887150549E1252499C617Aacbd48B5Aab3C262Cdf2F62Fa7Fbaf8F1Edbaa2;
     versions?: Array<Output4E575822Fc494Cb865728B6Bd562F029Cb8Faec2Fa4F5C96Efdd7Eb001314E68> | null;
 };
 
 export type OutputC97B7B59C0C99Ea53E6472F7E79Baee9949576F0200174C238C8B514Fcc51B69 = {
-    entity: Array<OutputB54579A1Cbe27Afaa9912714Bdb85378479C70D6Bd7A9C3058C8582378Ddcd59> | null;
-    entityTypes: Array<string> | null;
-    exposure: Array<Output5Ed634D1C74Bb010A08C26559915F494Ded8D053720F174C362Df0724Cd84C89> | null;
-    group: Array<Output4767292Ff45Ca739Fbde17Dcfac16967B1B00630Ad105De675C19514080628F9> | null;
-    role: Array<OutputA6D9Fb3F70E6B7863E0C88327D238407Dbfc8A53A8Fbbcb08C080358F1491Ec6> | null;
-    subject: Array<Output20D14E6C9E21Afc4A0245Cde30Dbea83A572B7611Ecb2A2D7721E85B2F520260> | null;
+    entity?: Array<OutputB54579A1Cbe27Afaa9912714Bdb85378479C70D6Bd7A9C3058C8582378Ddcd59> | null;
+    entityTypes?: Array<string> | null;
+    exposure?: Array<Output5Ed634D1C74Bb010A08C26559915F494Ded8D053720F174C362Df0724Cd84C89> | null;
+    group?: Array<Output4767292Ff45Ca739Fbde17Dcfac16967B1B00630Ad105De675C19514080628F9> | null;
+    role?: Array<OutputA6D9Fb3F70E6B7863E0C88327D238407Dbfc8A53A8Fbbcb08C080358F1491Ec6> | null;
+    subject?: Array<Output20D14E6C9E21Afc4A0245Cde30Dbea83A572B7611Ecb2A2D7721E85B2F520260> | null;
 };
 
 export type OutputCa207E9470562713039Abace94A8B79C331512Fc095Ce1E937D8C9887565342b = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type OutputD14887150549E1252499C617Aacbd48B5Aab3C262Cdf2F62Fa7Fbaf8F1Edbaa2 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type OutputD558223F5D3D6Bca0E300C59F8E624Af838223Bc61F0Cb8C88F09C757834Ddaa = {
-    allowedRoles: Array<string> | null;
-    canManage: boolean;
-    createdAt: string;
+    allowedRoles?: Array<string> | null;
+    canManage?: boolean;
+    createdAt?: string;
     description?: string;
-    etag: number;
-    managerRoles: Array<string> | null;
-    mcpEnabled: boolean;
+    etag?: number;
+    managerRoles?: Array<string> | null;
+    mcpEnabled?: boolean;
     mcpPort?: number | null;
-    name: string;
-    namespaceId: string;
-    ownerId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
-    visibility: string;
+    name?: string;
+    namespaceId?: string;
+    ownerId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
+    visibility?: string;
 };
 
 export type OutputD6Ae8Cf116E1Bb372C284270E8317Deb57Df8687Ba83D5701493Ce02Cfb50799 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type OutputDb16D19662078B5E2Bf34Bb56Caf4E031Ec60811B8Ff0833D9304Fe74Bb3Deb7 = {
-    hasMore: boolean;
-    items: Array<OutputC59B784Ae161Ba492D1C2D5Bf87D71026270B421Ba502Aedbc820D473Bed79Ac> | null;
+    hasMore?: boolean;
+    items?: Array<OutputC59B784Ae161Ba492D1C2D5Bf87D71026270B421Ba502Aedbc820D473Bed79Ac> | null;
 };
 
 export type OutputE8Ea1801B1Be98B9F440E71042F9D1F205288Fc993De313Deb5492650404E1B8 = {
     definition?: Output98Eb7261961A0F07A9564Be0E254F8E95836E8Bb1689Bf42E5Fa490Dcea8Bf1b | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: Output9E876C762Bb492C132E790521D9Bfeabfef411C08F89B004511Cfca729Fc5Ff3 | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -1264,33 +1264,33 @@ export type OutputE8Ea1801B1Be98B9F440E71042F9D1F205288Fc993De313Deb5492650404E1
 };
 
 export type OutputEc019E5831C65213D65F292F7835722945F552D76106B1Cf7C1608395564458e = {
-    clientIp: string;
+    clientIp?: string;
     componentId?: string;
-    durationMs: number;
-    id: number;
-    namespaceId: string;
+    durationMs?: number;
+    id?: number;
+    namespaceId?: string;
     request?: string;
     response?: string;
-    responseTruncated: boolean;
-    startedAt: string;
-    status: string;
-    subject: string;
-    toolName: string;
+    responseTruncated?: boolean;
+    startedAt?: string;
+    status?: string;
+    subject?: string;
+    toolName?: string;
 };
 
 export type OutputEc5Ca322E57Ac033E6183E7Ca87A4Dc5A2Dba0223Eb08B4A914E37Bb9E628B8e = {
-    clientIp: string;
+    clientIp?: string;
     componentId?: string;
-    durationMs: number;
-    id: number;
-    namespaceId: string;
+    durationMs?: number;
+    id?: number;
+    namespaceId?: string;
     request?: string;
     response?: string;
-    responseTruncated: boolean;
-    startedAt: string;
-    status: string;
-    subject: string;
-    toolName: string;
+    responseTruncated?: boolean;
+    startedAt?: string;
+    status?: string;
+    subject?: string;
+    toolName?: string;
 };
 
 export type OutputEf553E0E338A00Cf70D43289Eb53E588Abb65348804F4Defbd8Fd2Ea4E5691Ee = {
@@ -1299,223 +1299,223 @@ export type OutputEf553E0E338A00Cf70D43289Eb53E588Abb65348804F4Defbd8Fd2Ea4E5691
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
-    view: string;
+    view?: string;
 };
 
 export type OutputF2954Ccbc2Dd12Cce598727F4C49Ad7D3D88F3404672F047B6Fb03D041C024Bf = {
-    skillId: string;
-    skillRoot: string;
-    uriPrefix: string;
+    skillId?: string;
+    skillRoot?: string;
+    uriPrefix?: string;
 };
 
 export type OutputF632037538F344Fc898Ce8Aad11Eec32Cea261974A86789A20Dfb9954682Ae69 = {
     entity?: Output2180387Bae10Ad30702Ff5F50E131002Ae984342D3Ae82E85F10F7D03794F74c | null;
-    kind: string;
+    kind?: string;
     rules?: Array<OutputF632037538F344Fc898Ce8Aad11Eec32Cea261974A86789A20Dfb9954682Ae69> | null;
     value?: string;
 };
 
 export type Wire0000Ae7C5D7884F4Ead8C10E8038A8Cc022Ef4386007285882C2Dd1A2Fdc867e = {
-    content: string;
+    content?: string;
     isBinary?: boolean;
-    path: string;
+    path?: string;
 };
 
 export type Wire013Ce40651897A22F1D0C9D5A29A86362333458B72C57Acb30Fa03A2473F08C6 = {
-    canEdit: boolean;
-    canPublish: boolean;
-    canRun: boolean;
-    canUseDql: boolean;
-    canView: boolean;
-    etag: number;
-    reportId: string;
-    subjectId: string;
-    subjectType: string;
+    canEdit?: boolean;
+    canPublish?: boolean;
+    canRun?: boolean;
+    canUseDql?: boolean;
+    canView?: boolean;
+    etag?: number;
+    reportId?: string;
+    subjectId?: string;
+    subjectType?: string;
 };
 
 export type Wire01A7A742A5Dcd667Da4D143E43944F269Ae6E23B2952948E51D0B2791D2Ed360 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    namespace: string;
-    ordinal: number;
-    reportId: string;
-    rootPath: string;
-    uriPrefix: string;
-    versionNo: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
 };
 
 export type Wire0279067683C20563Aa495E8737A819024Ba4Eb59Ced1E2723Cda5Eb5890Cb742 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire03Ebbc8325840F6F4Bebaca4C18406Daaad9Dd6178C9Cb8Aad7F2D20427Ce1C4 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire08043516A7D3B5028514Fc2Ffc6B6Fa38Ab832Ff1F255Ae1206871C7D200A5A6 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire08938620E84156F14C3Eb03478De7Df19Afa5374952A4Abae29Cf28F9D58F8F5 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire0B4Fc596D18790B4851Cf320F7B9Abf6D446Bab3Fd3F2Ae6A2D3Cb1481542E8f = {
-    entity: Array<Wire18D26Fa6031Fa0C216A09Dd53Df26Cf2Cfff9F4F59Cf5D1C903Cdd34E49A155d> | null;
-    entityTypes: Array<string> | null;
-    exposure: Array<Wire0F93686C6382F8Ae45E9A8242477Ce457B683D146B3Dd9716Ec8115D7Beef8D2> | null;
-    group: Array<WireE7011437759D2568973820Dd3Cff070Baab4D58B71061Ca4E17F36Cb9345841c> | null;
-    role: Array<Wire979F8401Ed7C6A7A498050De7350E78A8Cbe42Fc8860B3D78Ff2Dff09894Ddc9> | null;
-    subject: Array<Wire49686E94Bea33D02Ba3B047B649A216C420F7Aeaeb9434A4Ad87Db8B0E82Aca4> | null;
+    entity?: Array<Wire18D26Fa6031Fa0C216A09Dd53Df26Cf2Cfff9F4F59Cf5D1C903Cdd34E49A155d> | null;
+    entityTypes?: Array<string> | null;
+    exposure?: Array<Wire0F93686C6382F8Ae45E9A8242477Ce457B683D146B3Dd9716Ec8115D7Beef8D2> | null;
+    group?: Array<WireE7011437759D2568973820Dd3Cff070Baab4D58B71061Ca4E17F36Cb9345841c> | null;
+    role?: Array<Wire979F8401Ed7C6A7A498050De7350E78A8Cbe42Fc8860B3D78Ff2Dff09894Ddc9> | null;
+    subject?: Array<Wire49686E94Bea33D02Ba3B047B649A216C420F7Aeaeb9434A4Ad87Db8B0E82Aca4> | null;
 };
 
 export type Wire0Bbf066863381F769B39Ad78B59B8059Fb6550628396F1F8C25257Ce82E6874f = {
-    createdAt: string;
-    description: string;
-    etag: number;
-    latestRevision: number;
-    name: string;
-    namespaceId: string;
-    publishedRevision: number;
-    skillId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    createdAt?: string;
+    description?: string;
+    etag?: number;
+    latestRevision?: number;
+    name?: string;
+    namespaceId?: string;
+    publishedRevision?: number;
+    skillId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type Wire0E95F4345D42892D86B80De3Dc21631Fcf8953353774E3F80Cfbd7417A6A1Efb = {
-    revision: Wire840Cfa047107122263565776Ba6756036C58E38F7Dbf6A18C3Ad6F42C3003A86 | null;
-    skill: WireE8Eef4E2Ee505A6F0706D63914D0A1A7E51Cfcb516B0852A6Bee4Efa3Ce9E0B0 | null;
+    revision?: Wire840Cfa047107122263565776Ba6756036C58E38F7Dbf6A18C3Ad6F42C3003A86 | null;
+    skill?: WireE8Eef4E2Ee505A6F0706D63914D0A1A7E51Cfcb516B0852A6Bee4Efa3Ce9E0B0 | null;
 };
 
 export type Wire0Efe2807Dd8489Fd6B68A80Fcb3A13Eacf82Bee604Ffd94663Ddcf539A88Cd14 = {
-    entries: Array<string> | null;
-    entryDql: string;
-    files: Array<string> | null;
-    version: Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8 | null;
+    entries?: Array<string> | null;
+    entryDql?: string;
+    files?: Array<string> | null;
+    version?: Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8 | null;
 };
 
 export type Wire0F446F07Ec6516F9B6A7F9E3De1D58Abb30Bb3608144Fb80728627765378E04e = {
     data?: unknown;
     diagnostics?: Array<Wire385Cb42Fa02Eb6E798Cbc1F7De0Bcdf81Fdec7Bcc883Dc0D6D67A2E6F9974852> | null;
-    duration: number;
-    evidence: WireEcc4D9A82E8B4Cd1E3Ac77D7Fd7943319B31B3E82973C8Afbcf0002138Ddc950;
-    view: string;
+    duration?: number;
+    evidence?: WireEcc4D9A82E8B4Cd1E3Ac77D7Fd7943319B31B3E82973C8Afbcf0002138Ddc950;
+    view?: string;
 };
 
 export type Wire0F93686C6382F8Ae45E9A8242477Ce457B683D146B3Dd9716Ec8115D7Beef8D2 = {
     entity?: Wire517B25Ae3A6A1221520076308B5E6474437Dc4Fcead897Aa4Ecfa71Bf21374De | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type Wire136Fdd6E98366655D5A5095E8C68F1Bcac5A96B892272257E0A31875C4Ad186c = {
-    content: string;
+    content?: string;
     files?: Array<Wire39683Fa2630319834046222Efde0940Aba2F6Fb3C734927Cdb6E6C4Bf93Acc07> | null;
     title?: string;
 };
 
 export type Wire13Cb2B9Fac8E64E2Df86Cc6097Eb0Eb4E31B922506E64Ca2Fb8D0Bc76Ccdaeec = {
-    files: Array<Wire7880C8E6D5D0Da581C3D5Daf2417D9531Fbe99E425A7546Fc53A4981Cab03A9e | null> | null;
-    folders: Array<Wire474Ce95Df76D3333C947A6Bd85C78Ed4Cfb5130D19Fec59F6B436E1Accd11E9a | null> | null;
-    skills: Array<WireD58Affaab847657F56E4Dc0Eed2B3Bbad9E31Ea2A73778F577Cd287673F772B3 | null> | null;
+    files?: Array<Wire7880C8E6D5D0Da581C3D5Daf2417D9531Fbe99E425A7546Fc53A4981Cab03A9e | null> | null;
+    folders?: Array<Wire474Ce95Df76D3333C947A6Bd85C78Ed4Cfb5130D19Fec59F6B436E1Accd11E9a | null> | null;
+    skills?: Array<WireD58Affaab847657F56E4Dc0Eed2B3Bbad9E31Ea2A73778F577Cd287673F772B3 | null> | null;
     version?: Wire54A6E7E8A3352A79D0D8Aa5227Adf7C3D1830Da9722934796424332F6659Bafe | null;
 };
 
 export type Wire15D90B839A0Fff7F61055596A65A67Fe8590915342E1278E39Ef8Abd4433Ce14 = {
     data?: unknown;
-    duration: number;
-    hasMore: boolean;
-    limit: number;
-    offset: number;
-    returnedRows: number;
+    duration?: number;
+    hasMore?: boolean;
+    limit?: number;
+    offset?: number;
+    returnedRows?: number;
 };
 
 export type Wire168Acff25133F72Df514Ff38F09Aae1A60280Ad693Da3C888E9F6Ec48Bae90A6 = {
     catalog?: string;
-    catalogs: Array<WireA2017528848C398Dbe63D56F9C45139F7F4Ebf51F3B52Cadf11A77Fb2B585406> | null;
-    driver: string;
-    product: string;
+    catalogs?: Array<WireA2017528848C398Dbe63D56F9C45139F7F4Ebf51F3B52Cadf11A77Fb2B585406> | null;
+    driver?: string;
+    product?: string;
     schema?: string;
-    schemas: Array<WireB981E81A865E06C9A0806C0Be6F35790A2A830C9D214F66357056F42835E3045> | null;
+    schemas?: Array<WireB981E81A865E06C9A0806C0Be6F35790A2A830C9D214F66357056F42835E3045> | null;
     version?: string;
     warnings?: Array<string> | null;
 };
 
 export type Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Wire18D26Fa6031Fa0C216A09Dd53Df26Cf2Cfff9F4F59Cf5D1C903Cdd34E49A155d = {
     entity?: Wire85Fc54185957A0434E3652651310Cd5912274Fdaa90Cf7F42706E7836E67517c | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type Wire19C8C23Fc3Af1E96Aac7711875Cf1799E140A146786E49D01C34189B09F54Fb0 = {
     entity?: Wire7B8Cbc8D8B0De849D09Cdeec45A5Dba6C27Adb0Ab09Ab21D972F36Bf0D392C29 | null;
-    kind: string;
+    kind?: string;
     rules?: Array<Wire19C8C23Fc3Af1E96Aac7711875Cf1799E140A146786E49D01C34189B09F54Fb0> | null;
     value?: string;
 };
@@ -1523,174 +1523,174 @@ export type Wire19C8C23Fc3Af1E96Aac7711875Cf1799E140A146786E49D01C34189B09F54Fb0
 export type Wire1A54346913F36C827B3Cbb210B4E4062C2B4B68E415F006659F4A97F386665Ac = {
     authoredDql?: string | null;
     authoredSql?: string | null;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string | null;
     notes?: string | null;
     publishedAt?: string | null;
-    reportId: string;
+    reportId?: string;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire1Ad149A06Cfe9417562B1C9648E0B52832E72Cfbf4E1Ca313B15480E1Aee3E75 = {
-    content: string;
-    contentSha256: string;
-    contentSize: number;
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
     expectedSourceRevision?: number;
-    isBinary: boolean;
+    isBinary?: boolean;
     mediaType?: string;
-    namespace: string;
-    reportId: string;
-    resourceId: string;
-    resourcePath: string;
-    versionNo: number;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
 };
 
 export type Wire1C2899Fcc56A9A0B9D00C82Ab53Bc2F1A89E3B944Fcfcef8B14D5B0Ad682A921 = {
-    skill: Wire363B086D0A3385Aef883A6C101A25E628C10E16F40Db550F64380Ec9188A63F1 | null;
+    skill?: Wire363B086D0A3385Aef883A6C101A25E628C10E16F40Db550F64380Ec9188A63F1 | null;
 };
 
 export type Wire1E3Fdf8Fcb04453947F7D75766Cc316E3E09D18591Edbeef886727E071Fe5F28 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire1F5F473Dc54Ed2F6C617275D578B2307A69146Cb2Ce69Ae058Bffe57F5C226B4 = {
-    allowedRoles: Array<string> | null;
-    canManage: boolean;
-    createdAt: string;
+    allowedRoles?: Array<string> | null;
+    canManage?: boolean;
+    createdAt?: string;
     description?: string;
-    etag: number;
-    managerRoles: Array<string> | null;
-    mcpEnabled: boolean;
+    etag?: number;
+    managerRoles?: Array<string> | null;
+    mcpEnabled?: boolean;
     mcpPort?: number | null;
-    name: string;
-    namespaceId: string;
-    ownerId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
-    visibility: string;
+    name?: string;
+    namespaceId?: string;
+    ownerId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
+    visibility?: string;
 };
 
 export type Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9 = {
-    eventId: string;
+    eventId?: string;
     failureCode?: string | null;
     failureMessage?: string | null;
     generationNo?: number | null;
-    occurredAt: string;
-    operation: string;
-    ownerId: string;
+    occurredAt?: string;
+    operation?: string;
+    ownerId?: string;
     reason?: string | null;
-    reportId: string;
-    requestedBy: string;
-    status: string;
+    reportId?: string;
+    requestedBy?: string;
+    status?: string;
     versionNo?: number | null;
 };
 
 export type Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46 = {
     entity?: Wire26Bfdc0C14C35Bde2Ded779F8De8De566A8A5E74F4830C6245715540Cfccdb0f | null;
-    kind: string;
+    kind?: string;
     rules?: Array<Wire22F8D5B6B2E00Ab542F425835E6D63F595971318F417B0060E6C9Dd3890Ffd46> | null;
     value?: string;
 };
 
 export type Wire233692382231683192Dd7140456422339Bf3Eeb54D8Ac7887D29225Da9Ca7081 = {
-    createdAt: string;
-    description: string;
-    etag: number;
-    latestRevision: number;
-    name: string;
-    namespaceId: string;
-    publishedRevision: number;
-    skillId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    createdAt?: string;
+    description?: string;
+    etag?: number;
+    latestRevision?: number;
+    name?: string;
+    namespaceId?: string;
+    publishedRevision?: number;
+    skillId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire24C5509Faa036E9E6670C5516A5Cee39A37D0F0B6Acf8De88A079Bf1F2661939 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire26Bfdc0C14C35Bde2Ded779F8De8De566A8A5E74F4830C6245715540Cfccdb0f = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire2814De9651D34Fb853F6A86B2936B81947B070Cd306C8F39E5A036A9A3E140D6 = {
     definition?: Wire3Cd464989C150F4Ca0B00B3D8D3628D2B1Fe67Ab85B72705Ab0E70F949F86C37 | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: WireC396441Efc9D7Ad7833A50003F492395E59E7A127979Ee1Bb2A1Ef138B369Ac9 | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -1698,101 +1698,101 @@ export type Wire2814De9651D34Fb853F6A86B2936B81947B070Cd306C8F39E5A036A9A3E140D6
 };
 
 export type Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073 = {
-    autoIncrement: boolean;
+    autoIncrement?: boolean;
     default?: string | null;
-    name: string;
-    nullable: boolean;
+    name?: string;
+    nullable?: boolean;
     nullableKnown?: boolean | null;
-    primaryKey: boolean;
+    primaryKey?: boolean;
     referenceColumn?: string;
     referenceSchema?: string;
     referenceTable?: string;
-    type: string;
-    unique: boolean;
+    type?: string;
+    unique?: boolean;
 };
 
 export type Wire294568D49A877156B6B68A28C348E5Fea7B701056B2913F0E7Fa40C588Df81C7 = {
     connector?: string;
-    encodedBytes: number;
-    limit: number;
+    encodedBytes?: number;
+    limit?: number;
     reportId?: string;
-    returnedRows: number;
+    returnedRows?: number;
     sourceRevision?: number;
-    truncated: boolean;
+    truncated?: boolean;
     versionNo?: number;
 };
 
 export type Wire29994796C346A67D8D87067E8F62A29284Fc2Af12311Fbab69Bdf45B428E37F7 = {
     connector?: string;
-    encodedBytes: number;
-    limit: number;
+    encodedBytes?: number;
+    limit?: number;
     reportId?: string;
-    returnedRows: number;
+    returnedRows?: number;
     sourceRevision?: number;
-    truncated: boolean;
+    truncated?: boolean;
     versionNo?: number;
 };
 
 export type Wire2Acc97D2Ee9Aa7Bc9E3441531515D0F2360496Ee2Ee879Ab35B383C390B7221e = {
     catalog?: string;
-    name: string;
+    name?: string;
 };
 
 export type Wire2Be0684Fe50E4D50E1C7Ed7799C8493F7A6Fbfe50Bcd3Ecfc3B2241E765F60Da = {
-    attachedChildren: number;
-    cardinality: string;
-    childView: string;
+    attachedChildren?: number;
+    cardinality?: string;
+    childView?: string;
     data?: unknown;
     diagnostics?: Array<Wire42Ea17Da2B60208Ef30858A88Ede92D622320Dba9D309726A67F3023Fb8Ab9E1> | null;
-    duration: number;
-    evidence: Wire294568D49A877156B6B68A28C348E5Fea7B701056B2913F0E7Fa40C588Df81C7;
+    duration?: number;
+    evidence?: Wire294568D49A877156B6B68A28C348E5Fea7B701056B2913F0E7Fa40C588Df81C7;
     keys?: Array<Wire6Bdc906E5944153Cacf17027Ff97Fe2E0524311A1C332C218E05C2Fb3A05012d> | null;
-    kind: string;
-    matchedParents: number;
-    parentRows: number;
-    parentView: string;
-    relation: string;
-    unmatchedParents: number;
+    kind?: string;
+    matchedParents?: number;
+    parentRows?: number;
+    parentView?: string;
+    relation?: string;
+    unmatchedParents?: number;
 };
 
 export type Wire2Bece1447E379F703B2F9Dfec5A0D5Fc346A7D1709Dd4A6882C60920A9Ef056f = {
-    canManage: boolean;
-    choices: Wire0B4Fc596D18790B4851Cf320F7B9Abf6D446Bab3Fd3F2Ae6A2D3Cb1481542E8f;
-    source: string;
+    canManage?: boolean;
+    choices?: Wire0B4Fc596D18790B4851Cf320F7B9Abf6D446Bab3Fd3F2Ae6A2D3Cb1481542E8f;
+    source?: string;
 };
 
 export type Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire2Fd98Ed1Ef9F13D6B92F605771E0D84Cba3385793616364756034B01Cda28A3d = {
     definition?: WireDf12Dfa59799793038C477F45C5Acb6Ce486B84479F8Df9C47F1698Fc478A940 | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: Wire4005354453Da2A3B21D88C48A90831Cfd66F9382E7B23092Aff074C99385Dad7 | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -1800,84 +1800,84 @@ export type Wire2Fd98Ed1Ef9F13D6B92F605771E0D84Cba3385793616364756034B01Cda28A3d
 };
 
 export type Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244 = {
-    canEdit: boolean;
-    canManageAcl: boolean;
-    canPublish: boolean;
-    canRun: boolean;
-    canUseDql: boolean;
-    canView: boolean;
+    canEdit?: boolean;
+    canManageAcl?: boolean;
+    canPublish?: boolean;
+    canRun?: boolean;
+    canUseDql?: boolean;
+    canView?: boolean;
 };
 
 export type Wire3206393A34Ac737Dcd3540640044680Ce7D2Ad47A4B55B4A06E350301E8Df7F7 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    ordinal: number;
-    reportId: string;
-    skillId: string;
-    skillRoot: string;
-    versionNo: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
 };
 
 export type Wire320Cbcde9Ba1Cbead9492F244Cbb274A289B1Dc4E0382F1A0342Ad1C73A0C9A1 = {
-    content: string;
-    contentSha256: string;
-    contentSize: number;
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
     expectedSourceRevision?: number;
-    isBinary: boolean;
+    isBinary?: boolean;
     mediaType?: string;
-    namespace: string;
-    reportId: string;
-    resourceId: string;
-    resourcePath: string;
-    versionNo: number;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
 };
 
 export type Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c = {
-    canEdit: boolean;
-    canPublish: boolean;
-    canRun: boolean;
-    canUseDql: boolean;
-    canView: boolean;
-    etag: number | null;
-    reportId: string | null;
-    subjectId: string | null;
-    subjectType: string | null;
+    canEdit?: boolean;
+    canPublish?: boolean;
+    canRun?: boolean;
+    canUseDql?: boolean;
+    canView?: boolean;
+    etag?: number | null;
+    reportId?: string | null;
+    subjectId?: string | null;
+    subjectType?: string | null;
 };
 
 export type Wire33E5247Ebc5C8C7A90566F8Ad084B60E92D39E02E7318B8D44D82392A4711B58 = {
-    items: Array<Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71 | null> | null;
-    limit: number;
-    offset: number;
+    items?: Array<Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71 | null> | null;
+    limit?: number;
+    offset?: number;
 };
 
 export type Wire34Bf0E88B3A420C7Ebd2B96F24F5Cb26490558416Af1D276Ad0E58Ea91Aac052 = {
-    items: Array<WireEeef16B9Cbcbd1E6E3C91399A7A3Ea1Ea6F63B90114Ecd6F2B6B393De239190a | null> | null;
-    limit: number;
-    offset: number;
+    items?: Array<WireEeef16B9Cbcbd1E6E3C91399A7A3Ea1Ea6F63B90114Ecd6F2B6B393De239190a | null> | null;
+    limit?: number;
+    offset?: number;
 };
 
 export type Wire35454323A091Acd320D8403A139F69D740Fe9Ed35Bba3514F08Ff8Ed60A9C1C1 = {
-    bundle: Wire136Fdd6E98366655D5A5095E8C68F1Bcac5A96B892272257E0A31875C4Ad186c;
-    contentSha256: string;
-    createdAt: string;
-    createdBy: string;
-    namespaceId: string;
-    revision: number;
-    skillId: string;
+    bundle?: Wire136Fdd6E98366655D5A5095E8C68F1Bcac5A96B892272257E0A31875C4Ad186c;
+    contentSha256?: string;
+    createdAt?: string;
+    createdBy?: string;
+    namespaceId?: string;
+    revision?: number;
+    skillId?: string;
 };
 
 export type Wire363B086D0A3385Aef883A6C101A25E628C10E16F40Db550F64380Ec9188A63F1 = {
-    createdAt: string;
-    description: string;
-    etag: number;
-    latestRevision: number;
-    name: string;
-    namespaceId: string;
-    publishedRevision: number;
-    skillId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    createdAt?: string;
+    description?: string;
+    etag?: number;
+    latestRevision?: number;
+    name?: string;
+    namespaceId?: string;
+    publishedRevision?: number;
+    skillId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type Wire3674Eb0Cddb7Df1Ddc9E4861011C1770Ed7115E4E8D98535Db4Bb24Fb3264Bce = {
@@ -1886,114 +1886,114 @@ export type Wire3674Eb0Cddb7Df1Ddc9E4861011C1770Ed7115E4E8D98535Db4Bb24Fb3264Bce
 };
 
 export type Wire36888C12B4C85B22B7268C24F5Ea35Ba103Cb9E473A0790Cc8Cc669A45A523Fa = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire385Cb42Fa02Eb6E798Cbc1F7De0Bcdf81Fdec7Bcc883Dc0D6D67A2E6F9974852 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Wire38Fcb57C86Eb44D564D0165Fe128Aec29A7664C7Bb39427502B08Df9Aa42649a = {
-    items: Array<WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c | null> | null;
-    limit: number;
-    offset: number;
+    items?: Array<WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c | null> | null;
+    limit?: number;
+    offset?: number;
 };
 
 export type Wire39683Fa2630319834046222Efde0940Aba2F6Fb3C734927Cdb6E6C4Bf93Acc07 = {
-    content: string;
+    content?: string;
     isBinary?: boolean;
-    path: string;
+    path?: string;
 };
 
 export type Wire3Aa247018499F407D544Ef56F7B69626Ced040Fe25Af781379C5B770F172E6Dd = {
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: WireF32E0E52A42838184862B0Bfabd74676E965524151930580722E42D1D5218Aad;
     } | null;
-    resource: Wire9B9625C5Bec32646Decbda4F9D3E2D367C5B2Ccc04C411E68F25C2E19Cfc951e;
-    revision: number;
+    resource?: Wire9B9625C5Bec32646Decbda4F9D3E2D367C5B2Ccc04C411E68F25C2E19Cfc951e;
+    revision?: number;
 };
 
 export type Wire3Ae1Bf05288Bf4Ea8D62663E5D886A6A9B05C1660099C819A9979F1A2Fe362De = {
-    predicatePackages: Array<string> | null;
-    requireInternalComponents: boolean;
-    requireSecurityPredicate: boolean;
+    predicatePackages?: Array<string> | null;
+    requireInternalComponents?: boolean;
+    requireSecurityPredicate?: boolean;
 };
 
 export type Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684 = {
     catalog?: string;
     comment?: string;
-    name: string;
+    name?: string;
     schema?: string;
     type?: string;
 };
 
 export type Wire3C022C3F6824Eed0192925C922257B45Accccdd131156C75Ae957535Ffa9D864 = {
-    revision: WireB202A27129Afca41F80F68Ed94Bc40B9A93D92D84De82126Bac7E1E2Ec9433Fe | null;
-    skill: Wire233692382231683192Dd7140456422339Bf3Eeb54D8Ac7887D29225Da9Ca7081 | null;
+    revision?: WireB202A27129Afca41F80F68Ed94Bc40B9A93D92D84De82126Bac7E1E2Ec9433Fe | null;
+    skill?: Wire233692382231683192Dd7140456422339Bf3Eeb54D8Ac7887D29225Da9Ca7081 | null;
 };
 
 export type Wire3C40Dfab646D0Be2F44F4740Be696D523C8A5De2Edbb5C4B839253B21385Dd92 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire3C414184025D515E410A57E243B5070Ba45B75F1Bb950Da08536C0Ce5E8Fbde5 = {
-    files: Array<WireBf3995C764F467C660824A6600A7149Dc689D4778F0Ef6B160E197A2Ae0B7016 | null> | null;
-    folders: Array<Wire01A7A742A5Dcd667Da4D143E43944F269Ae6E23B2952948E51D0B2791D2Ed360 | null> | null;
-    skills: Array<WireAacc75C3206Df7826E260289C3B0D5E2D973Fd06F1Bdc6D8B062241Bdce3294a | null> | null;
+    files?: Array<WireBf3995C764F467C660824A6600A7149Dc689D4778F0Ef6B160E197A2Ae0B7016 | null> | null;
+    folders?: Array<Wire01A7A742A5Dcd667Da4D143E43944F269Ae6E23B2952948E51D0B2791D2Ed360 | null> | null;
+    skills?: Array<WireAacc75C3206Df7826E260289C3B0D5E2D973Fd06F1Bdc6D8B062241Bdce3294a | null> | null;
     version?: WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675 | null;
 };
 
 export type Wire3Cd464989C150F4Ca0B00B3D8D3628D2B1Fe67Ab85B72705Ab0E70F949F86C37 = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: Wire2814De9651D34Fb853F6A86B2936B81947B070Cd306C8F39E5A036A9A3E140D6;
     } | null;
 };
 
 export type Wire4005354453Da2A3B21D88C48A90831Cfd66F9382E7B23092Aff074C99385Dad7 = {
-    resource: Wire5F3729574877D8503A4Dec333774588Fe1C7A2Ed2Ff47C9B7076Fcd0F551Abe7;
-    revision: number;
+    resource?: Wire5F3729574877D8503A4Dec333774588Fe1C7A2Ed2Ff47C9B7076Fcd0F551Abe7;
+    revision?: number;
 };
 
 export type Wire40408F0A0B8Acd6D878Be4326076378Aa96079592Be6Ec18A7919Fc73B6Ee6Cb = {
-    bundle: WireF7E0E71Af22003B02F42054A48A7Fc20F287Eb50183D06B8E811C01Fad620893;
-    contentSha256: string;
-    createdAt: string;
-    createdBy: string;
-    namespaceId: string;
-    revision: number;
-    skillId: string;
+    bundle?: WireF7E0E71Af22003B02F42054A48A7Fc20F287Eb50183D06B8E811C01Fad620893;
+    contentSha256?: string;
+    createdAt?: string;
+    createdBy?: string;
+    namespaceId?: string;
+    revision?: number;
+    skillId?: string;
 };
 
 export type Wire4240B3Df02540530130E0C750596C876294D98D94741Cc17333D3F61B4F176F5 = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: Wire8A4C5788A2Cf03A1E9Aa38C97C22D5A352F6091Ad7274Cee621E3739A342C0F4;
     } | null;
 };
 
 export type Wire42Ea17Da2B60208Ef30858A88Ede92D622320Dba9D309726A67F3023Fb8Ab9E1 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
@@ -2002,39 +2002,39 @@ export type Wire43Ef72Ce47082Cf6430E2C08B1E64B40E4098E454104C2118Db17Ce974498D97
 };
 
 export type Wire443Bbe5C4C72F351C9A66A106Cdb43706C944Ab1D042017Ad7A9092B72D13F21 = {
-    componentName: string;
-    componentScope: string;
-    createdAt: string;
+    componentName?: string;
+    componentScope?: string;
+    createdAt?: string;
     currentDraftVersion?: number | null;
-    defaultConnectorName: string;
+    defaultConnectorName?: string;
     description?: string;
-    etag: number;
-    id: string;
-    namespace: string;
-    ownerId: string;
-    ownerPackage: string;
-    slug: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    etag?: number;
+    id?: string;
+    namespace?: string;
+    ownerId?: string;
+    ownerPackage?: string;
+    slug?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type Wire443E7Fd9953Bff903Ca8E9D8E708C7C2Edf58Ac7F381395736A02D9Cea3D50F1 = {
-    resource: WireEb7B2634D1508669F7E5B30D66379Dfa7E55Bdd38Ca9Eaafb526530Bee3Fe4A1;
-    revision: number;
+    resource?: WireEb7B2634D1508669F7E5B30D66379Dfa7E55Bdd38Ca9Eaafb526530Bee3Fe4A1;
+    revision?: number;
 };
 
 export type Wire460Cf67195Fceed0E09647Cd2Eec9022848F4Fecb76Be30099431C098E162Bea = {
-    archive: Array<number> | null;
-    entryDql: string;
-    filename: string;
-    files: Array<string> | null;
-    mediaType: string;
+    archive?: Array<number> | null;
+    entryDql?: string;
+    filename?: string;
+    files?: Array<string> | null;
+    mediaType?: string;
 };
 
 export type Wire461497616731306Dcde48F09E2924Bf4E01F9Ae3Cde506E2E763Cf51E8D8D387 = {
     entity?: Wire84Dd294B4F11F08Ca3A9D1430611613B710Bcc9Fa0F1D0Ede017F74044E2F61f | null;
-    kind: string;
+    kind?: string;
     rules?: Array<Wire461497616731306Dcde48F09E2924Bf4E01F9Ae3Cde506E2E763Cf51E8D8D387> | null;
     value?: string;
 };
@@ -2042,52 +2042,52 @@ export type Wire461497616731306Dcde48F09E2924Bf4E01F9Ae3Cde506E2E763Cf51E8D8D387
 export type Wire46F5783921089422Ba86Ef3F21455336F0870921Db6E2Dac69F80E6517B1E68a = {
     alias?: string;
     columns?: Array<string> | null;
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    etag: number;
-    linked: boolean;
-    name: string;
-    ownerId: string;
-    packagePath: string;
-    status: string;
-    title: string;
-    typeName: string;
-    updatedAt: string;
+    etag?: number;
+    linked?: boolean;
+    name?: string;
+    ownerId?: string;
+    packagePath?: string;
+    status?: string;
+    title?: string;
+    typeName?: string;
+    updatedAt?: string;
 };
 
 export type Wire474Ce95Df76D3333C947A6Bd85C78Ed4Cfb5130D19Fec59F6B436E1Accd11E9a = {
     expectedSourceRevision?: number;
-    folderId: string;
-    namespace: string;
-    ordinal: number;
-    reportId: string;
-    rootPath: string;
-    uriPrefix: string;
-    versionNo: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
 };
 
 export type Wire47Ab2362281845Fa3C625B315F45Ddecace8A6483837902Bc83Afa48Ecc01F02 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire48193E904540171957F9Ef3A3A6Aa0D8618569B96Cf8C2Bd174Eb39C4Cf6443a = {
     diagnostics?: Array<Wire187F7F4691Bae62916263844A31B0E52F2Ac7573Ba63A1Dda0Cfffa8610B0947> | null;
-    valid: boolean;
-    version: Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9 | null;
+    valid?: boolean;
+    version?: Wire2C9280510E6Ff51Ff291Cf46071183A83553Af0793136E09416Edcc75Cf4Bea9 | null;
 };
 
 export type Wire484871696Bd68D511515Dbe742Bbf05C512E426119Ec9D15B0D61Ddb9525A58a = {
     entity?: WireEe0E388919265Cb6A34B160D48Af21F28F7D7C7A89Bfa0E33A9Bc2A1E516D497 | null;
-    kind: string;
+    kind?: string;
     rules?: Array<Wire484871696Bd68D511515Dbe742Bbf05C512E426119Ec9D15B0D61Ddb9525A58a> | null;
     value?: string;
 };
 
 export type Wire4865103E82A353748C5Cf4C44Eb18159E252732C3C48350Fe8B3411C3Af62117 = {
-    component: unknown;
+    component?: unknown;
     resources?: unknown;
     types?: unknown;
 };
@@ -2095,237 +2095,237 @@ export type Wire4865103E82A353748C5Cf4C44Eb18159E252732C3C48350Fe8B3411C3Af62117
 export type Wire49686E94Bea33D02Ba3B047B649A216C420F7Aeaeb9434A4Ad87Db8B0E82Aca4 = {
     entity?: Wire4Ca9Fea7Aa1D6B8D21F5Cfc656A25Fc9Ccb0Ef6B80E665B0Bbcc73084C82A04e | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type Wire49Feff8D08Df046F25F5C6Fbb141C3C4B50C39Af0Dea56Aec129E11334A944E0 = {
     activeGeneration?: number | null;
-    activeVersionNo: number;
-    desiredGeneration: number;
+    activeVersionNo?: number;
+    desiredGeneration?: number;
     desiredVersionNo?: number | null;
     publishedAt?: string | null;
-    reportId: string;
+    reportId?: string;
     runtimeRevision?: string;
     specHash?: string;
-    status: string;
+    status?: string;
 };
 
 export type Wire4A60C88B37D05078003E5Fbb2823Acfe26909222Cd13C85C5D99D48381609A31 = {
-    acceptsArguments: boolean;
-    builtin: boolean;
-    description: string;
+    acceptsArguments?: boolean;
+    builtin?: boolean;
+    description?: string;
     inputType?: string;
-    name: string;
+    name?: string;
     outputType?: string;
 };
 
 export type Wire4Ca9Fea7Aa1D6B8D21F5Cfc656A25Fc9Ccb0Ef6B80E665B0Bbcc73084C82A04e = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire4Dce8Cb2Df5Cbfb88D4Ed91E9D3Efb3Bfd51De7Faa0095856Cda22845A38C9Cf = {
-    files: Array<WireBe64A4E788B222824Ca2Bfc9A2295B3Bbec8018E95Bf6A6C02777E55Ddbc83F0 | null> | null;
-    folders: Array<Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478 | null> | null;
-    skills: Array<Wire51Bb1F0871Dac81Cba14Ebfac4Fc554D215315E30Cd3B214596B5Da0912A4710 | null> | null;
+    files?: Array<WireBe64A4E788B222824Ca2Bfc9A2295B3Bbec8018E95Bf6A6C02777E55Ddbc83F0 | null> | null;
+    folders?: Array<Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478 | null> | null;
+    skills?: Array<Wire51Bb1F0871Dac81Cba14Ebfac4Fc554D215315E30Cd3B214596B5Da0912A4710 | null> | null;
     version?: Wire0279067683C20563Aa495E8737A819024Ba4Eb59Ced1E2723Cda5Eb5890Cb742 | null;
 };
 
 export type Wire4Fe8166D7Fd3Ba559461828B204345507C57F19819425Fa777E6Da1A325464E7 = {
-    publicationStatus: string;
-    skill: Wire85751A68C4D78Aaa4C871824Bf59452B5102E0D1C20E4Ca6F87Da0C38821Ffa9 | null;
+    publicationStatus?: string;
+    skill?: Wire85751A68C4D78Aaa4C871824Bf59452B5102E0D1C20E4Ca6F87Da0C38821Ffa9 | null;
 };
 
 export type Wire503Eecae2F1D1D659F4E4C2E5E08Bec8Db2F264A5Bdc6C2B084Dc41A3Aadf478 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    namespace: string;
-    ordinal: number;
-    reportId: string;
-    rootPath: string;
-    uriPrefix: string;
-    versionNo: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
 };
 
 export type Wire517B25Ae3A6A1221520076308B5E6474437Dc4Fcead897Aa4Ecfa71Bf21374De = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire51Bb1F0871Dac81Cba14Ebfac4Fc554D215315E30Cd3B214596B5Da0912A4710 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    ordinal: number;
-    reportId: string;
-    skillId: string;
-    skillRoot: string;
-    versionNo: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
 };
 
 export type Wire54A6E7E8A3352A79D0D8Aa5227Adf7C3D1830Da9722934796424332F6659Bafe = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire59787F7087B974A90942D4D67D870A8382B1189Efe4Cc88Cfba1B0Ada4D89C75 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire5Cf4A8A140Fb1A665A97B8362F3128Fdf9Cdb4B3D66B442D124E25C9Ac724D7a = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Wire5F3729574877D8503A4Dec333774588Fe1C7A2Ed2Ff47C9B7076Fcd0F551Abe7 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire60650A6F04Edcea743087085A996Dbd0928E83E4Db2D4D201F65Feede3Ef338b = {
-    predicatePackages: Array<string> | null;
-    requireInternalComponents: boolean;
-    requireSecurityPredicate: boolean;
+    predicatePackages?: Array<string> | null;
+    requireInternalComponents?: boolean;
+    requireSecurityPredicate?: boolean;
 };
 
 export type Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac = {
     expectedSourceRevision?: number;
-    folderId: string;
-    ordinal: number;
-    reportId: string;
-    skillId: string;
-    skillRoot: string;
-    versionNo: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
 };
 
 export type Wire615A0539A089E0C573Df4F18B04483A7302C37Cf735Dea31813C024C8E2D0922 = {
-    policies: {
+    policies?: {
         [key: string]: Wire2Fd98Ed1Ef9F13D6B92F605771E0D84Cba3385793616364756034B01Cda28A3d;
     } | null;
-    resource: WireCc8E6D7697C9501B39869778C8E5561398Ec267F3F24741Ddd643Fb0C8D25F2f;
-    revision: number;
+    resource?: WireCc8E6D7697C9501B39869778C8E5561398Ec267F3F24741Ddd643Fb0C8D25F2f;
+    revision?: number;
 };
 
 export type Wire6238Fe88Bfb9Fb7369Cf10De373A6904Ecf859Ade35A5496Fe0A150Dae56Be72 = {
-    policies: {
+    policies?: {
         [key: string]: Wire8A4C5788A2Cf03A1E9Aa38C97C22D5A352F6091Ad7274Cee621E3739A342C0F4;
     } | null;
-    resource: Wire47Ab2362281845Fa3C625B315F45Ddecace8A6483837902Bc83Afa48Ecc01F02;
-    revision: number;
+    resource?: Wire47Ab2362281845Fa3C625B315F45Ddecace8A6483837902Bc83Afa48Ecc01F02;
+    revision?: number;
 };
 
 export type Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire62D79Acead49Ba0D84D3Fe813A8D59B4A26F710C0953Ffa167816798Ed0333F5 = {
     errorCode?: string;
     message?: string;
-    name: string;
-    status: string;
-    testedAt: string;
+    name?: string;
+    status?: string;
+    testedAt?: string;
 };
 
 export type Wire6479A7Da664C407F8F41F4Fdf1E70772Bbad9691Ef67E8050Ded752Fc88E802e = {
-    content: string;
+    content?: string;
     isBinary?: boolean;
-    path: string;
+    path?: string;
 };
 
 export type Wire65B20B1Db94B9A2B772Bc75Cedde285454A5204Dc72354F579Cf1Fe7Fcc34B2b = {
-    items: Array<Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684> | null;
-    limit: number;
+    items?: Array<Wire3B57D303Fc4270172C8Dc3Dcc384045B957738421Bfa4726D93F6529707Bb684> | null;
+    limit?: number;
     nextPageToken?: string;
-    offset: number;
+    offset?: number;
 };
 
 export type Wire685E9F1303192C34245F5Ced6B00C18Bebddb5A91116B2D04935D49D39A4538f = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: WireF32E0E52A42838184862B0Bfabd74676E965524151930580722E42D1D5218Aad;
     } | null;
 };
@@ -2333,29 +2333,29 @@ export type Wire685E9F1303192C34245F5Ced6B00C18Bebddb5A91116B2D04935D49D39A4538f
 export type Wire686013A325C9Be56A2C1Decb9988B4F5C30A411074C3D70E9552Eecf4Ae1Fd87 = {
     alias?: string;
     columns?: Array<string> | null;
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    etag: number;
-    linked: boolean;
-    name: string;
-    ownerId: string;
-    packagePath: string;
-    status: string;
-    title: string;
-    typeName: string;
-    updatedAt: string;
+    etag?: number;
+    linked?: boolean;
+    name?: string;
+    ownerId?: string;
+    packagePath?: string;
+    status?: string;
+    title?: string;
+    typeName?: string;
+    updatedAt?: string;
 };
 
 export type Wire6916E19155F8286Deab316189062A4Bd3D0A8389De6824Abfe4De66459Ffeca7 = {
-    actions: Array<string> | null;
-    resource: Wire87969E56D492A2F730B444Adee19Ef93Ac7C1Be948B8Dc6Be8F7220Cc9A8Fdf2;
-    revision: number;
+    actions?: Array<string> | null;
+    resource?: Wire87969E56D492A2F730B444Adee19Ef93Ac7C1Be948B8Dc6Be8F7220Cc9A8Fdf2;
+    revision?: number;
 };
 
 export type Wire69A7C7Ab30F383C255Ab8Dc4322A722D528D5319Af676A4Ad4Fa42763271Dc3d = {
     definition?: WireE3281Ba035F286Ae15Da4D6B5Fc837E6C74B9Abed0818E83C7A340Abb154E805 | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: WireB6838E6Fc47C275D5128904Db750Df032D83F139B6513Ac839109381F0B0E05d | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -2363,136 +2363,137 @@ export type Wire69A7C7Ab30F383C255Ab8Dc4322A722D528D5319Af676A4Ad4Fa42763271Dc3d
 };
 
 export type Wire6Bdc906E5944153Cacf17027Ff97Fe2E0524311A1C332C218E05C2Fb3A05012d = {
-    childColumn: string;
-    parentColumn: string;
+    childColumn?: string;
+    parentColumn?: string;
 };
 
 export type Wire6E57275Ee6E6E1B65E583Eed6459Bd78D0642E1645C5D8207588A42C34B4171d = {
-    content: string;
-    contentSha256: string;
-    contentSize: number;
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
     expectedSourceRevision?: number;
-    isBinary: boolean;
+    isBinary?: boolean;
     mediaType?: string;
-    namespace: string;
-    reportId: string;
-    resourceId: string;
-    resourcePath: string;
-    versionNo: number;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
 };
 
 export type Wire6Eb7Fc5381443Fd97876B99Edd185761Fb616Aa93F65106E8Bce0B948E4541Ea = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire71135F21Ef144Ede226F59F1B64910Efa1147D20E135146157De32743475D7Ad = {
-    capabilities: WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c;
+    capabilities?: WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c;
     diagnostics?: Array<Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9> | null;
     dql?: string;
+    previewInput?: WireD898068D79F9Ab4599Fd8F30Bffb8A6C8Bc06D0E63E90430D7E800Ec223Ea4Ca | null;
     structure?: unknown;
-    version: Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930 | null;
+    version?: Wire62B416D7643717Df5349D629A8802521Ee46B9F921D7C05E834E68B645Ecb930 | null;
 };
 
 export type Wire71B9C50025Fc3648B345Ae243800Bd532Fec6Cda9E9Aadc6E7A02D452D1D70Ea = {
     expectedSourceRevision?: number;
-    folderId: string;
-    namespace: string;
-    ordinal: number;
-    reportId: string;
-    rootPath: string;
-    uriPrefix: string;
-    versionNo: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
 };
 
 export type Wire721Df0D143Ac47Cf20D8D87A4361E4E8915E942Ebced01F43C2B54160Dbdff73 = {
-    files: Array<Wire6E57275Ee6E6E1B65E583Eed6459Bd78D0642E1645C5D8207588A42C34B4171d | null> | null;
-    folders: Array<Wire71B9C50025Fc3648B345Ae243800Bd532Fec6Cda9E9Aadc6E7A02D452D1D70Ea | null> | null;
-    skills: Array<WireCcb72E9Ff740A41F9Ee459D67D34D6D003De93Aa4E74Ce39B240Bc27D65454Ca | null> | null;
+    files?: Array<Wire6E57275Ee6E6E1B65E583Eed6459Bd78D0642E1645C5D8207588A42C34B4171d | null> | null;
+    folders?: Array<Wire71B9C50025Fc3648B345Ae243800Bd532Fec6Cda9E9Aadc6E7A02D452D1D70Ea | null> | null;
+    skills?: Array<WireCcb72E9Ff740A41F9Ee459D67D34D6D003De93Aa4E74Ce39B240Bc27D65454Ca | null> | null;
     version?: WireD47F31D6831E78D8D30E9260Afc40Ce9Bef1E3193510447B56Ae7C551502C928 | null;
 };
 
 export type Wire73Cee385316804C80A6A21637351D4B09563A94C50436780D603Be1Be4525E58 = {
-    applied: boolean;
-    inspection: Wire71135F21Ef144Ede226F59F1B64910Efa1147D20E135146157De32743475D7Ad | null;
+    applied?: boolean;
+    inspection?: Wire71135F21Ef144Ede226F59F1B64910Efa1147D20E135146157De32743475D7Ad | null;
 };
 
 export type Wire7500B9317030713F187B24A1E5Fdc5A3B126E5Bb2B5Fb59F60D5B9D5Be652A23 = {
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    driver: string;
-    dsnConfigured: boolean;
-    etag: number;
+    driver?: string;
+    dsnConfigured?: boolean;
+    etag?: number;
     lastTestErrorCode?: string;
     lastTestStatus?: string;
     lastTestedAt?: string | null;
-    name: string;
+    name?: string;
     options?: unknown;
-    ownerId: string;
-    secretConfigured: boolean;
-    status: string;
-    updatedAt: string;
+    ownerId?: string;
+    secretConfigured?: boolean;
+    status?: string;
+    updatedAt?: string;
 };
 
 export type Wire77752153Da43Bb0Addc9D671944E117883Dbc02C23B23F9Dead496B805929938 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    namespace: string;
-    ordinal: number;
-    reportId: string;
-    rootPath: string;
-    uriPrefix: string;
-    versionNo: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
 };
 
 export type Wire777F17Beb973Ceea33D037Ba165A4751392Efacdd3A1E9425Eb0Da2B7461Ba6e = {
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    driver: string;
-    dsnConfigured: boolean;
-    etag: number;
+    driver?: string;
+    dsnConfigured?: boolean;
+    etag?: number;
     lastTestErrorCode?: string;
     lastTestStatus?: string;
     lastTestedAt?: string | null;
-    name: string;
+    name?: string;
     options?: unknown;
-    ownerId: string;
-    secretConfigured: boolean;
-    status: string;
-    updatedAt: string;
+    ownerId?: string;
+    secretConfigured?: boolean;
+    status?: string;
+    updatedAt?: string;
 };
 
 export type Wire7880C8E6D5D0Da581C3D5Daf2417D9531Fbe99E425A7546Fc53A4981Cab03A9e = {
-    content: string;
-    contentSha256: string;
-    contentSize: number;
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
     expectedSourceRevision?: number;
-    isBinary: boolean;
+    isBinary?: boolean;
     mediaType?: string;
-    namespace: string;
-    reportId: string;
-    resourceId: string;
-    resourcePath: string;
-    versionNo: number;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
 };
 
 export type Wire78C1Ec1Bb60829Ef8B35985F93D524D34Ace814D043B978112938D75Ae4C831a = {
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: Wire8E91903699Babbed9E7Ba5Df80407C5E4Ba8D274D534089Cde3A462C51F42580;
     } | null;
-    resource: Wire24C5509Faa036E9E6670C5516A5Cee39A37D0F0B6Acf8De88A079Bf1F2661939;
-    revision: number;
+    resource?: Wire24C5509Faa036E9E6670C5516A5Cee39A37D0F0B6Acf8De88A079Bf1F2661939;
+    revision?: number;
 };
 
 export type Wire7A9034382C023A3E5B4B4F9403D720Cc1Bf990D1C827A366A019D586B9F5C801 = {
-    policies: {
+    policies?: {
         [key: string]: Wire69A7C7Ab30F383C255Ab8Dc4322A722D528D5319Af676A4Ad4Fa42763271Dc3d;
     } | null;
-    resource: WireAfbd3Ba313288192C9A8Ae3627Ea548117F98143F4F73D04A19579F4207Fa6B3;
-    revision: number;
+    resource?: WireAfbd3Ba313288192C9A8Ae3627Ea548117F98143F4F73D04A19579F4207Fa6B3;
+    revision?: number;
 };
 
 export type Wire7Af96Ca0084D089Bcfb5E8B942B9D90A7900D3C1E884C7D9C370D23294D493F8 = {
@@ -2506,172 +2507,172 @@ export type Wire7B62573Dc190309F5274F519B590107Fb85252Be4A55Fbd9Fb7Ed011Fc825841
 };
 
 export type Wire7B8Cbc8D8B0De849D09Cdeec45A5Dba6C27Adb0Ab09Ab21D972F36Bf0D392C29 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire7Bb477D127E2E69Acd8739C2E83Cfa4Cd4B6Cbcb0091Ec6D4Ce7Cec38E659621 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire7Be315Ac587Bc72247D0B72942B7067D644F15C0E04A4011F74Ffec56D000203 = {
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    driver: string;
-    dsnConfigured: boolean;
+    driver?: string;
+    dsnConfigured?: boolean;
     dsnDisplay?: string;
-    etag: number;
+    etag?: number;
     lastTestErrorCode?: string;
     lastTestStatus?: string;
     lastTestedAt?: string | null;
-    name: string;
+    name?: string;
     options?: unknown;
-    ownerId: string;
-    secretConfigured: boolean;
+    ownerId?: string;
+    secretConfigured?: boolean;
     secretRefDisplay?: string;
-    status: string;
-    updatedAt: string;
+    status?: string;
+    updatedAt?: string;
 };
 
 export type Wire7D7Ffebe9B2C3Db9F219A2E5C8Aedd94C3D67594Fc08B9410116D0Bc7E2A9134 = {
     entity?: Wire5Cf4A8A140Fb1A665A97B8362F3128Fdf9Cdb4B3D66B442D124E25C9Ac724D7a | null;
-    kind: string;
+    kind?: string;
     rules?: Array<Wire7D7Ffebe9B2C3Db9F219A2E5C8Aedd94C3D67594Fc08B9410116D0Bc7E2A9134> | null;
     value?: string;
 };
 
 export type Wire7D83E432Dba96D596847D8Df2F770054A4188B355Ed704D691Dff2A9D8F991Ee = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Wire7Df6F58C45E1Cbb70C52Ebe80C2E84548De121E53Bb802A546285E9Bdee026B6 = {
-    content: string;
-    contentSha256: string;
-    contentSize: number;
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
     expectedSourceRevision?: number;
-    isBinary: boolean;
+    isBinary?: boolean;
     mediaType?: string;
-    namespace: string;
-    reportId: string;
-    resourceId: string;
-    resourcePath: string;
-    versionNo: number;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
 };
 
 export type Wire7F614C3079E0F6Cdc356Ae6E7E44A326C9B77Ae75D9Bed109251680A65F23B71 = {
-    createdAt: string;
+    createdAt?: string;
     description?: string | null;
-    driver: string;
-    dsnConfigured: boolean;
-    etag: number;
+    driver?: string;
+    dsnConfigured?: boolean;
+    etag?: number;
     lastTestErrorCode?: string | null;
     lastTestStatus?: string | null;
     lastTestedAt?: string | null;
-    name: string;
+    name?: string;
     options?: unknown;
-    ownerId: string;
-    secretConfigured: boolean;
-    status: string;
-    updatedAt: string;
+    ownerId?: string;
+    secretConfigured?: boolean;
+    status?: string;
+    updatedAt?: string;
 };
 
 export type Wire8147805369C129Ab8A8Ae87482Dbb8Be4C51D1125Dda4427E8Adca5F845D6A7b = {
     data?: unknown;
     diagnostics?: Array<WireF9Bfe019Ac3Bc8Cf27B88F9B16D1F9A636D24292970F41843Ad5F4Eba742D99b> | null;
-    duration: number;
+    duration?: number;
 };
 
 export type Wire840Cfa047107122263565776Ba6756036C58E38F7Dbf6A18C3Ad6F42C3003A86 = {
-    bundle: Wire8901495307607551B54Fae77B329Fc1B74845Fbfdb8111486323E8D7Ecd142Ce;
-    contentSha256: string;
-    createdAt: string;
-    createdBy: string;
-    namespaceId: string;
-    revision: number;
-    skillId: string;
+    bundle?: Wire8901495307607551B54Fae77B329Fc1B74845Fbfdb8111486323E8D7Ecd142Ce;
+    contentSha256?: string;
+    createdAt?: string;
+    createdBy?: string;
+    namespaceId?: string;
+    revision?: number;
+    skillId?: string;
 };
 
 export type Wire84Dd294B4F11F08Ca3A9D1430611613B710Bcc9Fa0F1D0Ede017F74044E2F61f = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire85751A68C4D78Aaa4C871824Bf59452B5102E0D1C20E4Ca6F87Da0C38821Ffa9 = {
-    createdAt: string;
-    description: string;
-    etag: number;
-    latestRevision: number;
-    name: string;
-    namespaceId: string;
-    publishedRevision: number;
-    skillId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    createdAt?: string;
+    description?: string;
+    etag?: number;
+    latestRevision?: number;
+    name?: string;
+    namespaceId?: string;
+    publishedRevision?: number;
+    skillId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type Wire85Fc54185957A0434E3652651310Cd5912274Fdaa90Cf7F42706E7836E67517c = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire878Bfd02A12294E26D1A40F1B673A231Fa11C24402268D818F39F80Be43C86F9 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type Wire87969E56D492A2F730B444Adee19Ef93Ac7C1Be948B8Dc6Be8F7220Cc9A8Fdf2 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire88709Ac613253Ed886933B7E523Ce6042F690D19Bbc5Acdf9769548415Baf599 = {
-    createdAt: string;
-    description: string;
-    etag: number;
-    latestRevision: number;
-    name: string;
-    namespaceId: string;
-    publishedRevision: number;
-    skillId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    createdAt?: string;
+    description?: string;
+    etag?: number;
+    latestRevision?: number;
+    name?: string;
+    namespaceId?: string;
+    publishedRevision?: number;
+    skillId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type Wire8901495307607551B54Fae77B329Fc1B74845Fbfdb8111486323E8D7Ecd142Ce = {
-    content: string;
+    content?: string;
     files?: Array<WireF1Dc57456Af4495C942542A2C666692B7Ca8F42A01F826985262B938Bf11Fd84> | null;
     title?: string;
 };
 
 export type Wire898C903Bc4Eef9B996D8948010Fb2Ca3D9389D10Ce499B1Be1015Bbbba75993c = {
-    files: Array<Wire7Df6F58C45E1Cbb70C52Ebe80C2E84548De121E53Bb802A546285E9Bdee026B6 | null> | null;
-    folders: Array<Wire77752153Da43Bb0Addc9D671944E117883Dbc02C23B23F9Dead496B805929938 | null> | null;
-    skills: Array<Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac | null> | null;
+    files?: Array<Wire7Df6F58C45E1Cbb70C52Ebe80C2E84548De121E53Bb802A546285E9Bdee026B6 | null> | null;
+    folders?: Array<Wire77752153Da43Bb0Addc9D671944E117883Dbc02C23B23F9Dead496B805929938 | null> | null;
+    skills?: Array<Wire60Bda844Ac8065E6E072Cef8Ca0C3A6F4Ee6Ad55108Ee3B860D23Ad284Da68Ac | null> | null;
     version?: Wire942D4E47E476A9E6Ca17A65Af1901A04D22Fd0D3854182C3Efa5E0F74762105e | null;
 };
 
 export type Wire8A4C5788A2Cf03A1E9Aa38C97C22D5A352F6091Ad7274Cee621E3739A342C0F4 = {
     definition?: Wire4240B3Df02540530130E0C750596C876294D98D94741Cc17333D3F61B4F176F5 | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: WireE832454F19415C813Fd78Ba2B907F9390F2Ec4A8B6F370286Ef5E8Bebbbabf34 | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -2679,41 +2680,41 @@ export type Wire8A4C5788A2Cf03A1E9Aa38C97C22D5A352F6091Ad7274Cee621E3739A342C0F4
 };
 
 export type Wire8A9Cf29086A80Cb7Cabcdebcdf40Aa1D03Da579D5B4D6608Dcb4A7446Bcf710d = {
-    items: Array<Wire2Acc97D2Ee9Aa7Bc9E3441531515D0F2360496Ee2Ee879Ab35B383C390B7221e> | null;
+    items?: Array<Wire2Acc97D2Ee9Aa7Bc9E3441531515D0F2360496Ee2Ee879Ab35B383C390B7221e> | null;
 };
 
 export type Wire8B82F013750Bb50C4A08366119Aaab33D2Ee4C3F59Ab77B868Ec2617Ec5Ef5C8 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire8E91903699Babbed9E7Ba5Df80407C5E4Ba8D274D534089Cde3A462C51F42580 = {
     definition?: WireC802F2917B8E2A3792964F9Ec6387Ab7Aed5Bce5F6F459Ac36Ed90610Be10Ade | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: Wire443E7Fd9953Bff903Ca8E9D8E708C7C2Edf58Ac7F381395736A02D9Cea3D50F1 | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -2721,347 +2722,348 @@ export type Wire8E91903699Babbed9E7Ba5Df80407C5E4Ba8D274D534089Cde3A462C51F42580
 };
 
 export type Wire923Fe393829758A49477A04947Afbca35D7C7C9Dd0516E29Fffeac7678B90E3b = {
-    revision: Wire40408F0A0B8Acd6D878Be4326076378Aa96079592Be6Ec18A7919Fc73B6Ee6Cb | null;
-    skill: Wire0Bbf066863381F769B39Ad78B59B8059Fb6550628396F1F8C25257Ce82E6874f | null;
+    revision?: Wire40408F0A0B8Acd6D878Be4326076378Aa96079592Be6Ec18A7919Fc73B6Ee6Cb | null;
+    skill?: Wire0Bbf066863381F769B39Ad78B59B8059Fb6550628396F1F8C25257Ce82E6874f | null;
 };
 
 export type Wire9354A215074630106Ae925B0323Dfe169D763D5B75Fe24202Ca25Bd2Fb36Ab21 = {
-    context: Wire2Bece1447E379F703B2F9Dfec5A0D5Fc346A7D1709Dd4A6882C60920A9Ef056f;
+    context?: Wire2Bece1447E379F703B2F9Dfec5A0D5Fc346A7D1709Dd4A6882C60920A9Ef056f;
 };
 
 export type Wire9375A58120B02E204Afaa76104D340F0D003F1A889466D014B6E77474C4633A6 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type Wire942D4E47E476A9E6Ca17A65Af1901A04D22Fd0D3854182C3Efa5E0F74762105e = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type Wire95A77E17Aef6A0C48E1829638788A4Dec1654A5C42Fd6549E0C42F7Eea24F35c = {
-    items: Array<Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c | null> | null;
+    items?: Array<Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c | null> | null;
 };
 
 export type Wire9763Fc0927F951631F9C089E0800033B9772E81B29Bddc85Ae64E2899F0943E3 = {
     data?: unknown;
     diagnostics?: Array<WireDdc8F3519E98B687E03E321D69E1Dab9D279D6F41Fcef8B1C25D52A95B4F51Bd> | null;
-    duration: number;
-    evidence: Wire29994796C346A67D8D87067E8F62A29284Fc2Af12311Fbab69Bdf45B428E37F7;
+    duration?: number;
+    evidence?: Wire29994796C346A67D8D87067E8F62A29284Fc2Af12311Fbab69Bdf45B428E37F7;
 };
 
 export type Wire979F8401Ed7C6A7A498050De7350E78A8Cbe42Fc8860B3D78Ff2Dff09894Ddc9 = {
     entity?: Wire7Bb477D127E2E69Acd8739C2E83Cfa4Cd4B6Cbcb0091Ec6D4Ce7Cec38E659621 | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type Wire98B9826A3A782748Dba5C6E5A250E1E52D78E3E1Dbd2Ab11F2Dc2F9352C62E7a = {
-    componentName: string;
-    componentScope: string;
-    createdAt: string;
+    componentName?: string;
+    componentScope?: string;
+    createdAt?: string;
     currentDraftVersion?: number | null;
-    defaultConnectorName: string;
+    defaultConnectorName?: string;
     description?: string;
-    etag: number;
-    id: string;
-    namespace: string;
-    ownerId: string;
-    ownerPackage: string;
-    slug: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    etag?: number;
+    id?: string;
+    namespace?: string;
+    ownerId?: string;
+    ownerPackage?: string;
+    slug?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type Wire9B9625C5Bec32646Decbda4F9D3E2D367C5B2Ccc04C411E68F25C2E19Cfc951e = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type Wire9C01Bf707962841Cbc5605469843177E10A3Ba674269Dbc69Bb1103B39Fe0C3d = {
     alias?: string;
     columns?: Array<string> | null;
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    etag: number;
-    linked: boolean;
-    name: string;
-    ownerId: string;
-    packagePath: string;
-    status: string;
-    title: string;
-    typeName: string;
-    updatedAt: string;
+    etag?: number;
+    linked?: boolean;
+    name?: string;
+    ownerId?: string;
+    packagePath?: string;
+    status?: string;
+    title?: string;
+    typeName?: string;
+    updatedAt?: string;
 };
 
 export type Wire9D8264983Bf04Cffa36Aaebff7Ed30C4E0090D3061C007830E518F3633D58Fb8 = {
-    content: string;
+    content?: string;
     files?: Array<Wire0000Ae7C5D7884F4Ead8C10E8038A8Cc022Ef4386007285882C2Dd1A2Fdc867e> | null;
     title?: string;
 };
 
 export type Wire9E9F2A32Ff76Fe5Fcb226A8378824A3898F344E1E2394372932Dcdf203D1D145 = {
-    files: Array<Wire1Ad149A06Cfe9417562B1C9648E0B52832E72Cfbf4E1Ca313B15480E1Aee3E75 | null> | null;
-    folders: Array<WireBedeea2Eea3F372Feb231562Eecdb3Aa32C8017835F81Ac7E8D5978E48330812 | null> | null;
-    skills: Array<Wire3206393A34Ac737Dcd3540640044680Ce7D2Ad47A4B55B4A06E350301E8Df7F7 | null> | null;
+    files?: Array<Wire1Ad149A06Cfe9417562B1C9648E0B52832E72Cfbf4E1Ca313B15480E1Aee3E75 | null> | null;
+    folders?: Array<WireBedeea2Eea3F372Feb231562Eecdb3Aa32C8017835F81Ac7E8D5978E48330812 | null> | null;
+    skills?: Array<Wire3206393A34Ac737Dcd3540640044680Ce7D2Ad47A4B55B4A06E350301E8Df7F7 | null> | null;
     version?: WireD47A3F0A566536Bf283059Fe5C94Fdc79E8185Ca98Cbe6359316854E6Ae380Ee | null;
 };
 
 export type Wire9Ff34394076F48Ed9D131D938211E94244C83Bf8F3Fbbfacc63525Bd424Ec102 = {
-    document: Wire615A0539A089E0C573Df4F18B04483A7302C37Cf735Dea31813C024C8E2D0922;
+    document?: Wire615A0539A089E0C573Df4F18B04483A7302C37Cf735Dea31813C024C8E2D0922;
 };
 
 export type WireA1D273D5932B1743E789689950989D814Cd8E3A90923654Fe30Afb020Fcc1Ece = {
     diagnostics?: Array<WireD82Adbb20251Ee59732B96Cc17E12Fda2B7531A5A2Aa9B3011Dd7E9258Ea62A7> | null;
-    version: WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d | null;
+    version?: WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d | null;
 };
 
 export type WireA2017528848C398Dbe63D56F9C45139F7F4Ebf51F3B52Cadf11A77Fb2B585406 = {
-    name: string;
+    name?: string;
 };
 
 export type WireA6D5A259Bb2993E6552649336F2C093Ccd6Ae12F130F8526F5C136A619D0Cb51 = {
-    allowedRoles: Array<string> | null;
-    createdAt: string;
+    allowedRoles?: Array<string> | null;
+    createdAt?: string;
     description?: string;
-    etag: number;
-    managerRoles: Array<string> | null;
-    mcpEnabled: boolean;
+    etag?: number;
+    managerRoles?: Array<string> | null;
+    mcpEnabled?: boolean;
     mcpPort?: number | null;
-    name: string;
-    namespaceId: string;
-    ownerId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
-    visibility: string;
+    name?: string;
+    namespaceId?: string;
+    ownerId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
+    visibility?: string;
 };
 
 export type WireAacc75C3206Df7826E260289C3B0D5E2D973Fd06F1Bdc6D8B062241Bdce3294a = {
     expectedSourceRevision?: number;
-    folderId: string;
-    ordinal: number;
-    reportId: string;
-    skillId: string;
-    skillRoot: string;
-    versionNo: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
 };
 
 export type WireAfbd3Ba313288192C9A8Ae3627Ea548117F98143F4F73D04A19579F4207Fa6B3 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type WireAffe7195B4B994E2Bc73C2Eafa9399E8Aa7E19Dc564D21B68F89Ebdea0B9Ea19 = {
-    capabilities: Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244;
+    capabilities?: Wire3100C253C572F716Ab2Eb88F6D83D813Eedfe0B04003220Edb6E98677Fced244;
     diagnostics?: Array<Wire5Dcb9A5385549159028A02B9F90B5F85B74Ea0076B725Bce7E222E5Cfe3Ae71e> | null;
     dql?: string;
+    previewInput?: WireEe01445E9Fe49535F8F7Dc37D983F46B5472B8Cd95114371444Ef4105E4E314c | null;
     structure?: unknown;
-    version: WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089 | null;
+    version?: WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089 | null;
 };
 
 export type WireB202A27129Afca41F80F68Ed94Bc40B9A93D92D84De82126Bac7E1E2Ec9433Fe = {
-    bundle: Wire9D8264983Bf04Cffa36Aaebff7Ed30C4E0090D3061C007830E518F3633D58Fb8;
-    contentSha256: string;
-    createdAt: string;
-    createdBy: string;
-    namespaceId: string;
-    revision: number;
-    skillId: string;
+    bundle?: Wire9D8264983Bf04Cffa36Aaebff7Ed30C4E0090D3061C007830E518F3633D58Fb8;
+    contentSha256?: string;
+    createdAt?: string;
+    createdBy?: string;
+    namespaceId?: string;
+    revision?: number;
+    skillId?: string;
 };
 
 export type WireB3C67Af74Df5A4D366C8F3A628801F07D89D1Eefd88Ebad70D3689F8970629Db = {
-    items: Array<Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9 | null> | null;
-    limit: number;
-    offset: number;
+    items?: Array<Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9 | null> | null;
+    limit?: number;
+    offset?: number;
 };
 
 export type WireB42A7344Fc0606034Fc05C388A62F83C484228Cb1E9Be8Bf4055Ff09F8F4A044 = {
-    auditEnabled: boolean;
-    componentName: string;
-    componentScope: string;
-    createdAt: string;
+    auditEnabled?: boolean;
+    componentName?: string;
+    componentScope?: string;
+    createdAt?: string;
     currentDraftVersion?: number | null;
-    defaultConnectorName: string;
+    defaultConnectorName?: string;
     description?: string;
-    etag: number;
-    id: string;
-    namespace: string;
-    ownerId: string;
-    ownerPackage: string;
-    slug: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    etag?: number;
+    id?: string;
+    namespace?: string;
+    ownerId?: string;
+    ownerPackage?: string;
+    slug?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type WireB617A59F7D447A6394E2Dadab2C5117024021Bcb450D40176D0Fc95B477A9240 = {
-    items: Array<WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c | null> | null;
+    items?: Array<WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c | null> | null;
 };
 
 export type WireB6838E6Fc47C275D5128904Db750Df032D83F139B6513Ac839109381F0B0E05d = {
-    resource: Wire08938620E84156F14C3Eb03478De7Df19Afa5374952A4Abae29Cf28F9D58F8F5;
-    revision: number;
+    resource?: Wire08938620E84156F14C3Eb03478De7Df19Afa5374952A4Abae29Cf28F9D58F8F5;
+    revision?: number;
 };
 
 export type WireB6Bb3A3Bc73E240Bf20Da6F0Ceb8512D37Faeca8E28Cca304A69C5E7Ff81Fa51 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    namespace: string;
-    ordinal: number;
-    reportId: string;
-    rootPath: string;
-    uriPrefix: string;
-    versionNo: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
 };
 
 export type WireB976B7C7E16991B8B115817F945D0386Ae37D5420E53F9720556D49620Ea1E19 = {
-    publicationStatus: string;
-    skill: WireF3Ea60D2Fa17320C067919706E92C833737F3992042E85B8Ec5055E0A45De960 | null;
+    publicationStatus?: string;
+    skill?: WireF3Ea60D2Fa17320C067919706E92C833737F3992042E85B8Ec5055E0A45De960 | null;
 };
 
 export type WireB981E81A865E06C9A0806C0Be6F35790A2A830C9D214F66357056F42835E3045 = {
     catalog?: string;
-    name: string;
+    name?: string;
 };
 
 export type WireBb9C83695Ae936C7031Ab2428C59Ccda35A4E34Af9E6662A945012782Ac921E1 = {
-    complete: boolean;
-    dql: string;
+    complete?: boolean;
+    dql?: string;
 };
 
 export type WireBba07F0Bad61Cd85885417E1C20C5Cff98C1Ebf3Abb205Fd71B51C6069Ea161c = {
-    auditEnabled: boolean;
-    componentName: string;
-    componentScope: string;
-    createdAt: string;
+    auditEnabled?: boolean;
+    componentName?: string;
+    componentScope?: string;
+    createdAt?: string;
     currentDraftVersion?: number | null;
-    defaultConnectorName: string;
+    defaultConnectorName?: string;
     description?: string | null;
-    etag: number;
-    id: string;
-    namespace: string;
-    ownerId: string;
-    ownerPackage: string;
-    slug: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    etag?: number;
+    id?: string;
+    namespace?: string;
+    ownerId?: string;
+    ownerPackage?: string;
+    slug?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type WireBc277E5B6Cc7B5F6E3363C1E3628C4127103Aecef86Cccc990395878331130B5 = {
-    decision: WireE664Fa33D9D2D2C968C6Dabd40E4Ac01C5333F4591763B88B02Fd2Feb8B031Ca;
+    decision?: WireE664Fa33D9D2D2C968C6Dabd40E4Ac01C5333F4591763B88B02Fd2Feb8B031Ca;
 };
 
 export type WireBd458392Be482912A616E980Fab94755810F3Ed4347C5351A04930F05Dd4Ce31 = {
-    columns: Array<Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073> | null;
-    constraintsKnown: boolean;
+    columns?: Array<Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073> | null;
+    constraintsKnown?: boolean;
     diagnostics?: Array<WireE18028C8D8678F7B196B454563Aabcdf784E9C96E81C3A01B6B229Ef99506Ee1> | null;
     metadataSource?: string;
-    table: WireCcdd85Ede51B17373Dddff12304F04C5Afd91F3Fe365382C999B601899F69747;
+    table?: WireCcdd85Ede51B17373Dddff12304F04C5Afd91F3Fe365382C999B601899F69747;
 };
 
 export type WireBd6E76F62Db1909Af28D472C9Cb0Fb67De5010Ef927C7606Ccecfe2Dd7F95033 = {
-    items: Array<Wire88709Ac613253Ed886933B7E523Ce6042F690D19Bbc5Acdf9769548415Baf599 | null> | null;
+    items?: Array<Wire88709Ac613253Ed886933B7E523Ce6042F690D19Bbc5Acdf9769548415Baf599 | null> | null;
 };
 
 export type WireBe64A4E788B222824Ca2Bfc9A2295B3Bbec8018E95Bf6A6C02777E55Ddbc83F0 = {
-    content: string;
-    contentSha256: string;
-    contentSize: number;
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
     expectedSourceRevision?: number;
-    isBinary: boolean;
+    isBinary?: boolean;
     mediaType?: string;
-    namespace: string;
-    reportId: string;
-    resourceId: string;
-    resourcePath: string;
-    versionNo: number;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
 };
 
 export type WireBedeea2Eea3F372Feb231562Eecdb3Aa32C8017835F81Ac7E8D5978E48330812 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    namespace: string;
-    ordinal: number;
-    reportId: string;
-    rootPath: string;
-    uriPrefix: string;
-    versionNo: number;
+    folderId?: string;
+    namespace?: string;
+    ordinal?: number;
+    reportId?: string;
+    rootPath?: string;
+    uriPrefix?: string;
+    versionNo?: number;
 };
 
 export type WireBf3995C764F467C660824A6600A7149Dc689D4778F0Ef6B160E197A2Ae0B7016 = {
-    content: string;
-    contentSha256: string;
-    contentSize: number;
+    content?: string;
+    contentSha256?: string;
+    contentSize?: number;
     expectedSourceRevision?: number;
-    isBinary: boolean;
+    isBinary?: boolean;
     mediaType?: string;
-    namespace: string;
-    reportId: string;
-    resourceId: string;
-    resourcePath: string;
-    versionNo: number;
+    namespace?: string;
+    reportId?: string;
+    resourceId?: string;
+    resourcePath?: string;
+    versionNo?: number;
 };
 
 export type WireC3165Cf4A873913Ce00D191695Cde0C9734357C8A456041Fe80521B5E82Ab089 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type WireC34A89824B0951B1Ac05F75E5Bc3De78C6291E85C6Dc07C5360C160963F1E221 = {
-    document: Wire7A9034382C023A3E5B4B4F9403D720Cc1Bf990D1C827A366A019D586B9F5C801;
+    document?: Wire7A9034382C023A3E5B4B4F9403D720Cc1Bf990D1C827A366A019D586B9F5C801;
 };
 
 export type WireC38C2D9780Ed3554863Ff8A5Dc7C7Bd625B9C3263Af13Cdca862E977C297D435 = {
@@ -3072,22 +3074,22 @@ export type WireC38C2D9780Ed3554863Ff8A5Dc7C7Bd625B9C3263Af13Cdca862E977C297D435
 };
 
 export type WireC396441Efc9D7Ad7833A50003F492395E59E7A127979Ee1Bb2A1Ef138B369Ac9 = {
-    resource: Wire6Eb7Fc5381443Fd97876B99Edd185761Fb616Aa93F65106E8Bce0B948E4541Ea;
-    revision: number;
+    resource?: Wire6Eb7Fc5381443Fd97876B99Edd185761Fb616Aa93F65106E8Bce0B948E4541Ea;
+    revision?: number;
 };
 
 export type WireC47Cf46B58E263Ed665Fbdce50F43Ecc62642C4837741Ba43Aaa439C1623D39c = {
-    canEdit: boolean;
-    canManageAcl: boolean;
-    canPublish: boolean;
-    canRun: boolean;
-    canUseDql: boolean;
-    canView: boolean;
+    canEdit?: boolean;
+    canManageAcl?: boolean;
+    canPublish?: boolean;
+    canRun?: boolean;
+    canUseDql?: boolean;
+    canView?: boolean;
 };
 
 export type WireC4Facae1D7De805700Fd614D7869128040212F41Ac67951Ed63113923Ea516C1 = {
     entity?: Wire9375A58120B02E204Afaa76104D340F0D003F1A889466D014B6E77474C4633A6 | null;
-    kind: string;
+    kind?: string;
     rules?: Array<WireC4Facae1D7De805700Fd614D7869128040212F41Ac67951Ed63113923Ea516C1> | null;
     value?: string;
 };
@@ -3098,8 +3100,8 @@ export type WireC556C6C91D85B6Fe76E559A7132Bc91D46B0C40C216A538C686D074Ec366C766
 
 export type WireC802F2917B8E2A3792964F9Ec6387Ab7Aed5Bce5F6F459Ac36Ed90610Be10Ade = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: Wire8E91903699Babbed9E7Ba5Df80407C5E4Ba8D274D534089Cde3A462C51F42580;
     } | null;
 };
@@ -3110,210 +3112,219 @@ export type WireC9C3Daca338Ca35Bf3129E93E885Ea3B84975D95Cbde9B402Fe7Ef89E0Ac22Ca
 };
 
 export type WireCbabe3D249420717Ddf7Cacea255701Eecac111C7027807683A4B2B34F50Cc88 = {
-    canEdit: boolean;
-    etag: number;
-    settings: Wire3674Eb0Cddb7Df1Ddc9E4861011C1770Ed7115E4E8D98535Db4Bb24Fb3264Bce | null;
+    canEdit?: boolean;
+    etag?: number;
+    settings?: Wire3674Eb0Cddb7Df1Ddc9E4861011C1770Ed7115E4E8D98535Db4Bb24Fb3264Bce | null;
 };
 
 export type WireCc811B40C825A2509701C74E9A5E2Cc1D9D5Fba79F30Ab17F90611527D0F5332 = {
-    items: Array<Wire4A60C88B37D05078003E5Fbb2823Acfe26909222Cd13C85C5D99D48381609A31 | null> | null;
+    items?: Array<Wire4A60C88B37D05078003E5Fbb2823Acfe26909222Cd13C85C5D99D48381609A31 | null> | null;
 };
 
 export type WireCc8E6D7697C9501B39869778C8E5561398Ec267F3F24741Ddd643Fb0C8D25F2f = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type WireCcb72E9Ff740A41F9Ee459D67D34D6D003De93Aa4E74Ce39B240Bc27D65454Ca = {
     expectedSourceRevision?: number;
-    folderId: string;
-    ordinal: number;
-    reportId: string;
-    skillId: string;
-    skillRoot: string;
-    versionNo: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
 };
 
 export type WireCcdd85Ede51B17373Dddff12304F04C5Afd91F3Fe365382C999B601899F69747 = {
     catalog?: string;
     comment?: string;
-    name: string;
+    name?: string;
     schema?: string;
     type?: string;
 };
 
 export type WireCfcaf2B72B62Ce0A723C37Fe6863F96B754785B31Db4030A9F684317C5490937 = {
-    resource: WireF00A6067197Bf8503Ad2Ca929Fcac6Dd56Da64854Bf53Cfa63F2E90Af408Ef5d;
-    revision: number;
+    resource?: WireF00A6067197Bf8503Ad2Ca929Fcac6Dd56Da64854Bf53Cfa63F2E90Af408Ef5d;
+    revision?: number;
 };
 
 export type WireD1D5B1593453C747C2A4Ede5Bbb420Ceefcd6F25E711131Ddfa36910F076474d = {
-    files: Array<Wire320Cbcde9Ba1Cbead9492F244Cbb274A289B1Dc4E0382F1A0342Ad1C73A0C9A1 | null> | null;
-    folders: Array<WireB6Bb3A3Bc73E240Bf20Da6F0Ceb8512D37Faeca8E28Cca304A69C5E7Ff81Fa51 | null> | null;
-    skills: Array<WireD5Cefe1B3A17Afd7Fef5285814E696De9B1F5Aa8569887156Dc7690Bce5223C2 | null> | null;
+    files?: Array<Wire320Cbcde9Ba1Cbead9492F244Cbb274A289B1Dc4E0382F1A0342Ad1C73A0C9A1 | null> | null;
+    folders?: Array<WireB6Bb3A3Bc73E240Bf20Da6F0Ceb8512D37Faeca8E28Cca304A69C5E7Ff81Fa51 | null> | null;
+    skills?: Array<WireD5Cefe1B3A17Afd7Fef5285814E696De9B1F5Aa8569887156Dc7690Bce5223C2 | null> | null;
     version?: Wire08043516A7D3B5028514Fc2Ffc6B6Fa38Ab832Ff1F255Ae1206871C7D200A5A6 | null;
 };
 
 export type WireD47A3F0A566536Bf283059Fe5C94Fdc79E8185Ca98Cbe6359316854E6Ae380Ee = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type WireD47F31D6831E78D8D30E9260Afc40Ce9Bef1E3193510447B56Ae7C551502C928 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type WireD58Affaab847657F56E4Dc0Eed2B3Bbad9E31Ea2A73778F577Cd287673F772B3 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    ordinal: number;
-    reportId: string;
-    skillId: string;
-    skillRoot: string;
-    versionNo: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
 };
 
 export type WireD5A1455Bb20Fa801E9C1447278E93F142E3212E863C81795F9D54E05D4B43C78 = {
-    entries: Array<string> | null;
-    entryDql: string;
-    files: Array<string> | null;
-    version: Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691 | null;
+    entries?: Array<string> | null;
+    entryDql?: string;
+    files?: Array<string> | null;
+    version?: Wire239231A7Ea3Ed59E77B205B0783836Ec39Ca3De2A814Ba109F6Bda877Ba20691 | null;
 };
 
 export type WireD5Cefe1B3A17Afd7Fef5285814E696De9B1F5Aa8569887156Dc7690Bce5223C2 = {
     expectedSourceRevision?: number;
-    folderId: string;
-    ordinal: number;
-    reportId: string;
-    skillId: string;
-    skillRoot: string;
-    versionNo: number;
+    folderId?: string;
+    ordinal?: number;
+    reportId?: string;
+    skillId?: string;
+    skillRoot?: string;
+    versionNo?: number;
 };
 
 export type WireD729664B640D3Eac7464086Bf0607Bf84C12Bf3A10Eca79F85D4Acaf3Cfa7836 = {
-    canEdit: boolean;
-    etag: number;
-    settings: WireC9C3Daca338Ca35Bf3129E93E885Ea3B84975D95Cbde9B402Fe7Ef89E0Ac22Ca | null;
+    canEdit?: boolean;
+    etag?: number;
+    settings?: WireC9C3Daca338Ca35Bf3129E93E885Ea3B84975D95Cbde9B402Fe7Ef89E0Ac22Ca | null;
 };
 
 export type WireD82Adbb20251Ee59732B96Cc17E12Fda2B7531A5A2Aa9B3011Dd7E9258Ea62A7 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
+};
+
+export type WireD898068D79F9Ab4599Fd8F30Bffb8A6C8Bc06D0E63E90430D7E800Ec223Ea4Ca = {
+    method?: string;
+    path?: string;
+    reportId?: string;
+    schema?: unknown;
+    sourceRevision?: number;
+    versionNo?: number;
 };
 
 export type WireD96F9F6E74952B34F1E493521A586F731028Cc293D50A0439Ca0Ba97D376Ca3c = {
     alias?: string;
     description?: string;
-    packagePath: string;
-    typeName: string;
+    packagePath?: string;
+    typeName?: string;
 };
 
 export type WireDc7D19B963043F09D2349Eb8F581A65F7E20E3Be2A6Bce59A4837Debdae7A8B2 = {
-    policies: {
+    policies?: {
         [key: string]: Wire2814De9651D34Fb853F6A86B2936B81947B070Cd306C8F39E5A036A9A3E140D6;
     } | null;
-    resource: Wire36888C12B4C85B22B7268C24F5Ea35Ba103Cb9E473A0790Cc8Cc669A45A523Fa;
-    revision: number;
+    resource?: Wire36888C12B4C85B22B7268C24F5Ea35Ba103Cb9E473A0790Cc8Cc669A45A523Fa;
+    revision?: number;
 };
 
 export type WireDd57F8078C863D6327Fc4C31894Dd7A9B19A5E8Ce736C4F2F789A161A9Bccf09 = {
-    document: Wire6238Fe88Bfb9Fb7369Cf10De373A6904Ecf859Ade35A5496Fe0A150Dae56Be72;
+    document?: Wire6238Fe88Bfb9Fb7369Cf10De373A6904Ecf859Ade35A5496Fe0A150Dae56Be72;
 };
 
 export type WireDda9A7E06F8980Ccc3D0D82Eca41C2Ab29259E1288943F9B5F95B433A84A7179 = {
-    items: Array<Wire1A54346913F36C827B3Cbb210B4E4062C2B4B68E415F006659F4A97F386665Ac | null> | null;
-    limit: number;
-    offset: number;
+    items?: Array<Wire1A54346913F36C827B3Cbb210B4E4062C2B4B68E415F006659F4A97F386665Ac | null> | null;
+    limit?: number;
+    offset?: number;
 };
 
 export type WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 = {
-    allowedRoles: Array<string> | null;
-    canManage: boolean;
-    createdAt: string;
+    allowedRoles?: Array<string> | null;
+    canManage?: boolean;
+    createdAt?: string;
     description?: string | null;
-    etag: number;
-    managerRoles: Array<string> | null;
-    mcpEnabled: boolean;
+    etag?: number;
+    managerRoles?: Array<string> | null;
+    mcpEnabled?: boolean;
     mcpPort?: number | null;
-    name: string;
-    namespaceId: string;
-    ownerId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
-    visibility: string;
+    name?: string;
+    namespaceId?: string;
+    ownerId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
+    visibility?: string;
 };
 
 export type WireDdc8F3519E98B687E03E321D69E1Dab9D279D6F41Fcef8B1C25D52A95B4F51Bd = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type WireDf12Dfa59799793038C477F45C5Acb6Ce486B84479F8Df9C47F1698Fc478A940 = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: Wire2Fd98Ed1Ef9F13D6B92F605771E0D84Cba3385793616364756034B01Cda28A3d;
     } | null;
 };
@@ -3324,56 +3335,56 @@ export type WireE0B9D64Ac7D2034342D226Cd5A657956619Fb94Bfab0F429F31D295Bbee568Fb
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
-    view: string;
+    view?: string;
 };
 
 export type WireE18028C8D8678F7B196B454563Aabcdf784E9C96E81C3A01B6B229Ef99506Ee1 = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type WireE3281Ba035F286Ae15Da4D6B5Fc837E6C74B9Abed0818E83C7A340Abb154E805 = {
     archived?: boolean;
-    displayName: string;
-    policies: {
+    displayName?: string;
+    policies?: {
         [key: string]: Wire69A7C7Ab30F383C255Ab8Dc4322A722D528D5319Af676A4Ad4Fa42763271Dc3d;
     } | null;
 };
 
 export type WireE664Fa33D9D2D2C968C6Dabd40E4Ac01C5333F4591763B88B02Fd2Feb8B031Ca = {
-    bounded: boolean;
-    entities: Array<WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4> | null;
+    bounded?: boolean;
+    entities?: Array<WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4> | null;
 };
 
 export type WireE7011437759D2568973820Dd3Cff070Baab4D58B71061Ca4E17F36Cb9345841c = {
     entity?: Wire3C40Dfab646D0Be2F44F4740Be696D523C8A5De2Edbb5C4B839253B21385Dd92 | null;
     id?: string;
-    label: string;
+    label?: string;
 };
 
 export type WireE832454F19415C813Fd78Ba2B907F9390F2Ec4A8B6F370286Ef5E8Bebbbabf34 = {
-    resource: Wire03Ebbc8325840F6F4Bebaca4C18406Daaad9Dd6178C9Cb8Aad7F2D20427Ce1C4;
-    revision: number;
+    resource?: Wire03Ebbc8325840F6F4Bebaca4C18406Daaad9Dd6178C9Cb8Aad7F2D20427Ce1C4;
+    revision?: number;
 };
 
 export type WireE8Eef4E2Ee505A6F0706D63914D0A1A7E51Cfcb516B0852A6Bee4Efa3Ce9E0B0 = {
-    createdAt: string;
-    description: string;
-    etag: number;
-    latestRevision: number;
-    name: string;
-    namespaceId: string;
-    publishedRevision: number;
-    skillId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    createdAt?: string;
+    description?: string;
+    etag?: number;
+    latestRevision?: number;
+    name?: string;
+    namespaceId?: string;
+    publishedRevision?: number;
+    skillId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type WireEa1Dce693F0Fba7795Db01C064Fb101C3191020F13E052Ff246A0378Ec74F044 = {
@@ -3381,114 +3392,123 @@ export type WireEa1Dce693F0Fba7795Db01C064Fb101C3191020F13E052Ff246A0378Ec74F044
 };
 
 export type WireEb7B2634D1508669F7E5B30D66379Dfa7E55Bdd38Ca9Eaafb526530Bee3Fe4A1 = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type WireEb92A7Ed6388E975E65B145F5Aff65431391B74Ba4Ce361A23586Ed9Aeb94C90 = {
-    items: Array<Wire35454323A091Acd320D8403A139F69D740Fe9Ed35Bba3514F08Ff8Ed60A9C1C1 | null> | null;
+    items?: Array<Wire35454323A091Acd320D8403A139F69D740Fe9Ed35Bba3514F08Ff8Ed60A9C1C1 | null> | null;
 };
 
 export type WireEc41Adb937E5F16Ce60477Ecb1B99C973B9578Fe8F638D99357Ce6779C5289F0 = {
-    items: Array<Wire9C01Bf707962841Cbc5605469843177E10A3Ba674269Dbc69Bb1103B39Fe0C3d | null> | null;
-    limit: number;
-    offset: number;
+    items?: Array<Wire9C01Bf707962841Cbc5605469843177E10A3Ba674269Dbc69Bb1103B39Fe0C3d | null> | null;
+    limit?: number;
+    offset?: number;
 };
 
 export type WireEcc4D9A82E8B4Cd1E3Ac77D7Fd7943319B31B3E82973C8Afbcf0002138Ddc950 = {
     connector?: string;
-    encodedBytes: number;
-    limit: number;
+    encodedBytes?: number;
+    limit?: number;
     reportId?: string;
-    returnedRows: number;
+    returnedRows?: number;
     sourceRevision?: number;
-    truncated: boolean;
+    truncated?: boolean;
+    versionNo?: number;
+};
+
+export type WireEe01445E9Fe49535F8F7Dc37D983F46B5472B8Cd95114371444Ef4105E4E314c = {
+    method?: string;
+    path?: string;
+    reportId?: string;
+    schema?: unknown;
+    sourceRevision?: number;
     versionNo?: number;
 };
 
 export type WireEe0E388919265Cb6A34B160D48Af21F28F7D7C7A89Bfa0E33A9Bc2A1E516D497 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type WireEeef16B9Cbcbd1E6E3C91399A7A3Ea1Ea6F63B90114Ecd6F2B6B393De239190a = {
     completedAt?: string | null;
-    completedCases: number;
+    completedCases?: number;
     createdAt?: string | null;
     createdBy?: string | null;
     diagnostics?: Array<Wire7D83E432Dba96D596847D8Df2F770054A4188B355Ed704D691Dff2A9D8F991Ee> | null;
     duration?: number;
-    entries: number;
+    entries?: number;
     maxCases?: number | null;
-    planKey: string;
-    plannedCases: number;
-    reportId: string;
-    requestedAt: string;
-    requestedBy: string;
+    planKey?: string;
+    plannedCases?: number;
+    reportId?: string;
+    requestedAt?: string;
+    requestedBy?: string;
     rowLimit?: number | null;
-    runId: string;
-    sourceRevision: number;
-    specHash: string;
+    runId?: string;
+    sourceRevision?: number;
+    specHash?: string;
     startedAt?: string | null;
-    status: string;
-    target: WireE0B9D64Ac7D2034342D226Cd5A657956619Fb94Bfab0F429F31D295Bbee568Fb;
+    status?: string;
+    target?: WireE0B9D64Ac7D2034342D226Cd5A657956619Fb94Bfab0F429F31D295Bbee568Fb;
     updatedAt?: string | null;
     updatedBy?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type WireF00A6067197Bf8503Ad2Ca929Fcac6Dd56Da64854Bf53Cfa63F2E90Af408Ef5d = {
-    id: string;
-    kind: string;
-    tenant: string;
-    version: string;
+    id?: string;
+    kind?: string;
+    tenant?: string;
+    version?: string;
 };
 
 export type WireF13C6896F56Ef6Cd633314E17C86Ef09C723B489A575449924C438606E230Bf5 = {
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    driver: string;
-    dsnConfigured: boolean;
-    etag: number;
+    driver?: string;
+    dsnConfigured?: boolean;
+    etag?: number;
     lastTestErrorCode?: string;
     lastTestStatus?: string;
     lastTestedAt?: string | null;
-    name: string;
+    name?: string;
     options?: unknown;
-    ownerId: string;
-    secretConfigured: boolean;
-    status: string;
-    updatedAt: string;
+    ownerId?: string;
+    secretConfigured?: boolean;
+    status?: string;
+    updatedAt?: string;
 };
 
 export type WireF1625788B66Eacf74Ca98501Afd9A4C5D06Df56F548C1B3C679070E519Cabcba = {
     alias?: string;
     columns?: Array<string> | null;
-    createdAt: string;
+    createdAt?: string;
     description?: string;
-    etag: number;
-    linked: boolean;
-    name: string;
-    ownerId: string;
-    packagePath: string;
-    status: string;
-    title: string;
-    typeName: string;
-    updatedAt: string;
+    etag?: number;
+    linked?: boolean;
+    name?: string;
+    ownerId?: string;
+    packagePath?: string;
+    status?: string;
+    title?: string;
+    typeName?: string;
+    updatedAt?: string;
 };
 
 export type WireF1Dc57456Af4495C942542A2C666692B7Ca8F42A01F826985262B938Bf11Fd84 = {
-    content: string;
+    content?: string;
     isBinary?: boolean;
-    path: string;
+    path?: string;
 };
 
 export type WireF32E0E52A42838184862B0Bfabd74676E965524151930580722E42D1D5218Aad = {
     definition?: Wire685E9F1303192C34245F5Ced6B00C18Bebddb5A91116B2D04935D49D39A4538f | null;
     entityType?: string;
-    mode: string;
+    mode?: string;
     named?: WireCfcaf2B72B62Ce0A723C37Fe6863F96B754785B31Db4030A9F684317C5490937 | null;
     priority?: number;
     requiredScopes?: Array<string> | null;
@@ -3498,43 +3518,43 @@ export type WireF32E0E52A42838184862B0Bfabd74676E965524151930580722E42D1D5218Aad
 export type WireF3E391310Ebbdfcf54A80947Dc8023074733A52A02De8Af4F489Eff13A0C137d = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type WireF3Ea60D2Fa17320C067919706E92C833737F3992042E85B8Ec5055E0A45De960 = {
-    createdAt: string;
-    description: string;
-    etag: number;
-    latestRevision: number;
-    name: string;
-    namespaceId: string;
-    publishedRevision: number;
-    skillId: string;
-    status: string;
-    title: string;
-    updatedAt: string;
+    createdAt?: string;
+    description?: string;
+    etag?: number;
+    latestRevision?: number;
+    name?: string;
+    namespaceId?: string;
+    publishedRevision?: number;
+    skillId?: string;
+    status?: string;
+    title?: string;
+    updatedAt?: string;
 };
 
 export type WireF503Ec7A72F8C4F53C118Cb28E4Dae7Faa981637Cd10A0Fe3A878B7751Fcae6d = {
@@ -3544,12 +3564,12 @@ export type WireF503Ec7A72F8C4F53C118Cb28E4Dae7Faa981637Cd10A0Fe3A878B7751Fcae6d
 };
 
 export type WireF791E609Dc9412B052626B655056F1150D4756F8C3A0E758A32B8022F81938D4 = {
-    id: string;
-    type: string;
+    id?: string;
+    type?: string;
 };
 
 export type WireF7E0E71Af22003B02F42054A48A7Fc20F287Eb50183D06B8E811C01Fad620893 = {
-    content: string;
+    content?: string;
     files?: Array<Wire6479A7Da664C407F8F41F4Fdf1E70772Bbad9691Ef67E8050Ded752Fc88E802e> | null;
     title?: string;
 };
@@ -3557,47 +3577,47 @@ export type WireF7E0E71Af22003B02F42054A48A7Fc20F287Eb50183D06B8E811C01Fad620893
 export type WireF932A6D94Aac7D5320966Eccf3629Df536A5A1Bc23Efddc9Cefb59Aad8Af0675 = {
     authoredDql?: string;
     authoredSql?: string;
-    authoringMode: string;
+    authoringMode?: string;
     compileDiagnostics?: unknown;
-    compileStatus: string;
-    compilerVersion: string;
+    compileStatus?: string;
+    compilerVersion?: string;
     componentDescriptor?: unknown;
     componentSpec?: unknown;
-    createdAt: string;
-    createdBy: string;
-    datlyVersion: string;
+    createdAt?: string;
+    createdBy?: string;
+    datlyVersion?: string;
     dqlExportLimits?: unknown;
     generatedDql?: string;
     notes?: string;
     publishedAt?: string | null;
-    reportId: string;
-    resourceCheckEnabled: boolean;
+    reportId?: string;
+    resourceCheckEnabled?: boolean;
     resourceManifest?: unknown;
-    sourceRevision: number;
-    specFormatVersion: string;
-    specHash: string;
-    state: string;
+    sourceRevision?: number;
+    specFormatVersion?: string;
+    specHash?: string;
+    state?: string;
     typeManifest?: unknown;
     validatedAt?: string | null;
-    versionNo: number;
+    versionNo?: number;
 };
 
 export type WireF9Bfe019Ac3Bc8Cf27B88F9B16D1F9A636D24292970F41843Ad5F4Eba742D99b = {
-    code: string;
+    code?: string;
     column?: number;
     field?: string;
     hint?: string;
     line?: number;
-    message: string;
-    severity: string;
+    message?: string;
+    severity?: string;
     stage?: string;
 };
 
 export type WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c = {
-    canCreate: boolean;
-    items: Array<WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 | null> | null;
-    limit: number;
-    offset: number;
+    canCreate?: boolean;
+    items?: Array<WireDdb0758361D7645100D4271Bb6Abcc08E955D5Bf64Bce42081793C40D1A24231 | null> | null;
+    limit?: number;
+    offset?: number;
 };
 
 export type PostV1AuthzSdkAuthorizationCheckData = {

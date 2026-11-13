@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/viant/authz/oauth"
+	"github.com/viant/bindly"
 	"github.com/viant/datly-studio/sdk/artifactrelease"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	stored "github.com/viant/datly-studio/studio/namespaces/store_read"
@@ -24,7 +25,7 @@ func (s releaseTestSession) Response() response.Writer { return nil }
 
 type releaseTestBinder struct{ invoker exec.ComponentInvoker }
 
-func (b releaseTestBinder) Bind(_ context.Context, target any) error {
+func (b releaseTestBinder) Bind(_ context.Context, target any, _ ...bindly.BindOption) error {
 	value := reflect.ValueOf(target)
 	if value.Kind() == reflect.Pointer && value.Elem().Kind() == reflect.Struct {
 		field := value.Elem().FieldByName("Authorization")
