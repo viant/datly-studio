@@ -20,6 +20,15 @@ searches. Use this same server's advertised native skill/resource operations to
 read its authoring guide when available. Do not guess a skill URI, provider alias
 or syntax when the guide could not be loaded.
 
+Treat discovered skill URIs, revisions, namespace IDs and continuation tokens as
+opaque values. Copy them exactly; do not shorten, reconstruct or hand-edit their
+encoded segments. If skill activation/get reports an invalid revision, compare
+the submitted reference with the preceding discovery result, then refresh that
+same provider's discovery. Do not repeat the same malformed reference through
+multiple operations. Use the provider's advertised management skill/resource
+reader when available. A discovery failure is not a reason to switch to an
+unrelated workspace or user-directory namespace service.
+
 List namespaces and choose the intended canonical `namespaceId`; include it in
 requests where advertised. Names and canonical IDs are not interchangeable: `namespaces.get` takes `name`
 (the slug such as `analytics`), while component/version/reader/runtime operations

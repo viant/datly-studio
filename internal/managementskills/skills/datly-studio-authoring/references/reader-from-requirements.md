@@ -34,6 +34,25 @@ field meanings and security binding using the discovered evidence. Use a native
 typed graph for related data, retaining complete keys and cardinalities. Keep
 independent grains separate when joining would multiply measurements.
 
+Present the evidence-based proposal in a user-visible response before the first
+component/version mutation. An internal plan or a retrospective summary after
+creation does not satisfy “propose first.” If the user already requested
+creation, continue with the authorized management operations after presenting
+that proposal; do not add an unnecessary approval round. For a proposal-only
+request, stop before mutations.
+
+## Separate authoring environment from source access
+
+Track the component's authoring/publication target separately from the source
+connector's environment. Local authoring can use an already authorized read-only
+source connection; it does not imply a local copy of every source database.
+Preserve the caller's established read scope and prohibit source mutations when
+only reads were requested. Do not infer permission to publish to production from
+permission to read a production-backed source. Conversely, do not invent a new
+approval requirement when the user has already authorized those source reads.
+If the request actually leaves this boundary ambiguous, ask one precise
+clarification rather than silently changing connectors or broadening access.
+
 ## Explore a problem from a known data scope
 
 A caller can provide a problem plus catalog/project and schema/dataset without
