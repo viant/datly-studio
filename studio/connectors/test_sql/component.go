@@ -46,7 +46,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"connector,path=/v1/studio/sdk/connectors.test_sql,method=POST,connector=studio,handler=NewTestSQL" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.connectors.test_sql\",\"description\":\"Execute bounded transient SQL through Datly on an authorized Studio connector\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"connector,path=/v1/studio/sdk/connectors.test_sql,method=POST,connector=studio,handler=NewTestSQL" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.connectors.test_sql\",\"description\":\"Execute bounded transient data SQL through Datly on an authorized Studio connector. For schema discovery use the connector tables, table and search metadata tools instead of catalog SQL. A result limit does not bound scanned data; supply narrow source filters.\"}]" caseFormat:"lc"`
 }
 
 var Datly = new(Component)

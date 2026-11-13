@@ -33,7 +33,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"connector,path=/v1/studio/sdk/connectors.tables,method=POST,connector=studio,handler=NewTables" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.connectors.tables\",\"description\":\"List tables and views on an authorized active Studio connector\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"connector,path=/v1/studio/sdk/connectors.tables,method=POST,connector=studio,handler=NewTables" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.connectors.tables\",\"description\":\"Discover scoped tables and views through an authorized active Studio connector metadata API. Supply the known catalog and schema, use bounded pages, and keep the same search scope when continuing with a cursor.\"}]" caseFormat:"lc"`
 }
 
 var Datly = new(Component)
