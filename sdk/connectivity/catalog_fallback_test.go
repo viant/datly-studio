@@ -119,3 +119,15 @@ func TestColumnFallbackCancellationAndFailureRetainPrimary(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestMissingTableIsNotSuccessfulEmptySchema(t *testing.T) {
+	dsn := "file:" + filepath.Join(t.TempDir(), "missing.db")
+	_, err := (SQLCatalog{}).Table(context.Background(), &sdk.Connector{Name: "fixture", Driver: "sqlite", DSNTemplate: dsn}, sdk.TableDetailInput{Table: "missing_table"})
+	var failure *ColumnDiscoveryError
+	if !errors.As(err, &failure) {
+		t.Fatalf("expected metadata and probe failure, got %v", err)
+	}
+	if !strings.Contains(failure.Primary.Error(), "no columns") || failure.Probe == nil {
+		t.Fatalf("lost discovery evidence: %+v", failure)
+	}
+}

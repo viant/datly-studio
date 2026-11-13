@@ -193,6 +193,9 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	scope.apply(session)
 	schema := session.Schema
 	columns, err := config.Columns(ctx, session, db, input.Table, metadataOptions...)
+	if err == nil && len(columns) == 0 {
+		err = fmt.Errorf("column metadata returned no columns; verify the exact table and schema or metadata access")
+	}
 	metadataSource := "catalog"
 	var diagnostics []sdk.Diagnostic
 	if err != nil {
