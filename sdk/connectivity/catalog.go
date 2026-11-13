@@ -231,7 +231,7 @@ func (c SQLCatalog) Table(ctx context.Context, connector *sdk.Connector, input s
 	for _, column := range columns {
 		reference := fk[strings.ToLower(column.Name)]
 		nullableKnown := column.IsNullable() || column.IsNotNull()
-		result.Columns = append(result.Columns, sdk.DatabaseColumn{NullableKnown: &nullableKnown, Name: column.Name, Type: column.Type, Nullable: column.IsNullable(), PrimaryKey: pk[strings.ToLower(column.Name)] || strings.EqualFold(column.Key, "PRI"), Unique: column.IsUnique(), AutoIncrement: column.Autoincrement(), Default: column.Default, ReferenceSchema: reference.ReferenceSchema, ReferenceTable: reference.ReferenceTable, ReferenceColumn: reference.ReferenceColumn})
+		result.Columns = append(result.Columns, sdk.DatabaseColumn{Description: column.Comments, NullableKnown: &nullableKnown, Name: column.Name, Type: column.Type, Nullable: column.IsNullable(), PrimaryKey: pk[strings.ToLower(column.Name)] || strings.EqualFold(column.Key, "PRI"), Unique: column.IsUnique(), AutoIncrement: column.Autoincrement(), Default: column.Default, ReferenceSchema: reference.ReferenceSchema, ReferenceTable: reference.ReferenceTable, ReferenceColumn: reference.ReferenceColumn})
 	}
 	sort.Slice(result.Columns, func(i, j int) bool { return result.Columns[i].Name < result.Columns[j].Name })
 	return result, nil

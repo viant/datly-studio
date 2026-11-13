@@ -14,8 +14,8 @@ require (
 	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
 	github.com/viant/bindly v0.5.1-0.20261112180526-e480ab9385d1
 	github.com/viant/datly v1.1.1-0.20261113030415-a0829ff8bb19
-	github.com/viant/jsonrpc v0.25.1
-	github.com/viant/mcp v0.24.2-0.20261107201957-8748c0cb8ca8
+	github.com/viant/jsonrpc v0.25.2-0.20261109161826-0c7edf60cfc5
+	github.com/viant/mcp v0.24.2-0.20261109162451-9f02fda34b44
 	github.com/viant/mcp-protocol v0.19.2-0.20261112230027-972f0e60ae62
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261112203041-256c3c13bc14
@@ -28,11 +28,14 @@ require (
 )
 
 require (
+	github.com/blevesearch/snowballstem v0.9.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/dolthub/maphash v0.1.0 // indirect
 	github.com/dolthub/swiss v0.2.1 // indirect
 	github.com/mhmtszr/concurrent-swiss-map v1.0.8 // indirect
 	github.com/nxadm/tail v1.4.11 // indirect
 	github.com/viant/bintly v0.2.0 // indirect
+	github.com/viant/embedius v0.5.8-0.20261108015858-2dbb2e0a515a // indirect
 	github.com/viant/scache v0.5.1-0.20241014222741-4367658dff4f // indirect
 )
 

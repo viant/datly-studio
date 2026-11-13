@@ -61,6 +61,7 @@ type DatabaseTable struct {
 	Comment string `json:"comment,omitempty"`
 }
 type DatabaseColumn struct {
+	Description     string  `json:"description,omitempty"`
 	NullableKnown   *bool   `json:"nullableKnown,omitempty"`
 	Name            string  `json:"name"`
 	Type            string  `json:"type"`
