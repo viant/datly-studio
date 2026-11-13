@@ -554,9 +554,11 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	}
 	// Native initialization has resolved host cache profiles and per-view
 	// warmup policies. Only these effective targets may add warmup-only sources.
+	var warmupTargets []dexec.ReaderWarmupTarget
 	if targeter, ok := reader.(dexec.ReaderWarmupTargeter); ok {
+		warmupTargets = targeter.WarmupTargets()
 		var connectors []string
-		for _, target := range targeter.WarmupTargets() {
+		for _, target := range warmupTargets {
 			if target.Settings != nil && target.Settings.Connector != "" {
 				connectors = append(connectors, target.Settings.Connector)
 			}
@@ -616,12 +618,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "prepare dynamic cache warmup: " + err.Error(), Cause: err}
 	}
 	settings := contract.Component.CacheWarmup()
-	cache := contract.Component.Settings.Cache
-	provider := cache.Provider
-	if strings.TrimSpace(provider) == "" {
-		provider = "afs"
-	}
-	result := &sdk.WarmupResult{Status: "running", PlannedCases: planned, Target: sdk.WarmupTarget{View: contract.Component.RootView.Name, CacheName: cache.Name, CacheProvider: provider, ConnectorName: settings.Connector, IndexColumn: settings.IndexColumn, IndexParameter: settings.IndexParameter}}
+	result := &sdk.WarmupResult{Status: "running", PlannedCases: planned, Target: warmupTargetEvidence(contract.Component.RootView.Name, warmupTargets)}
 	if settings.MaxCases != nil {
 		value := *settings.MaxCases
 		result.MaxCases = &value

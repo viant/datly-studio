@@ -216,6 +216,37 @@ type WarmupTarget struct {
 	ConnectorName  string `json:"connectorName,omitempty"`
 	IndexColumn    string `json:"indexColumn,omitempty"`
 	IndexParameter string `json:"indexParameter,omitempty"`
+	// ScheduledTargets is resolved native evidence, absent on historical runs.
+	// Legacy cache/connector/index fields describe one target with one work
+	// entry only. View retains the component's root view for existing consumers.
+	ScheduledTargets []WarmupScheduledTarget `json:"scheduledTargets,omitempty"`
+}
+
+// WarmupScheduledTarget describes one scheduled native policy. Work describes
+// its population, including IndexMeta expansion; it does not schedule more calls.
+type WarmupScheduledTarget struct {
+	View           string       `json:"view"`
+	PolicyName     string       `json:"policyName,omitempty"`
+	CacheName      string       `json:"cacheName,omitempty"`
+	CacheProvider  string       `json:"cacheProvider,omitempty"`
+	ConnectorName  string       `json:"connectorName,omitempty"`
+	IndexColumn    string       `json:"indexColumn,omitempty"`
+	IndexParameter string       `json:"indexParameter,omitempty"`
+	IndexMeta      bool         `json:"indexMeta,omitempty"`
+	Work           []WarmupWork `json:"work,omitempty"`
+}
+
+// WarmupWork describes native-selected population, not per-work completion.
+// CacheProvider is empty when the native backend is unknown; CacheName can
+// still be known. Storage addresses and native settings are never included.
+type WarmupWork struct {
+	View           string `json:"view"`
+	PolicyName     string `json:"policyName,omitempty"`
+	CacheName      string `json:"cacheName,omitempty"`
+	CacheProvider  string `json:"cacheProvider,omitempty"`
+	ConnectorName  string `json:"connectorName,omitempty"`
+	IndexColumn    string `json:"indexColumn,omitempty"`
+	IndexParameter string `json:"indexParameter,omitempty"`
 }
 
 // WarmupRun is durable evidence from one server-owned Datly cache warmup run.

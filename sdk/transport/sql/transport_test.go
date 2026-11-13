@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -425,7 +426,8 @@ INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authore
 		t.Fatal(err)
 	}
 	release := make(chan struct{})
-	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}, Warmup: warmupStub{wait: release, result: &sdk.WarmupResult{Status: "completed", PlannedCases: 4, CompletedCases: 4, Entries: 7, Duration: time.Millisecond, Target: sdk.WarmupTarget{View: "reader", CacheName: "reader-cache", CacheProvider: "afs", ConnectorName: "main", IndexColumn: "ID"}}}}
+	targetEvidence := sdk.WarmupTarget{View: "reader", CacheName: "reader-cache", CacheProvider: "aerospike", ConnectorName: "main", IndexColumn: "ID", ScheduledTargets: []sdk.WarmupScheduledTarget{{View: "", PolicyName: "root", CacheName: "reader-cache", CacheProvider: "aerospike", ConnectorName: "main", IndexColumn: "ID", Work: []sdk.WarmupWork{{View: "reader", PolicyName: "root", CacheName: "reader-cache", CacheProvider: "aerospike", IndexColumn: "ID"}}}}}
+	transport := &Transport{DB: db, Authorizer: allowAuthorizer{}, Warmup: warmupStub{wait: release, result: &sdk.WarmupResult{Status: "completed", PlannedCases: 4, CompletedCases: 4, Entries: 7, Duration: time.Millisecond, Target: targetEvidence}}}
 	client, err := sdk.NewClient(transport)
 	if err != nil {
 		t.Fatal(err)
@@ -462,11 +464,15 @@ INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authore
 	if completed.UpdatedAt == nil || !completed.UpdatedAt.After(*first.UpdatedAt) || completed.UpdatedBy == nil || *completed.UpdatedBy != "owner" {
 		t.Fatalf("warmup completion audit=%+v", completed)
 	}
+	if !reflect.DeepEqual(completed.Target, targetEvidence) {
+		t.Fatalf("resolved evidence lost: %+v", completed.Target)
+	}
 	page, err := client.Versions().ListWarmupRuns(ctx, "reader", 1, sdk.ListWarmupRunsInput{Limit: 10})
 	if err != nil || len(page.Items) != 1 || page.Items[0].RunID != first.RunID {
 		t.Fatalf("page=%+v err=%v", page, err)
 	}
-	transport.Warmup = warmupStub{result: &sdk.WarmupResult{Status: "running", PlannedCases: 4, CompletedCases: 1, Entries: 2, Target: sdk.WarmupTarget{View: "reader", CacheName: "reader-cache"}}, err: &sdk.Error{Code: sdk.ErrorInternal, Message: "bounded warmup case failed"}}
+	expandedEvidence := sdk.WarmupTarget{View: "reader", ScheduledTargets: []sdk.WarmupScheduledTarget{{View: "", PolicyName: "root", CacheName: "reader-cache", CacheProvider: "aerospike", IndexMeta: true, Work: []sdk.WarmupWork{{View: "reader", PolicyName: "root", CacheName: "reader-cache", CacheProvider: "aerospike"}, {View: "summary", PolicyName: "root", CacheName: "summary-cache", CacheProvider: "afs"}}}, {View: "opaque", PolicyName: "child", CacheName: "known-logical-name", Work: []sdk.WarmupWork{{View: "opaque", PolicyName: "child", CacheName: "known-logical-name"}}}}}
+	transport.Warmup = warmupStub{result: &sdk.WarmupResult{Status: "running", PlannedCases: 4, CompletedCases: 1, Entries: 2, Target: expandedEvidence}, err: &sdk.Error{Code: sdk.ErrorInternal, Message: "bounded warmup case failed"}}
 	partialStart, err := client.Versions().Warmup(ctx, "reader", 1)
 	if err != nil || partialStart.RunID == first.RunID {
 		t.Fatalf("partial start=%+v err=%v", partialStart, err)
@@ -482,6 +488,29 @@ INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authore
 	}
 	if err != nil || partial == nil || partial.Status != "partial" || partial.CompletedCases != 1 || len(partial.Diagnostics) != 1 || partial.Diagnostics[0].Message != "bounded warmup case failed" {
 		t.Fatalf("partial=%+v err=%v", partial, err)
+	}
+	if !reflect.DeepEqual(partial.Target, expandedEvidence) {
+		t.Fatalf("partial evidence lost: %+v", partial.Target)
+	}
+	var storedJSON string
+	var provider sql.NullString
+	if err := db.QueryRowContext(ctx, "SELECT target_json,cache_provider FROM component_warmup_runs WHERE run_id=?", partial.RunID).Scan(&storedJSON, &provider); err != nil {
+		t.Fatal(err)
+	}
+	var storedTarget sdk.WarmupTarget
+	if err := json.Unmarshal([]byte(storedJSON), &storedTarget); err != nil || !reflect.DeepEqual(storedTarget, expandedEvidence) || provider.Valid {
+		t.Fatalf("mixed evidence persistence=%s provider=%+v err=%v", storedJSON, provider, err)
+	}
+	const historical = `{"view":"reader","cacheName":"aerospike","cacheProvider":"afs"}`
+	if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,status,requested_by,target_json,requested_at) VALUES('historical','reader',1,3,'hash','old','completed','owner',?,?)`, historical, now); err != nil {
+		t.Fatal(err)
+	}
+	old, err := client.Versions().WarmupRun(ctx, "reader", "historical")
+	if err != nil || old.Target.CacheProvider != "afs" || old.Target.ScheduledTargets != nil {
+		t.Fatalf("old evidence changed: %+v err=%v", old, err)
+	}
+	if err := db.QueryRowContext(ctx, "SELECT target_json FROM component_warmup_runs WHERE run_id='historical'").Scan(&storedJSON); err != nil || storedJSON != historical {
+		t.Fatalf("historical JSON rewritten: %s err=%v", storedJSON, err)
 	}
 }
 

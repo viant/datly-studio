@@ -1841,7 +1841,8 @@
         "type": "object",
         "properties": {
           "cube": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Preview the derived single cube. Put dimensions, measures, filters and limit inside input; this does not invoke multi-cube composition."
           },
           "input": {},
           "limit": {
@@ -2255,6 +2256,42 @@
           }
         }
       },
+      "Output_1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260": {
         "type": "object",
         "properties": {
@@ -2515,6 +2552,13 @@
           },
           "indexParameter": {
             "type": "string"
+          },
+          "scheduledTargets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f"
+            },
+            "nullable": true
           },
           "view": {
             "type": "string"
@@ -3022,6 +3066,42 @@
           }
         }
       },
+      "Output_7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Output_7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5": {
         "type": "object",
         "properties": {
@@ -3058,6 +3138,32 @@
             "type": "string"
           },
           "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Output_7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
             "type": "string"
           }
         }
@@ -3344,6 +3450,32 @@
             "type": "string"
           },
           "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
             "type": "string"
           }
         }
@@ -4067,6 +4199,13 @@
           },
           "indexParameter": {
             "type": "string"
+          },
+          "scheduledTargets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619"
+            },
+            "nullable": true
           },
           "view": {
             "type": "string"
@@ -5409,6 +5548,9 @@
             "type": "string",
             "nullable": true
           },
+          "description": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -5855,6 +5997,42 @@
           },
           "subjectType": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Wire_32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_fbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6"
+            },
             "nullable": true
           }
         }
@@ -10814,6 +10992,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "scheduledTargets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa"
+            },
+            "nullable": true
+          },
           "view": {
             "type": "string"
           }
@@ -11669,6 +11854,32 @@
             "type": "string"
           },
           "stage": {
+            "type": "string"
+          }
+        }
+      },
+      "Wire_fbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
             "type": "string"
           }
         }

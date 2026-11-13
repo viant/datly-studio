@@ -51,7 +51,7 @@ func TestWarmupGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 		"w1", "r1", 2, 3, "hash", "plan", "partial", "alice",
 		"2026-09-17 09:00:00", "2026-09-17 09:00:00", "alice", "2026-09-17 09:01:00", "alice",
 		"2026-09-17 09:00:05", "2026-09-17 09:01:00", 7, 5, 10, 20, 3, 123456,
-		`{"view":"reader","cacheName":"primary"}`, `[ {"severity":"error","code":"warmup_failed","message":"partial"} ]`); err != nil {
+		`{"view":"reader","cacheName":"primary","cacheProvider":"afs"}`, `[ {"severity":"error","code":"warmup_failed","message":"partial"} ]`); err != nil {
 		t.Fatal(err)
 	}
 	holder := reflect.TypeFor[WarmupRunComponent]()
@@ -185,6 +185,38 @@ func TestWarmupGetSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	structured, err := json.Marshal(result.StructuredContent)
 	if err != nil || !bytes.Contains(structured, []byte(`"cacheName":"primary"`)) {
 		t.Fatalf("MCP warmup=%s err=%v", structured, err)
+	}
+	if wire.Target.CacheProvider != "afs" || wire.Target.ScheduledTargets != nil {
+		t.Fatalf("legacy evidence synthesized: %+v", wire.Target)
+	}
+	resolved := sdk.WarmupTarget{View: "reader", ScheduledTargets: []sdk.WarmupScheduledTarget{{View: "", PolicyName: "root", CacheName: "primary", CacheProvider: "aerospike", IndexMeta: true, Work: []sdk.WarmupWork{{View: "reader", CacheName: "primary", CacheProvider: "aerospike"}, {View: "summary", CacheName: "summary-cache", CacheProvider: "afs"}}}, {View: "opaque", CacheName: "known", Work: []sdk.WarmupWork{{View: "opaque", CacheName: "known"}}}}}
+	resolvedJSON, err := json.Marshal(resolved)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.ExecContext(ctx, `INSERT INTO component_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,status,requested_by,target_json,requested_at) VALUES('resolved','r1',2,3,'hash','new','completed','alice',?,CURRENT_TIMESTAMP)`, string(resolvedJSON)); err != nil {
+		t.Fatal(err)
+	}
+	resolvedResponse := httptest.NewRecorder()
+	handler.ServeHTTP(resolvedResponse, request("publisher", "r1", "resolved"))
+	var resolvedWire sdk.WarmupRun
+	if resolvedResponse.Code != 200 || json.Unmarshal(resolvedResponse.Body.Bytes(), &resolvedWire) != nil || !reflect.DeepEqual(resolvedWire.Target, resolved) {
+		t.Fatalf("HTTP hierarchy lost: %s", resolvedResponse.Body.String())
+	}
+	resolvedResult, rpcErr := tool.Handler(callContext, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.versions.warmup_get", Arguments: map[string]any{"reportId": "r1", "runId": "resolved"}}})
+	if rpcErr != nil || resolvedResult == nil || resolvedResult.IsError != nil && *resolvedResult.IsError {
+		t.Fatalf("MCP hierarchy error=%v result=%+v", rpcErr, resolvedResult)
+	}
+	resolvedBody, err := json.Marshal(resolvedResult.StructuredContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = json.Unmarshal(resolvedBody, &resolvedWire); err != nil || !reflect.DeepEqual(resolvedWire.Target, resolved) {
+		t.Fatalf("MCP hierarchy lost: %s err=%v", resolvedBody, err)
+	}
+	var historicalJSON string
+	if err = db.QueryRowContext(ctx, "SELECT target_json FROM component_warmup_runs WHERE run_id='w1'").Scan(&historicalJSON); err != nil || historicalJSON != `{"view":"reader","cacheName":"primary","cacheProvider":"afs"}` {
+		t.Fatalf("historical evidence rewritten: %s err=%v", historicalJSON, err)
 	}
 	if _, err = db.ExecContext(ctx, "DELETE FROM component_acl WHERE report_id = ? AND subject_id = ?", "r1", "publisher"); err != nil {
 		t.Fatal(err)

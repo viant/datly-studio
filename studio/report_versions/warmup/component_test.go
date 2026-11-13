@@ -333,6 +333,32 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 			if id == "accepted" && (run.Entries != 2 || run.CompletedCases != 1) {
 				t.Fatalf("successful run=%+v", run)
 			}
+			if id == "accepted" {
+				if run.Target.CacheProvider != "afs" || len(run.Target.ScheduledTargets) != 1 || len(run.Target.ScheduledTargets[0].Work) != 1 || run.Target.ScheduledTargets[0].Work[0].CacheProvider != "afs" {
+					t.Fatalf("native evidence not persisted: %+v", run.Target)
+				}
+				body, _ := json.Marshal(map[string]any{"reportId": id, "runId": run.RunID})
+				req, e := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+addresses[0]+"/v1/studio/sdk/versions.warmup_get", bytes.NewReader(body))
+				if e != nil {
+					t.Fatal(e)
+				}
+				req.Header.Set("Content-Type", "application/json")
+				req.Header.Set("Authorization", bearer)
+				req.Header.Set("X-Studio-Namespace", namespace)
+				response, e := http.DefaultClient.Do(req)
+				if e != nil {
+					t.Fatal(e)
+				}
+				data, e := io.ReadAll(response.Body)
+				response.Body.Close()
+				if e != nil {
+					t.Fatal(e)
+				}
+				var viaHTTP sdk.WarmupRun
+				if response.StatusCode != 200 || json.Unmarshal(data, &viaHTTP) != nil || !reflect.DeepEqual(viaHTTP.Target, run.Target) {
+					t.Fatalf("native HTTP evidence differs: status=%d body=%s", response.StatusCode, data)
+				}
+			}
 			files := 0
 			e := filepath.WalkDir(filepath.Join(directory, id, "cache"), func(_ string, entry fs.DirEntry, e error) error {
 				if e != nil {

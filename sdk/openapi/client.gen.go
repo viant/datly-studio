@@ -824,6 +824,7 @@ type InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 struc
 
 // InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa defines model for Input_ea8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa.
 type InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa struct {
+	// Cube Preview the derived single cube. Put dimensions, measures, filters and limit inside input; this does not invoke multi-cube composition.
 	Cube  *bool       `json:"cube,omitempty"`
 	Input interface{} `json:"input,omitempty"`
 	Limit *int64      `json:"limit,omitempty"`
@@ -994,6 +995,19 @@ type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 stru
 	Stage    *string `json:"stage,omitempty"`
 }
 
+// Output1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619 defines model for Output_1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619.
+type Output1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619 struct {
+	CacheName      *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName  *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                   `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                     `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                   `json:"indexParameter,omitempty"`
+	PolicyName     *string                                                                   `json:"policyName,omitempty"`
+	View           *string                                                                   `json:"view,omitempty"`
+	Work           *[]OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 `json:"work,omitempty"`
+}
+
 // Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 defines model for Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260.
 type Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 struct {
 	Entity *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity `json:"entity,omitempty"`
@@ -1095,12 +1109,13 @@ type Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d stru
 
 // Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 defines model for Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391.
 type Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 struct {
-	CacheName      *string `json:"cacheName,omitempty"`
-	CacheProvider  *string `json:"cacheProvider,omitempty"`
-	ConnectorName  *string `json:"connectorName,omitempty"`
-	IndexColumn    *string `json:"indexColumn,omitempty"`
-	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           *string `json:"view,omitempty"`
+	CacheName        *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider    *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName    *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn      *string                                                                   `json:"indexColumn,omitempty"`
+	IndexParameter   *string                                                                   `json:"indexParameter,omitempty"`
+	ScheduledTargets *[]Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f `json:"scheduledTargets,omitempty"`
+	View             *string                                                                   `json:"view,omitempty"`
 }
 
 // Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9 defines model for Output_4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9.
@@ -1288,6 +1303,19 @@ type Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 stru
 	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
+// Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f defines model for Output_7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f.
+type Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f struct {
+	CacheName      *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName  *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                   `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                     `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                   `json:"indexParameter,omitempty"`
+	PolicyName     *string                                                                   `json:"policyName,omitempty"`
+	View           *string                                                                   `json:"view,omitempty"`
+	Work           *[]Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 `json:"work,omitempty"`
+}
+
 // Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 defines model for Output_7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5.
 type Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
@@ -1299,6 +1327,17 @@ type Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 stru
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
 	Status            *string    `json:"status,omitempty"`
+}
+
+// Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 defines model for Output_7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43.
+type Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	View           *string `json:"view,omitempty"`
 }
 
 // Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d defines model for Output_8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d.
@@ -1417,6 +1456,17 @@ type OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 stru
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
 	Status            *string    `json:"status,omitempty"`
+}
+
+// OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 defines model for Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261.
+type OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	View           *string `json:"view,omitempty"`
 }
 
 // OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 defines model for Output_a6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6.
@@ -1715,12 +1765,13 @@ type OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e stru
 
 // OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee defines model for Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee.
 type OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee struct {
-	CacheName      *string `json:"cacheName,omitempty"`
-	CacheProvider  *string `json:"cacheProvider,omitempty"`
-	ConnectorName  *string `json:"connectorName,omitempty"`
-	IndexColumn    *string `json:"indexColumn,omitempty"`
-	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           *string `json:"view,omitempty"`
+	CacheName        *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider    *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName    *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn      *string                                                                   `json:"indexColumn,omitempty"`
+	IndexParameter   *string                                                                   `json:"indexParameter,omitempty"`
+	ScheduledTargets *[]Output1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619 `json:"scheduledTargets,omitempty"`
+	View             *string                                                                   `json:"view,omitempty"`
 }
 
 // OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf defines model for Output_f2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf.
@@ -2284,6 +2335,7 @@ type Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6_Rule s
 type Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 struct {
 	AutoIncrement   *bool   `json:"autoIncrement,omitempty"`
 	Default         *string `json:"default,omitempty"`
+	Description     *string `json:"description,omitempty"`
 	Name            *string `json:"name,omitempty"`
 	Nullable        *bool   `json:"nullable,omitempty"`
 	NullableKnown   *bool   `json:"nullableKnown,omitempty"`
@@ -2461,6 +2513,19 @@ type Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c struct
 	ReportId    *string `json:"reportId,omitempty"`
 	SubjectId   *string `json:"subjectId,omitempty"`
 	SubjectType *string `json:"subjectType,omitempty"`
+}
+
+// Wire32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa defines model for Wire_32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa.
+type Wire32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa struct {
+	CacheName      *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                 `json:"cacheProvider,omitempty"`
+	ConnectorName  *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                 `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
+	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	View           *string                                                                 `json:"view,omitempty"`
+	Work           *[]WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 `json:"work,omitempty"`
 }
 
 // Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58 defines model for Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58.
@@ -4632,12 +4697,13 @@ type WireDf12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940 struct
 
 // WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb defines model for Wire_e0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb.
 type WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb struct {
-	CacheName      *string `json:"cacheName,omitempty"`
-	CacheProvider  *string `json:"cacheProvider,omitempty"`
-	ConnectorName  *string `json:"connectorName,omitempty"`
-	IndexColumn    *string `json:"indexColumn,omitempty"`
-	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           *string `json:"view,omitempty"`
+	CacheName        *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider    *string                                                                 `json:"cacheProvider,omitempty"`
+	ConnectorName    *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn      *string                                                                 `json:"indexColumn,omitempty"`
+	IndexParameter   *string                                                                 `json:"indexParameter,omitempty"`
+	ScheduledTargets *[]Wire32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa `json:"scheduledTargets,omitempty"`
+	View             *string                                                                 `json:"view,omitempty"`
 }
 
 // WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 defines model for Wire_e18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1.
@@ -4980,6 +5046,17 @@ type WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b struct
 	Message  *string `json:"message,omitempty"`
 	Severity *string `json:"severity,omitempty"`
 	Stage    *string `json:"stage,omitempty"`
+}
+
+// WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 defines model for Wire_fbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6.
+type WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	View           *string `json:"view,omitempty"`
 }
 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.

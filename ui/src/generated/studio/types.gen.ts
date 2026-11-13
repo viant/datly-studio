@@ -614,6 +614,9 @@ export type InputE14Cc58C4Ee74D7747F498Bcbd7C71A8Cb3028Eda5782588B9C5299Ed0Cf9C3
 };
 
 export type InputEa8Cf0B60E82E17C8F2E6Bc2Ad35Fe0985Cc717838Bb65D7F9B56C81Bd0718Aa = {
+    /**
+     * Preview the derived single cube. Put dimensions, measures, filters and limit inside input; this does not invoke multi-cube composition.
+     */
     cube?: boolean;
     input?: unknown;
     limit?: number;
@@ -741,6 +744,18 @@ export type Output1D9Bf0079B94D75E2B9B7B33Bb81B13886A46428Db871596012139C64Cc1A4
     stage?: string;
 };
 
+export type Output1Fa7891831078D2Bd3C395F23B92A9F29613C13D9E995639402D73867Aef3619 = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexMeta?: boolean;
+    indexParameter?: string;
+    policyName?: string;
+    view?: string;
+    work?: Array<OutputA620C9Cdb7932D674689Ffd84Ac85Dbcb429685Fe710C1877Cda1038De84D261> | null;
+};
+
 export type Output20D14E6C9E21Afc4A0245Cde30Dbea83A572B7611Ecb2A2D7721E85B2F520260 = {
     entity?: Output8F9918Cf758D7828437221562274Ce1Aadfefc572741F4475E8F668456C57771 | null;
     id?: string;
@@ -831,6 +846,7 @@ export type Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B993
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    scheduledTargets?: Array<Output7B381D62F3Badad104E139473Ebed24D20B65D0E87860A76A09801383C4E928f> | null;
     view?: string;
 };
 
@@ -985,6 +1001,18 @@ export type Output73A8618E3Debe1667F7Aafcc74Ab58Dec2Fbd11494Bb2E579Aae6D2B58F205
     updatedAt?: string;
 };
 
+export type Output7B381D62F3Badad104E139473Ebed24D20B65D0E87860A76A09801383C4E928f = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexMeta?: boolean;
+    indexParameter?: string;
+    policyName?: string;
+    view?: string;
+    work?: Array<Output7F8C2E575Ef0274159A31F33C6Cf9Be7C3Fa485E125Fe895C49E798D6225Fa43> | null;
+};
+
 export type Output7F617Ddc14B6Df274D226551B825C90A4F977A14591Bdfd1Ddc94B5F6066Bce5 = {
     activeGeneration?: number | null;
     activeVersionNo?: number;
@@ -995,6 +1023,16 @@ export type Output7F617Ddc14B6Df274D226551B825C90A4F977A14591Bdfd1Ddc94B5F6066Bc
     runtimeRevision?: string;
     specHash?: string;
     status?: string;
+};
+
+export type Output7F8C2E575Ef0274159A31F33C6Cf9Be7C3Fa485E125Fe895C49E798D6225Fa43 = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexParameter?: string;
+    policyName?: string;
+    view?: string;
 };
 
 export type Output8035Fb9F56E2Dfdb283039Cb87B71Ab1D5F6Fa189D850D698929Cee1B6B6464d = {
@@ -1095,6 +1133,16 @@ export type OutputA2A90743713296048071979D14B3Abdfc10B4Ee77E446Ab9Dbd7F2C07Bbe72
     runtimeRevision?: string;
     specHash?: string;
     status?: string;
+};
+
+export type OutputA620C9Cdb7932D674689Ffd84Ac85Dbcb429685Fe710C1877Cda1038De84D261 = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexParameter?: string;
+    policyName?: string;
+    view?: string;
 };
 
 export type OutputA6D9Fb3F70E6B7863E0C88327D238407Dbfc8A53A8Fbbcb08C080358F1491Ec6 = {
@@ -1299,6 +1347,7 @@ export type OutputEf553E0E338A00Cf70D43289Eb53E588Abb65348804F4Defbd8Fd2Ea4E5691
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    scheduledTargets?: Array<Output1Fa7891831078D2Bd3C395F23B92A9F29613C13D9E995639402D73867Aef3619> | null;
     view?: string;
 };
 
@@ -1700,6 +1749,7 @@ export type Wire2814De9651D34Fb853F6A86B2936B81947B070Cd306C8F39E5A036A9A3E140D6
 export type Wire284D529F33778B8025Eaf493C0C081Fa071Dfc15595367Cd050C6Aea84390073 = {
     autoIncrement?: boolean;
     default?: string | null;
+    description?: string;
     name?: string;
     nullable?: boolean;
     nullableKnown?: boolean | null;
@@ -1842,6 +1892,18 @@ export type Wire3260Fb4C4C3Ba7C084402Fa64664F099Dae40719E64A304Feae0D1Fd05Cf8C6c
     reportId?: string | null;
     subjectId?: string | null;
     subjectType?: string | null;
+};
+
+export type Wire32F8F7D808Ff059Ae8283308Be99Fd2Ba2E355D10944C0Dbb72756F78E066Afa = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexMeta?: boolean;
+    indexParameter?: string;
+    policyName?: string;
+    view?: string;
+    work?: Array<WireFbe11D837E929789A12B89Ddfda7882878Aa92Ce43Ae86779F88F0D4302560E6> | null;
 };
 
 export type Wire33E5247Ebc5C8C7A90566F8Ad084B60E92D39E02E7318B8D44D82392A4711B58 = {
@@ -3335,6 +3397,7 @@ export type WireE0B9D64Ac7D2034342D226Cd5A657956619Fb94Bfab0F429F31D295Bbee568Fb
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    scheduledTargets?: Array<Wire32F8F7D808Ff059Ae8283308Be99Fd2Ba2E355D10944C0Dbb72756F78E066Afa> | null;
     view?: string;
 };
 
@@ -3611,6 +3674,16 @@ export type WireF9Bfe019Ac3Bc8Cf27B88F9B16D1F9A636D24292970F41843Ad5F4Eba742D99b
     message?: string;
     severity?: string;
     stage?: string;
+};
+
+export type WireFbe11D837E929789A12B89Ddfda7882878Aa92Ce43Ae86779F88F0D4302560E6 = {
+    cacheName?: string;
+    cacheProvider?: string;
+    connectorName?: string;
+    indexColumn?: string;
+    indexParameter?: string;
+    policyName?: string;
+    view?: string;
 };
 
 export type WireFcb2B68Ea97735A078Bf238Fa93Fc316117Bac1Af3B4B77C1A5F30Eb2753801c = {
