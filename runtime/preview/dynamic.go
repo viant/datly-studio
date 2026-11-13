@@ -78,7 +78,7 @@ type Dynamic struct {
 // preview without issuing a business query. Connector, type, resource, route,
 // predicate, MCP, and SQL-reader wiring must all be ready before publication.
 func (d Dynamic) Validate(ctx context.Context, reportID string, versionNo int) error {
-	definition, err := d.definition(ctx, reportID, versionNo)
+	definition, err := d.loadDefinition(ctx, reportID, versionNo, true)
 	if err != nil {
 		return runtimevalidation.Wrap("definition", err)
 	}
@@ -331,7 +331,7 @@ func (d Dynamic) executeCube(ctx context.Context, reportID string, versionNo int
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile cube source: " + err.Error(), Cause: err}
 	}
-	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+	if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); policyErr != nil {
 		return nil, policyErr
 	}
 	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
@@ -535,7 +535,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if contract.Component == nil || contract.Component.RootView == nil || contract.Component.CacheWarmup() == nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no authored cache warmup policy"}
 	}
-	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+	if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); policyErr != nil {
 		return nil, policyErr
 	}
 	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
@@ -679,7 +679,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 		offset := *definition.SQLTestOffset
 		controls.Offset = &offset
 	}
-	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+	if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); policyErr != nil {
 		return nil, policyErr
 	}
 	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
@@ -691,7 +691,7 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	if err = rejectClientContextValues(contract.Component, request.Input); err != nil {
 		return nil, err
 	}
-	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
+	if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); policyErr != nil {
 		return nil, policyErr
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
@@ -1118,6 +1118,10 @@ type connectorDefinition struct {
 }
 
 func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int) (*definition, error) {
+	return d.loadDefinition(ctx, reportID, versionNo, false)
+}
+
+func (d Dynamic) loadDefinition(ctx context.Context, reportID string, versionNo int, authoring bool) (*definition, error) {
 	var result definition
 	result.ReportID, result.VersionNo = reportID, versionNo
 	result.Secrets = d.Secrets
@@ -1158,7 +1162,7 @@ func (d Dynamic) definition(ctx context.Context, reportID string, versionNo int)
 	if strings.TrimSpace(result.DQL) == "" {
 		result.DQL = row.AuthoredDql
 	}
-	requireSecurity := result.Policy.Security != nil && result.Policy.Security.RequireSecurityPredicate
+	requireSecurity := authoring && result.Policy.Security != nil && result.Policy.Security.RequireSecurityPredicate
 	var predicatePackages []string
 	if result.Policy.Security != nil {
 		predicatePackages = append([]string(nil), result.Policy.Security.PredicatePackages...)

@@ -301,7 +301,6 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	registrations := make([]*registry.RegisteredComponent, 0, len(definitions))
 	reportByComponent := map[spec.Key]string{}
 	publicPolicies := map[string]*predicatepolicy.RuntimePolicy{}
-	requiredPackages := map[string]map[string]bool{}
 	versionByReport := map[string]int{}
 	for _, definition := range definitions {
 		versionByReport[definition.reportID] = definition.versionNo
@@ -342,13 +341,12 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		elapsed  time.Duration
 	}
 	compileOne := func(compileCtx context.Context, definition definition, catalog *typecatalog.Catalog) (contractResult, error) {
-		requireSecurity := definition.policy != nil && definition.policy.Security != nil && definition.policy.Security.RequireSecurityPredicate
 		var predicatePackages []string
 		if definition.policy != nil && definition.policy.Security != nil {
 			predicatePackages = append([]string(nil), definition.policy.Security.PredicatePackages...)
 		}
 		if s.config.SourceValidator != nil {
-			if err := s.config.SourceValidator(compileCtx, sourcevalidation.Input{RequireSecurityPredicate: requireSecurity, PredicatePackages: predicatePackages, NamespaceID: s.config.NamespaceID, ComponentID: definition.reportID, VersionNo: definition.versionNo, SourceRevision: definition.sourceRevision, AuthoredDQL: definition.authoredDQL, Package: definition.scope, DQL: definition.dql}); err != nil {
+			if err := s.config.SourceValidator(compileCtx, sourcevalidation.Input{PredicatePackages: predicatePackages, NamespaceID: s.config.NamespaceID, ComponentID: definition.reportID, VersionNo: definition.versionNo, SourceRevision: definition.sourceRevision, AuthoredDQL: definition.authoredDQL, Package: definition.scope, DQL: definition.dql}); err != nil {
 				return contractResult{}, fmt.Errorf("component source policy rejected: %w", err)
 			}
 		}
@@ -409,7 +407,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 					contract, hydrateErr := frozen.Materialize(catalog, contractResources)
 					compiledArtifactTiming(compileCtx, "artifact.hydrate", time.Since(hydrateStarted), len(stored))
 					if hydrateErr == nil && requireReaderOnlyContract(contract.Component) == nil {
-						if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.policy); policyErr != nil {
+						if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.policy); policyErr != nil {
 							return contractResult{}, policyErr
 						}
 						sources, openErr := pooled.sources(compileCtx, definition.connector)
@@ -461,7 +459,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			return contractResult{}, fmt.Errorf("compile dynamic report %s: %w", definition.reportID, compileErr)
 		}
 		compiledArtifactTiming(compileCtx, "artifact.discovery", time.Since(discoveryStarted), 0)
-		if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.policy); policyErr != nil {
+		if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.policy); policyErr != nil {
 			return contractResult{}, policyErr
 		}
 		if contractErr := requireReaderOnlyContract(contract.Component); contractErr != nil {
@@ -521,7 +519,6 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		}
 		sources, contract := current.sources, current.contract
 		publicPolicies[definition.reportID] = policyRegistry.Entry(namespaceaccess.ID(definition.owner, definition.namespace), definition.policy)
-		requiredPackages[definition.reportID] = predicatepolicy.RequiredPackages(contract.Component)
 		if mergeErr := mergeTypes(types, contract.Types); mergeErr != nil {
 			err = mergeErr
 			return nil, err
@@ -611,9 +608,9 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		if reportID == "" {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: errors.New("published component authorization is unavailable")}
 		}
-		allowed := publicPolicies[reportID].AllowsPublic(requiredPackages[reportID])
+		allowed := publicPolicies[reportID].AllowsPublic(nil)
 		if native, _ := ctx.Value(trustedNativeInvocationKey{}).(bool); native {
-			allowed = publicPolicies[reportID].AllowsInternal(requiredPackages[reportID])
+			allowed = publicPolicies[reportID].AllowsInternal(nil)
 		}
 		if !allowed {
 			return &xresponse.Error{Code: http.StatusForbidden, Cause: access.ErrDenied}
@@ -631,7 +628,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	baseCatalogTool := authorizeCatalogTool
 	authorizeCatalogTool = func(ctx context.Context, target dexec.ComponentTarget, action string) error {
 		id := reportByComponent[target.Component]
-		if policy := publicPolicies[id]; policy == nil || !policy.AllowsPublic(requiredPackages[id]) {
+		if policy := publicPolicies[id]; policy == nil || !policy.AllowsPublic(nil) {
 			return access.ErrDenied
 		}
 		return baseCatalogTool(ctx, target, action)
@@ -639,7 +636,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	baseCatalogResource := authorizeCatalogResource
 	authorizeCatalogResource = func(ctx context.Context, uri, action string) error {
 		if id := reportForResourceURI(loadedResources.ResourceReports, uri); id != "" {
-			if policy := publicPolicies[id]; policy == nil || !policy.AllowsPublic(requiredPackages[id]) {
+			if policy := publicPolicies[id]; policy == nil || !policy.AllowsPublic(nil) {
 				return access.ErrDenied
 			}
 		}

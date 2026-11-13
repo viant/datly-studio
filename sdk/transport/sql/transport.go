@@ -1412,6 +1412,9 @@ func (t *Transport) validateVersion(ctx context.Context, input, output any) erro
 	var diagnostics []sdk.Diagnostic
 	if !valid {
 		diagnostics = append(diagnostics, sdk.Diagnostic{Severity: "error", Code: "empty_source", Message: "authored SQL or DQL is required"})
+	} else if validateErr := t.validateNamespaceAuthorizationPredicate(ctx, in.ReportID, value); validateErr != nil {
+		valid = false
+		diagnostics = append(diagnostics, runtimevalidation.Diagnostics(validateErr)...)
 	} else if t.Validator != nil {
 		if validateErr := t.Validator.Validate(ctx, in.ReportID, in.VersionNo); validateErr != nil {
 			valid = false

@@ -13,7 +13,7 @@ func (*InternalComponentRequiredError) Error() string {
 
 // Validate compiled contracts, including generated cube exposure. Source text and
 // client-supplied component names are not authority for this namespace policy.
-func validateInternalComponents(component *spec.Component, policy *settings.Namespace) error {
+func ValidateInternalComponents(component *spec.Component, policy *settings.Namespace) error {
 	if policy == nil || policy.Security == nil || !policy.Security.RequireInternalComponents {
 		return nil
 	}

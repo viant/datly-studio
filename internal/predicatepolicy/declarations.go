@@ -16,7 +16,7 @@ func (*RequiredError) Error() string {
 // ValidateDeclarations uses Datly's compiled parameter and import metadata.
 // Optional source validation may additionally inspect application in effective SQL.
 func ValidateDeclarations(component *spec.Component, policy *settings.Namespace) error {
-	if err := validateInternalComponents(component, policy); err != nil {
+	if err := ValidateInternalComponents(component, policy); err != nil {
 		return err
 	}
 	if policy == nil || policy.Security == nil || !policy.Security.RequireSecurityPredicate {

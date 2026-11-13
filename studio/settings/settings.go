@@ -16,8 +16,10 @@ type Security struct {
 	// Restricts namespace-authored components; host-owned components are outside this policy.
 	RequireInternalComponents bool `json:"requireInternalComponents"`
 	// Nil and empty lists select no external packages; each package is opt-in.
-	PredicatePackages        []string `json:"predicatePackages"`
-	RequireSecurityPredicate bool     `json:"requireSecurityPredicate"`
+	PredicatePackages []string `json:"predicatePackages"`
+	// Authoring admission only. Accepted revisions retain their executable predicates;
+	// changing this requirement does not revoke or revalidate published components.
+	RequireSecurityPredicate bool `json:"requireSecurityPredicate"`
 }
 
 type ResourceLimits struct {

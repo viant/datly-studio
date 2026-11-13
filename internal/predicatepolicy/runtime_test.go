@@ -23,8 +23,8 @@ func TestRuntimePolicyTighteningReachesExistingGeneration(t *testing.T) {
 	require.Same(t, current, registry.Entry("one", nil))
 	require.False(t, registry.Entry("one", nil).AllowsPublic(nil), "stale compilation cannot weaken a committed policy")
 	registry.Update("one", 3, &settings.Namespace{Security: &settings.Security{RequireSecurityPredicate: true, PredicatePackages: []string{"example.com/scope"}}})
-	require.False(t, current.AllowsPublic(nil))
-	require.False(t, current.AllowsInternal(nil))
+	require.True(t, current.AllowsPublic(nil), "authoring policy must not revoke an accepted revision")
+	require.True(t, current.AllowsInternal(nil))
 	require.True(t, current.AllowsPublic(map[string]bool{"example.com/scope": true}))
 	registry.Update("one", 4, &settings.Namespace{})
 	require.True(t, current.AllowsPublic(nil))
@@ -52,5 +52,5 @@ func TestConcurrentRuntimePoliciesKeepNewestCommittedRevision(t *testing.T) {
 	workers.Wait()
 	require.False(t, policy.AllowsPublic(declared))
 	require.True(t, policy.AllowsInternal(declared))
-	require.False(t, policy.AllowsInternal(nil))
+	require.True(t, policy.AllowsInternal(nil))
 }

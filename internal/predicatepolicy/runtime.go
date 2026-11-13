@@ -20,18 +20,12 @@ type RuntimePolicy struct {
 type runtimeSecurity struct {
 	revision int64
 	internal bool
-	required bool
-	packages map[string]bool
 }
 
 func securitySnapshot(policy *settings.Namespace) *runtimeSecurity {
-	result := &runtimeSecurity{packages: map[string]bool{}}
+	result := &runtimeSecurity{}
 	if policy != nil && policy.Security != nil {
 		result.internal = policy.Security.RequireInternalComponents
-		result.required = policy.Security.RequireSecurityPredicate
-		for _, pkg := range policy.Security.PredicatePackages {
-			result.packages[pkg] = true
-		}
 	}
 	return result
 }
@@ -82,13 +76,6 @@ func (p *RuntimePolicy) allows(declared map[string]bool, internal bool) bool {
 	if policy == nil || policy.internal && !internal {
 		return false
 	}
-	if !policy.required {
-		return true
-	}
-	for pkg := range policy.packages {
-		if declared[pkg] {
-			return true
-		}
-	}
-	return false
+	// Declaration requirements belong to authoring validation, not live access.
+	return true
 }

@@ -80,7 +80,7 @@ func TestPredicateDiscoveryUsesTheRequestedNamespacePackages(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestPublishRechecksNamespacePredicateRequirementBeforeStaging(t *testing.T) {
+func TestPredicateRequirementAppliesToValidationNotAcceptedPublication(t *testing.T) {
 	f := newImportFixture(t)
 	v, err := f.client.Versions().Create(f.ctx, f.report.ID, sdk.CreateVersionInput{AuthoringMode: "dql", AuthoredDQL: "SELECT 1"})
 	require.NoError(t, err)
@@ -91,12 +91,16 @@ func TestPublishRechecksNamespacePredicateRequirementBeforeStaging(t *testing.T)
 	require.NoError(t, err)
 	require.NoError(t, settingstore.Write(f.ctx, f.db, f.report.OwnerID, f.report.Namespace, current.ETag, "owner", map[string]json.RawMessage{"security": json.RawMessage(`{"predicatePackages":["example.com/security"],"requireSecurityPredicate":true}`)}))
 	_, err = f.client.Publications().Publish(f.ctx, f.report.ID, v.VersionNo, sdk.PublishInput{ExpectedSourceRevision: v.SourceRevision})
-	require.ErrorContains(t, err, "authorization predicate")
+	require.ErrorContains(t, err, "dynamic runtime activator is not configured", "accepted source must reach activation without retroactive authoring rejection")
 	var count int
 	require.NoError(t, f.db.QueryRowContext(f.ctx, "SELECT COUNT(*) FROM runtime_generations").Scan(&count))
 	require.Zero(t, count)
 	require.NoError(t, f.db.QueryRowContext(f.ctx, "SELECT COUNT(*) FROM component_publications").Scan(&count))
 	require.Zero(t, count)
+	validation, err = f.client.Versions().Validate(f.ctx, f.report.ID, v.VersionNo, v.SourceRevision)
+	require.NoError(t, err)
+	require.False(t, validation.Valid, "explicit authoring validation must enforce the current requirement")
+	require.Contains(t, string(validation.Version.CompileDiagnostics), "namespace_security_predicate_required")
 	// The owning namespace flag is independent; another namespace's reader is not blocked by it.
 	other, err := f.client.Namespaces().Create(f.ctx, sdk.CreateNamespaceInput{Name: "beta", Title: "Beta"})
 	require.NoError(t, err)

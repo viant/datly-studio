@@ -8,8 +8,17 @@ import (
 	"github.com/viant/datly/authoring/readerbuilder"
 )
 
-// Recheck the owning namespace at publication, even when source validation is older.
+// Publication preserves accepted source validation. Only exposure policy is live;
+// changing authoring requirements cannot invalidate an immutable accepted revision.
 func (t *Transport) requireNamespaceAuthorizationPredicate(ctx context.Context, id string, version *sdk.ReportVersion) error {
+	return t.checkNamespaceDeclarations(ctx, id, version, false)
+}
+
+func (t *Transport) validateNamespaceAuthorizationPredicate(ctx context.Context, id string, version *sdk.ReportVersion) error {
+	return t.checkNamespaceDeclarations(ctx, id, version, true)
+}
+
+func (t *Transport) checkNamespaceDeclarations(ctx context.Context, id string, version *sdk.ReportVersion, authoring bool) error {
 	component, err := t.getReportValue(ctx, id)
 	if err != nil {
 		return err
@@ -18,17 +27,21 @@ func (t *Transport) requireNamespaceAuthorizationPredicate(ctx context.Context, 
 	if err != nil {
 		return err
 	}
-	if policy.Security == nil || (!policy.Security.RequireSecurityPredicate && !policy.Security.RequireInternalComponents) {
+	if policy.Security == nil || (!policy.Security.RequireInternalComponents && (!authoring || !policy.Security.RequireSecurityPredicate)) {
 		return nil
 	}
 	inspected, err := t.runReaderBuilder(ctx, id, version, readerbuilder.Operation{Type: readerbuilder.OperationInspect})
 	if err != nil {
 		return err
 	}
-	if inspected == nil || inspected.Structure == nil {
-		return invalid(predicatepolicy.ValidateDeclarations(nil, policy))
+	validate := predicatepolicy.ValidateInternalComponents
+	if authoring {
+		validate = predicatepolicy.ValidateDeclarations
 	}
-	if err = predicatepolicy.ValidateDeclarations(inspected.Structure.Component, policy); err != nil {
+	if inspected == nil || inspected.Structure == nil {
+		return invalid(validate(nil, policy))
+	}
+	if err = validate(inspected.Structure.Component, policy); err != nil {
 		return invalid(err)
 	}
 	return nil

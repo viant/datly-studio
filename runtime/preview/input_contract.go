@@ -32,7 +32,7 @@ func (d Dynamic) InspectPreviewInput(ctx context.Context, reportID string, versi
 	if err != nil {
 		return nil, err
 	}
-	if err = predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); err != nil {
+	if err = predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); err != nil {
 		return nil, err
 	}
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: codecs.FromContext(ctx)})
