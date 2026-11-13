@@ -17,6 +17,7 @@ import (
 	"github.com/viant/datly-studio/internal/publisherguard"
 	"github.com/viant/datly-studio/internal/versionprojection"
 	"github.com/viant/datly-studio/internal/warmupprojection"
+	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
@@ -198,10 +199,27 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil {
 		return err
 	}
+	// Claims were verified by native binding, and namespaceID was resolved
+	// from the component returned by the publish guard. Retain only these
+	// trusted execution values, never the handler/session or HTTP request.
+	var header struct {
+		Authorization string `bind:"kind=header,in=Authorization"`
+	}
+	if err := session.Binder().Bind(ctx, &header); err != nil {
+		return err
+	}
+	principal, verified := sdk.PrincipalFromContext(ctx)
+	if !verified {
+		principal = sdk.Principal{Subject: actor}
+	}
+	jobCtx := sdk.WithPrincipal(context.Background(), principal)
+	jobCtx = sdk.WithNamespaceSelection(jobCtx, namespaceID)
+	jobCtx = sdk.WithVerifiedCredential(jobCtx, sdk.VerifiedCredential{Bearer: strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer ")), Claims: input.Jwt})
+	jobCtx = studiocodecs.WithFactory(jobCtx, studiocodecs.FromContext(ctx))
+	jobCtx, cancel := context.WithTimeout(jobCtx, runTimeout)
+	jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 	reportID, versionNo := input.ReportID, input.VersionNo
 	go func() {
-		jobCtx, cancel := context.WithTimeout(sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: actor}), runTimeout)
-		jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 		defer releaseServerGuard()
 		defer cancel()
 		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}}

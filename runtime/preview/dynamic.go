@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	requestprovider "github.com/viant/bindly/provider/request"
+	"github.com/viant/bindly/provider/values"
 	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/internal/resourcecheck"
 	"github.com/viant/datly-studio/internal/settingstore"
@@ -537,6 +538,11 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if policyErr := predicatepolicy.ValidateDeclarations(contract.Component, definition.Policy); policyErr != nil {
 		return nil, policyErr
 	}
+	dependencies, err := d.prepareContexts(ctx, definition, contract.Component)
+	if err != nil {
+		return nil, err
+	}
+	defer dependencies.close()
 	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
@@ -545,6 +551,19 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	reader, err := artifact.ReaderCompilation().NewExecution(readerConfig)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
+	}
+	// Native initialization has resolved host cache profiles and per-view
+	// warmup policies. Only these effective targets may add warmup-only sources.
+	if targeter, ok := reader.(dexec.ReaderWarmupTargeter); ok {
+		var connectors []string
+		for _, target := range targeter.WarmupTargets() {
+			if target.Settings != nil && target.Settings.Connector != "" {
+				connectors = append(connectors, target.Settings.Connector)
+			}
+		}
+		if err := sources.require(ctx, definition, connectors, d.Const); err != nil {
+			return nil, err
+		}
 	}
 	providers, err := artifact.ReaderCompilation().NewProviders(readerConfig)
 	if err != nil {
@@ -561,7 +580,7 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "register dynamic warmup reader", Cause: err}
 	}
-	runtime, err := druntime.NewRuntime([]*druntime.RegisteredComponent{registered})
+	runtime, err := druntime.NewRuntime(append(dependencies.Components, registered), dependencies.Options...)
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic warmup runtime", Cause: err}
 	}
@@ -578,6 +597,23 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	planned, err := operation.PlannedCases()
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "plan dynamic cache warmup: " + err.Error(), Cause: err}
+	}
+	credentialHeaders, err := operation.CredentialHeaders()
+	if err != nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "inspect dynamic warmup credentials: " + err.Error(), Cause: err}
+	}
+	headers := map[string]any{}
+	for _, name := range credentialHeaders {
+		if !strings.EqualFold(name, "Authorization") {
+			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("Studio cannot supply warmup credential header %q", name)}
+		}
+		if credential, ok := sdk.VerifiedCredentialFromContext(ctx); ok && credential.Bearer != "" {
+			headers[name] = "Bearer " + credential.Bearer
+		}
+	}
+	operation, err = operation.Prepare(ctx, values.New("header", headers))
+	if err != nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "prepare dynamic cache warmup: " + err.Error(), Cause: err}
 	}
 	settings := contract.Component.CacheWarmup()
 	cache := contract.Component.Settings.Cache
@@ -1179,6 +1215,7 @@ type sources struct {
 	SQL         *dsql.SQLComponent
 	Connections column.Connections
 	opened      []*sql.DB
+	definitions map[string]connectorDefinition
 }
 
 func (s *sources) Close() {
@@ -1203,49 +1240,58 @@ func openSources(ctx context.Context, definition *definition, dql string, consta
 		names = append(names, name)
 	}
 	required := requiredConnectors(ctx, definition, dql, names, constants...)
-	result := &sources{Connections: column.Connections{}}
-	for _, name := range required {
-		item, ok := available[name]
+	result := &sources{Connections: column.Connections{}, definitions: available}
+	if err := result.require(ctx, definition, required, constants...); err != nil {
+		result.Close()
+		return nil, err
+	}
+	return result, nil
+}
+
+// require acquires exact connector names through the same secret and connection
+// initialization path for ordinary reads and native-discovered warmup targets.
+// Its owner closes every acquired connection, including after partial failure.
+func (s *sources) require(ctx context.Context, definition *definition, names []string, constants ...*constant.Values) error {
+	var acquired []string
+	for _, name := range names {
+		if _, exists := s.Connections[name]; exists {
+			continue
+		}
+		item, ok := s.definitions[name]
 		if !ok {
-			result.Close()
-			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("Datly reader requires active Studio connector %q", name)}
+			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("Datly reader requires active Studio connector %q", name)}
 		}
 		resolvedDSN, err := connectorsecret.Resolve(ctx, definition.Secrets, item.DSN, item.SecretRef, firstConstants(constants))
 		if err != nil {
-			result.Close()
-			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("resolve Studio connector %q secret", name), Cause: err}
+			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("resolve Studio connector %q secret", name), Cause: err}
 		}
 		if strings.TrimSpace(resolvedDSN) == "" {
-			result.Close()
-			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("Studio connector %q has no DSN", name)}
+			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("Studio connector %q has no DSN", name)}
 		}
 		db, err := sql.Open(normalizeDriver(item.Driver), resolvedDSN)
 		if err != nil {
-			result.Close()
-			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("open Studio connector %q", name), Cause: err}
+			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("open Studio connector %q", name), Cause: err}
 		}
 		if err = connectorinit.Configure(ctx, db, item.Driver, item.Options); err != nil {
 			_ = db.Close()
-			result.Close()
-			return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("configure Studio connector %q", name), Cause: err}
+			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("configure Studio connector %q", name), Cause: err}
 		}
-		result.opened = append(result.opened, db)
-		result.Connections[name] = db
+		s.opened = append(s.opened, db)
+		s.Connections[name] = db
+		acquired = append(acquired, name)
 		if name == definition.Connector {
-			result.SQL = &dsql.SQLComponent{DB: db}
+			s.SQL = &dsql.SQLComponent{DB: db}
 		}
 	}
-	if result.SQL == nil {
-		result.Close()
-		return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("default Studio connector %q is not active", definition.Connector)}
+	if s.SQL == nil {
+		return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("default Studio connector %q is not active", definition.Connector)}
 	}
-	for name, db := range result.Connections {
-		if err := result.SQL.RegisterConnector(name, db); err != nil {
-			result.Close()
-			return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "register Datly SQL connector", Cause: err}
+	for _, name := range acquired {
+		if err := s.SQL.RegisterConnector(name, s.Connections[name]); err != nil {
+			return &sdk.Error{Code: sdk.ErrorInternal, Message: "register Datly SQL connector", Cause: err}
 		}
 	}
-	return result, nil
+	return nil
 }
 
 func requiredConnectors(ctx context.Context, definition *definition, dql string, available []string, constants ...*constant.Values) []string {
