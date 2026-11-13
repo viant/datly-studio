@@ -1549,14 +1549,14 @@ func (t *Transport) applyReaderBuilder(ctx context.Context, input, output any) e
 		return err
 	}
 	if in.Command.ExpectedSourceRevision != version.SourceRevision {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
+		return &sdk.Error{Code: sdk.ErrorConflict, Field: "sourceRevision", Message: "version source revision does not match"}
 	}
 	var operation readerbuilder.Operation
 	if err = json.Unmarshal(in.Command.Operation, &operation); err != nil {
 		return invalid(fmt.Errorf("reader builder operation: %w", err))
 	}
 	if operation.Type != readerbuilder.OperationInspect && version.State != "draft" {
-		return &sdk.Error{Code: sdk.ErrorConflict, Message: "published version cannot be mutated"}
+		return &sdk.Error{Code: sdk.ErrorConflict, Field: "state", Message: "published version cannot be mutated"}
 	}
 	response, err := t.runReaderBuilder(ctx, in.ReportID, version, operation)
 	if err != nil {
@@ -1634,7 +1634,7 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 		return nil, invalid(errors.New("reader builder DQL is required"))
 	}
 	if current.State != "draft" {
-		return nil, &sdk.Error{Code: sdk.ErrorConflict, Message: "published version cannot be mutated"}
+		return nil, &sdk.Error{Code: sdk.ErrorConflict, Field: "state", Message: "published version cannot be mutated"}
 	}
 	spec := current.ComponentSpec
 	if len(spec) == 0 {
@@ -1673,7 +1673,14 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 	if err != nil {
 		var conflict *xhandler.Conflict
 		if errors.As(err, &conflict) {
-			return nil, &sdk.Error{Code: sdk.ErrorConflict, Message: "version source revision does not match"}
+			failure := &sdk.Error{Code: sdk.ErrorConflict, Message: "reader version changed during save", Cause: err}
+			switch conflict.Field {
+			case "source_revision", "SourceRevision":
+				failure.Field, failure.Message = "sourceRevision", "version source revision does not match"
+			case "state":
+				failure.Field, failure.Message = "state", "published version cannot be mutated"
+			}
+			return nil, failure
 		}
 		return nil, internal(err)
 	}
@@ -1703,7 +1710,18 @@ func (t *Transport) persistReaderBuilderDQL(ctx context.Context, reportID string
 		if err != nil {
 			var conflict *xhandler.Conflict
 			if errors.As(err, &conflict) {
-				return nil, &sdk.Error{Code: sdk.ErrorConflict, Message: "report etag does not match"}
+				failure := &sdk.Error{Code: sdk.ErrorConflict, Message: "component configuration changed during save", Cause: err}
+				switch conflict.Field {
+				case "etag", "Etag":
+					failure.Field, failure.Message = "etag", "report etag does not match"
+				case "id":
+					failure.Field, failure.Message = "id", "report is absent or deleted"
+				case "owner_id":
+					failure.Field, failure.Message = "ownerId", "report owner cannot change"
+				case "namespace":
+					failure.Field, failure.Message = "namespace", "component namespace ownership cannot change through configuration"
+				}
+				return nil, failure
 			}
 			return nil, internal(err)
 		}
@@ -1742,7 +1760,7 @@ func (t *Transport) validateMCPToolNames(ctx context.Context, reportID string, s
 	for _, name := range names {
 		key := strings.ToLower(name)
 		if requested[key] {
-			return &sdk.Error{Code: sdk.ErrorConflict, Message: fmt.Sprintf("MCP tool name %q is duplicated in this component", name)}
+			return &sdk.Error{Code: sdk.ErrorConflict, Field: "mcp.name", Message: fmt.Sprintf("MCP tool name %q is duplicated in this component", name)}
 		}
 		requested[key] = true
 	}
@@ -1762,7 +1780,7 @@ func (t *Transport) validateMCPToolNames(ctx context.Context, reportID string, s
 		}
 		for _, candidate := range mcpToolFamily(name, settings) {
 			if requested[strings.ToLower(candidate)] {
-				return &sdk.Error{Code: sdk.ErrorConflict, Message: fmt.Sprintf("MCP tool name %q is already used by another reader", candidate)}
+				return &sdk.Error{Code: sdk.ErrorConflict, Field: "mcp.name", Message: fmt.Sprintf("MCP tool name %q is already used by another reader", candidate)}
 			}
 		}
 	}

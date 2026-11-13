@@ -2951,6 +2951,92 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 	if staleBuilder.Code != http.StatusConflict || !bytes.Contains(staleBuilder.Body.Bytes(), []byte(`"field":"sourceRevision"`)) {
 		t.Fatalf("stale native builder status=%d body=%s", staleBuilder.Code, staleBuilder.Body.String())
 	}
+	t.Run("builder_conflict_details", func(t *testing.T) {
+		const editedID, reservedID = "builder-warmup-edit", "builder-name-reserved"
+		t.Cleanup(func() {
+			for _, reportID := range []string{editedID, reservedID} {
+				if _, err := store.ExecContext(ctx, "DELETE FROM component_versions WHERE report_id=?", reportID); err != nil {
+					t.Error(err)
+				}
+				if _, err := store.ExecContext(ctx, "DELETE FROM components WHERE id=?", reportID); err != nil {
+					t.Error(err)
+				}
+			}
+		})
+		source := `#package('example.com/builder/reader')
+#setting($_ = $connector('main'))
+#setting($_ = $route('/builder-records','GET'))
+#setting($_ = $mcp('alice.builder.records','Read records'))
+#setting($_ = $cache('records','1m'))
+#setting($_ = $cache_warmup('ID','Period=test-hour','Limit=0','MaxCases=1'))
+#define($_ = $Period<string>(query/period).Optional())
+#define($_ = $Rows<[]*Row>(output/view))
+SELECT records.*,type(records,'Row') FROM (SELECT 1 AS ID) records`
+		source = strings.Replace(source, "$cache('records','1m')", fmt.Sprintf("$cache('records','1m').WithLocation('%s')", filepath.Join(t.TempDir(), "cache")), 1)
+		for _, reportID := range []string{editedID, reservedID} {
+			if _, err := store.ExecContext(ctx, `INSERT INTO components(id,namespace,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,'production.audit',?,?,'alice','draft','main',?,'reader',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, reportID, reportID, reportID, "example.com/builder/"+reportID); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := store.ExecContext(ctx, `INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'draft','dql',?,?,'{}','studio.v1','builder-fixture','{}','valid','v1','studio.v1',14,'alice',CURRENT_TIMESTAMP)`, reportID, source, source); err != nil {
+				t.Fatal(err)
+			}
+		}
+		operation := map[string]any{"type": "setSetting", "setting": map[string]any{"name": "cache_warmup", "args": []string{"'ID'", "'Period=lifetime'", "'MaxCases=1'", "'Limit=0'"}}}
+		for _, tc := range []struct {
+			name, state, field, message string
+			revision                    int
+		}{
+			{"duplicate name", "draft", "mcp.name", "already used by another reader", 14},
+			{"stale revision", "draft", "sourceRevision", "version source revision does not match", 13},
+			{"published state", "published", "state", "published version cannot be mutated", 14},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				if _, err := store.ExecContext(ctx, "UPDATE component_versions SET state=? WHERE report_id=?", tc.state, editedID); err != nil {
+					t.Fatal(err)
+				}
+				args := map[string]any{"namespaceId": namespaceaccess.ID("alice", "production.audit"), "reportId": editedID, "versionNo": 1, "command": map[string]any{"expectedSourceRevision": tc.revision, "operation": operation}}
+				raw, err := json.Marshal(args)
+				if err != nil {
+					t.Fatal(err)
+				}
+				httpResult := httptest.NewRecorder()
+				server.ServeHTTP(httpResult, request("/v1/studio/sdk/versions.builder", string(raw)))
+				if httpResult.Code != 409 || !bytes.Contains(httpResult.Body.Bytes(), []byte(`"field":"`+tc.field+`"`)) || !bytes.Contains(httpResult.Body.Bytes(), []byte(tc.message)) {
+					t.Fatalf("HTTP status=%d body=%s", httpResult.Code, httpResult.Body.String())
+				}
+				status, body := mcpCall(staticMCP, "Bearer "+token, nil, "tools/call", "studio.sdk.versions.builder", args)
+				if status != 200 || !bytes.Contains(body, []byte(`"isError":true`)) || !bytes.Contains(body, []byte(`"field":"`+tc.field+`"`)) || !bytes.Contains(body, []byte(tc.message)) {
+					t.Fatalf("MCP status=%d body=%s", status, body)
+				}
+				var revision int
+				var dql string
+				if err := store.QueryRowContext(ctx, "SELECT source_revision,authored_dql FROM component_versions WHERE report_id=? AND version_no=1", editedID).Scan(&revision, &dql); err != nil || revision != 14 || dql != source {
+					t.Fatalf("rejected save changed source: rev=%d err=%v", revision, err)
+				}
+			})
+		}
+		if _, err := store.ExecContext(ctx, "UPDATE component_versions SET state='draft' WHERE report_id=?", editedID); err != nil {
+			t.Fatal(err)
+		}
+		unique := strings.ReplaceAll(source, "alice.builder.records", "alice.builder.reserved")
+		if _, err := store.ExecContext(ctx, "UPDATE component_versions SET authored_dql=?,generated_dql=? WHERE report_id=?", unique, unique, reservedID); err != nil {
+			t.Fatal(err)
+		}
+		raw, err := json.Marshal(map[string]any{"reportId": editedID, "versionNo": 1, "command": map[string]any{"expectedSourceRevision": 14, "operation": operation}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		saved := httptest.NewRecorder()
+		server.ServeHTTP(saved, request("/v1/studio/sdk/versions.builder", string(raw)))
+		var result sdk.ReaderBuilderResult
+		if saved.Code != 200 || json.Unmarshal(saved.Body.Bytes(), &result) != nil || !result.Applied || result.Inspection == nil || result.Inspection.Version == nil || result.Inspection.Version.SourceRevision != 15 {
+			t.Fatalf("valid save status=%d body=%s", saved.Code, saved.Body.String())
+		}
+		var runs int
+		if err := store.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_warmup_runs WHERE report_id=?", editedID).Scan(&runs); err != nil || runs != 0 {
+			t.Fatalf("save executed warmup: runs=%d err=%v", runs, err)
+		}
+	})
 	for _, viaBFF := range []bool{false, true} {
 		endpoint, bearer := staticMCP, "Bearer "+token
 		var cookie *http.Cookie

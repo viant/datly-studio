@@ -150,8 +150,16 @@ func publicBuilderError(err error) error {
 	message := "reader builder failed"
 	payload := map[string]any{"message": message}
 	if status == 409 {
-		message = "reader version changed; reload before saving"
-		payload = map[string]any{"message": message, "code": "conflict", "field": "sourceRevision"}
+		// Conflict messages are producer-owned public constraints. Never expose
+		// Cause, or infer that an unclassified conflict is a stale revision.
+		message = value.Message
+		if strings.TrimSpace(message) == "" {
+			message = "reader builder conflict"
+		}
+		payload = map[string]any{"message": message, "code": value.Code}
+		if value.Field != "" {
+			payload["field"] = value.Field
+		}
 	}
 	return &xresponse.Error{Code: status, Cause: errors.New(message), Payload: payload}
 }
