@@ -1467,6 +1467,10 @@ github.com/viant/datly v1.1.1-0.20261113020939-ed9885343a87 h1:wUrW0KgAOCbLbSPvp
 github.com/viant/datly v1.1.1-0.20261113020939-ed9885343a87/go.mod h1:jyeFXTQv2enUWJ60KNnmUc19Mu31B3BexLfrQZj5fBs=
 github.com/viant/datly v1.1.1-0.20261113030415-a0829ff8bb19 h1:V7axsPfJWVunuiEvYsEV8bCsh0+UyoY58L9BjSf2laU=
 github.com/viant/datly v1.1.1-0.20261113030415-a0829ff8bb19/go.mod h1:jyeFXTQv2enUWJ60KNnmUc19Mu31B3BexLfrQZj5fBs=
+github.com/viant/datly v1.1.1-0.20261113033039-347fb9e03f3f h1:6wLvoaB64xJLuolPmbxssYSfXknCEZasVIqmH4Ni3vQ=
+github.com/viant/datly v1.1.1-0.20261113033039-347fb9e03f3f/go.mod h1:vMGhT5pOvWiFRdYv+4jbSgGsB4l9AyxH4Z6UmAiXKsA=
+github.com/viant/datly v1.1.1-0.20261113060959-b4da7876a2e8 h1:DyntNZ+OHxr6q+nCI2t8axGf+psO+1PlZD8Foa5WxNU=
+github.com/viant/datly v1.1.1-0.20261113060959-b4da7876a2e8/go.mod h1:vMGhT5pOvWiFRdYv+4jbSgGsB4l9AyxH4Z6UmAiXKsA=
 github.com/viant/embedius v0.5.8-0.20261108015858-2dbb2e0a515a h1:eXzl4VD68u7buXfxTortru6xKjVtC6XPEcJHmDER92I=
 github.com/viant/embedius v0.5.8-0.20261108015858-2dbb2e0a515a/go.mod h1:BkCf4YWLtLF079Px+UKzDzigdKQX5uEfCpsFOxUpkMs=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641 h1:yA6VXuZfTdnbkxDY3MN6NKiKavfsg/fjxQmlKqS5KDw=
@@ -1607,8 +1611,12 @@ github.com/viant/sqlx v0.26.2-0.20261108043747-b91936294ab3 h1:nNO2bQF6EYFWBJYML
 github.com/viant/sqlx v0.26.2-0.20261108043747-b91936294ab3/go.mod h1:iunAIk9+GawV8KPR+UWh25Ba7/yO/I+/n0Z8o1IMBZc=
 github.com/viant/sqlx v0.26.2-0.20261112203041-256c3c13bc14 h1:7lfkSqQhhiRMd85cHzRXU46pQqYLkI83tWheoBCyJk0=
 github.com/viant/sqlx v0.26.2-0.20261112203041-256c3c13bc14/go.mod h1:WMpHEeUsJW26BVr/3pVshoWIdgJb4XNkGH7GN4u0OsM=
+github.com/viant/sqlx v0.26.2-0.20261113032806-87f5818ff1ed h1:/N2TzvmchzH2fKFZ3S7qQwwuZG7gOZBXLzMFbtHl7Uw=
+github.com/viant/sqlx v0.26.2-0.20261113032806-87f5818ff1ed/go.mod h1:WMpHEeUsJW26BVr/3pVshoWIdgJb4XNkGH7GN4u0OsM=
 github.com/viant/sqlx v0.26.2-0.20261113032921-3a1b8706fee7 h1:jRlPGWpxMK5hLi6KO61U+MExeKyPEKGmt6ff5vUgIM0=
 github.com/viant/sqlx v0.26.2-0.20261113032921-3a1b8706fee7/go.mod h1:WMpHEeUsJW26BVr/3pVshoWIdgJb4XNkGH7GN4u0OsM=
+github.com/viant/sqlx v0.26.2-0.20261113035407-72a9f0c3efba h1:ea330HhOcfxXijQOE9lOLlpZxYs30PUoGPYeOMQsDUw=
+github.com/viant/sqlx v0.26.2-0.20261113035407-72a9f0c3efba/go.mod h1:WMpHEeUsJW26BVr/3pVshoWIdgJb4XNkGH7GN4u0OsM=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50 h1:BlcLBwxvvGnlyWIJhQ9guw7owpEoJXKGzPXG9xe2HlA=
 github.com/viant/structology v0.10.1-0.20261014122805-e37281ec0f50/go.mod h1:sNNuCH9Zt+QUNeV1slf/QKBdOdUIj0AVdhDFR09+8Ig=
 github.com/viant/structology v0.10.1-0.20261015025741-5750986d416b h1:zhC5trcDODkp2n7qr8OnP1/VFvH1XGnNEel6J0QXluM=
