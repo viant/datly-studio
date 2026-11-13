@@ -78,6 +78,13 @@ a required predicate, substitute an unrelated connector or repeatedly publish
 unchanged source to hide the failure. Read back desired/active versions and
 generations; invoke the published tool only after activation is established.
 
+Use the advertised metadata operations for table/column discovery. Do not use
+`connectors.test_sql` as an ad hoc catalog-listing replacement when scoped
+`connectors.tables`, `connectors.table` or `connectors.search` is available.
+Incomplete search coverage calls for its documented continuation or a known-table
+inspection, not an unbounded system-catalog query. Keep metadata-discovery errors
+separate from business-query errors and inspect the reported source/provenance.
+
 Obtain the source catalog/project and schema/dataset from the user or an explicit
 configured scope before listing tables. Ask for missing scope instead of scanning
 every catalog. Use bounded table pages. When `nextPageToken` is returned, pass it
