@@ -59,6 +59,20 @@ and every parameter-selected grouping branch. Preserve source ranks and
 already-computed averages/ratios at their admitted grain; do not expose them as
 freely summable measures to obtain a scalar result.
 
+## Compare the same aggregate meaning
+
+A representative label such as `MAX(state)` does not define disjoint membership
+sets. If entity 1 has observations in states A and B, while entity 2 has only A,
+the conditional distinct-entity counts are A=2 and B=1. Displaying one maximum
+label for each entity does not erase its other memberships. Counts can overlap
+without being incorrect.
+
+Before declaring a rollup defect, select the same count measures at both grains
+and inspect the underlying entity/time memberships. Do not derive conditional
+counts by counting representative labels, sum overlapping distinct counts, or
+introduce an arbitrary latest-row rule to force agreement. A latest-state rule
+requires an explicit business contract; it is not implied by a display label.
+
 ## Projection is not a rollup
 
 Marking a field as a dimension or omitting it from a response does not prove that
