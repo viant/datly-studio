@@ -22,6 +22,24 @@ may not include a newly published namespace. Saved cube-configuration listings
 are not the live tool catalog and an empty configuration list does not establish
 that a derived cube is absent.
 
+## Load the referenced guidance
+
+The Markdown references in this skill are MCP documentation resources, not
+namespace-owned data assets. Use this same provider's advertised resource reader
+(native `resources/read`, or `skills_read_resource` when exposed as a tool).
+Do not send documentation URIs to a namespace-asset `resource_get` operation.
+For example, after checking that reader's input schema:
+
+```json
+{"uri":"mcp://datastudio/skills/datly-studio-authoring/references/dql.md"}
+```
+
+Resolve relative links against the discovered skill resource root. Load the
+whole document URI without a Markdown `#section` fragment, then read the relevant
+section. Copy opaque skill revisions/cursors exactly. If a host skill reference
+fails, rediscover it or use this provider's documented resource reader; that
+failure does not establish that the underlying authoring capability is absent.
+
 ## Required authoring sequence
 
 For a reader request described in natural language rather than supplied DQL, read

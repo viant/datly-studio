@@ -25,7 +25,10 @@ opaque values. Copy them exactly; do not shorten, reconstruct or hand-edit their
 encoded segments. If skill activation/get reports an invalid revision, compare
 the submitted reference with the preceding discovery result, then refresh that
 same provider's discovery. Do not repeat the same malformed reference through
-multiple operations. Use the provider's advertised management skill/resource
+multiple operations. If a catalog cursor no longer matches its snapshot/query,
+restart that same scoped discovery without the stale cursor and use only its new
+continuation. A cursor error is not an empty catalog or an authorization result.
+Use the provider's advertised management skill/resource
 reader when available. A discovery failure is not a reason to switch to an
 unrelated workspace or user-directory namespace service.
 
