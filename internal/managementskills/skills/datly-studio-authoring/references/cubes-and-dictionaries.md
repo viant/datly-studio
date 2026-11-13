@@ -65,6 +65,15 @@ becomes `filters.dates`). Still discover the exact published name and input
 schema through `catalog.tools.list`; deployment prefixes and authored layouts
 can differ. Use the inspected source contract to explain the meaning of filters.
 
+Keep the two input contracts distinct. Ordinary-reader query selectors remain
+explicit opt-in. Enabling the native cube selects its documented dimension,
+measure, filter, ordering and pagination API; its ordering permission applies to
+selected scalar fields even when direct-reader ordering is disabled. Do not
+add those controls to the ordinary reader implicitly, or misclassify the native
+cube's own controls as accidental reader selectors. Inspect both actual schemas.
+An explicit request to restrict individual cube controls is a separate contract
+requirement; do not pretend ordinary-reader flags implement that restriction.
+
 Do not sum non-additive values such as distinct users, percentages or daily rates
 across incompatible groups. Aggregate additive numerators/denominators and derive
 the final ratio at the selected grain, or use a documented source-native rule.
