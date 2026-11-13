@@ -29,6 +29,12 @@ For a reader request described in natural language rather than supplied DQL, rea
 from discovered contracts and verified schema relationships; do not require the
 caller to write source or infer authorization from names.
 
+For customer-facing dimensions, prefer verified names over bare IDs. If a fact
+contains only IDs, resolve names through native outer dictionary views, including
+across different connectors. Preserve IDs, missing-metadata facts, authorization
+and cube grain; do not add keys to rollups solely to obtain labels. Follow the
+[dimension enrichment contract](references/reader-from-requirements.md#resolve-dimension-names-through-native-outer-views).
+
 Use this Data Studio connection's `studio.sdk.*` tools for components, readers
 and cubes. Resource-catalog tools are a different authoring surface; do not
 substitute them for component version operations.

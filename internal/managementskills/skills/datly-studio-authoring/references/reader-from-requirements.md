@@ -65,6 +65,42 @@ all dimensions required by indexed cached projections and grouping. Preserve
 scope and date semantics when joining dictionaries across connectors. Do not
 convert a detailed lookup into a cube merely because it is exposed through MCP.
 
+## Resolve dimension names through native outer views
+
+Customer-facing results should display a verified dimension name or label when
+available, rather than only its technical ID. When the fact source contains IDs
+only, discover the corresponding dictionary source and add it as a native outer
+data-graph view. The dictionary may use a different connector from the fact.
+For example, a warehouse fact with `product_id` can resolve `product_name` from
+a separate catalog connector. This is a declared cross-connector graph relation,
+not a SQL join sent across unrelated database engines.
+
+Default to resolving names for the dimensions exposed by the requested result.
+Inspect only the relevant dictionaries. Verify the complete relation key,
+uniqueness, cardinality, source grain and applicable authorization; matching
+column names alone do not establish a relationship. Do not guess dictionary
+tables, load every dimension table, or add an unverified lookup. If a required
+key or dictionary is unavailable, identify the specific gap.
+
+Keep the fact as the root. Declare the dictionary connector with `use_connector`
+and use native relation keys, to-one cardinality where proven, and nullable outer
+relation semantics so absent metadata does not drop or multiply fact rows. Use
+the framework's batched key lookups; do not issue a lookup per result row or join
+and filter dictionary rows in application code. Fetch only metadata for the
+selected authorized fact keys, preserving the dictionary's own access rules.
+
+Return the name as the preferred display value and keep its stable ID available
+for filtering, joins and traceability. Fall back to that ID when the name is
+missing; do not invent labels or present an unknown name as an empty successful
+lookup. Include relevant verified descriptive attributes when requested.
+
+Enrichment must follow cube grain. When a rollup omits a dimension's full key,
+do not force that key into grouping to obtain a name, and do not attach an
+arbitrary label to the aggregate. Omit that dimension's enrichment at that grain.
+Test matched and missing dictionary rows, full-key and reduced-grain queries,
+unchanged fact counts/totals, and bounded batched query counts before publication.
+See the native fact/dictionary graph in [the worked example](worked-example.md).
+
 ## Create and prove the result
 
 Use management MCP to create the component and edit its exact draft revision.
