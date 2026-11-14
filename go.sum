@@ -1405,6 +1405,8 @@ github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8 h1:nL0WC7i8EKYFQeQ9
 github.com/viant/bindly v0.4.1-0.20261021172156-afd22f40fbb8/go.mod h1:2S+CsLqdGI1+s7BSuEWx/+ew8p+/Ax7Xi3HKGiE3/O8=
 github.com/viant/bindly v0.5.1-0.20261112180526-e480ab9385d1 h1:3+Qqej4aMl+E0QtZb4PaQgqMaIbh4dJj5jZldzbJtAg=
 github.com/viant/bindly v0.5.1-0.20261112180526-e480ab9385d1/go.mod h1:D0vTc9LYOWmdt39L8sP7gFg7sQNFLgXy783bkJG+PT8=
+github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d h1:yWyX4PytRbNl0k9IccwKQ6VKEP9qMVTD4XDfXxaweOw=
+github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d/go.mod h1:KQvuS7/I8g5IzKw5DvuoJgE7zqJ5745oldzCGfylg1Y=
 github.com/viant/bintly v0.2.0 h1:vmsDUh/+V2a1zDc2YL4SpwoUG9m/7zYKxB8Yw10D2Sk=
 github.com/viant/bintly v0.2.0/go.mod h1:IpiWi1GsRJebOKID8b65euhXMg4FPvfGUvLntaSt7I8=
 github.com/viant/datly v1.1.1-0.20261015003331-f8fe295597c2 h1:CPd0Ie6sC5zF0J1KOfLcybKljyAv0WfxheXzsiIIo+Y=
@@ -1471,6 +1473,8 @@ github.com/viant/datly v1.1.1-0.20261113033039-347fb9e03f3f h1:6wLvoaB64xJLuolPm
 github.com/viant/datly v1.1.1-0.20261113033039-347fb9e03f3f/go.mod h1:vMGhT5pOvWiFRdYv+4jbSgGsB4l9AyxH4Z6UmAiXKsA=
 github.com/viant/datly v1.1.1-0.20261113060959-b4da7876a2e8 h1:DyntNZ+OHxr6q+nCI2t8axGf+psO+1PlZD8Foa5WxNU=
 github.com/viant/datly v1.1.1-0.20261113060959-b4da7876a2e8/go.mod h1:vMGhT5pOvWiFRdYv+4jbSgGsB4l9AyxH4Z6UmAiXKsA=
+github.com/viant/datly v1.1.1-0.20261113221339-e4e103987ac2 h1:BF8nlYLXzykDKBkmqP9ikd76oEF/mG8JOwcdSYj0fTs=
+github.com/viant/datly v1.1.1-0.20261113221339-e4e103987ac2/go.mod h1:rmijAiiNzfbkLDBqavnYqOW3INmz1NSgnpuXscnIzGA=
 github.com/viant/embedius v0.5.8-0.20261108015858-2dbb2e0a515a h1:eXzl4VD68u7buXfxTortru6xKjVtC6XPEcJHmDER92I=
 github.com/viant/embedius v0.5.8-0.20261108015858-2dbb2e0a515a/go.mod h1:BkCf4YWLtLF079Px+UKzDzigdKQX5uEfCpsFOxUpkMs=
 github.com/viant/forge v0.3.45-0.20261015011117-38bb1cf13641 h1:yA6VXuZfTdnbkxDY3MN6NKiKavfsg/fjxQmlKqS5KDw=
@@ -1573,6 +1577,8 @@ github.com/viant/mcp-protocol v0.19.2-0.20261111213322-0ed554477bee h1:qUQoLJZTc
 github.com/viant/mcp-protocol v0.19.2-0.20261111213322-0ed554477bee/go.mod h1:gjX/5pp9sV1bnoc9miq28Pti2pAfjuXs6zRLwazVcnE=
 github.com/viant/mcp-protocol v0.19.2-0.20261112230027-972f0e60ae62 h1:cDkJmYTRnMmO7VR5Zib+yv9+xTaWoU/JPtlRd+FGfOw=
 github.com/viant/mcp-protocol v0.19.2-0.20261112230027-972f0e60ae62/go.mod h1:Vwrn9VXnVpYd+Ixk7mi1CJB+Vkf3cPmM8lg+WBqhZJY=
+github.com/viant/mcp-protocol v0.19.2-0.20261113180806-de65252f3921 h1:OrlOqR12ye/SkSlRL7MAkRcgM2qjoPYm9KpZGQrq8qo=
+github.com/viant/mcp-protocol v0.19.2-0.20261113180806-de65252f3921/go.mod h1:x2jdXKhYed8shL9loDWPdNWAjHKwTHxDFgO7OlnXlXg=
 github.com/viant/parsly v0.3.3 h1:7ytgfLOG4Ils+wviGacWxRD0gAUvVEH/iGsSE+UI8YM=
 github.com/viant/parsly v0.3.3/go.mod h1:85fneXJbErKMGhSQto3A5ElTQCwl3t74U9cSV0waBHw=
 github.com/viant/scache v0.5.1-0.20241014222741-4367658dff4f h1:dWVuenSFFeAqWPslOXhCj+ND5CwiCVBaAyq3vefDvBs=
@@ -1629,6 +1635,8 @@ github.com/viant/structology v0.10.2-0.20261102014542-ba7e5d63f2e7 h1:O4GtP0mqu/
 github.com/viant/structology v0.10.2-0.20261102014542-ba7e5d63f2e7/go.mod h1:sNNuCH9Zt+QUNeV1slf/QKBdOdUIj0AVdhDFR09+8Ig=
 github.com/viant/structology v0.10.2-0.20261111231637-f368452ca3b3 h1:DOgpP9QVgMd3K6aEgs7U2UZOtElVTCih5yeOfkeYM/A=
 github.com/viant/structology v0.10.2-0.20261111231637-f368452ca3b3/go.mod h1:0gIET7nZFNzdYFWy6lAnGNB5UOpknfCi5plPi03Rw4g=
+github.com/viant/structology v0.10.2-0.20261113180916-935b893ed193 h1:onY35OFhTt9jNCxIcucsAD2BIt8U663xq8xuoABbnHg=
+github.com/viant/structology v0.10.2-0.20261113180916-935b893ed193/go.mod h1:zIOT/9eF2wbEiWzd+lEGnh14C37IdMFA1Ym2hJlYV0M=
 github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 h1:gJLgcwcRvCS4MI59UBbokZKVMUk+etcsC4UkAtSSC7s=
 github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5/go.mod h1:nm9AYnAuSKH7b7pG+dKVxbQrr1Mgp1CQEMvUwwkE+I8=
 github.com/viant/tagly v0.4.1-0.20261007173811-969600917520 h1:A5CLCHytLRaDNTOehP4J6nu6vPUmHmnoCQ5dGQqZEPE=
@@ -1639,6 +1647,8 @@ github.com/viant/tagly v0.4.2-0.20261111223836-05766879fae0 h1:D1vVSLxj/kxiqjReB
 github.com/viant/tagly v0.4.2-0.20261111223836-05766879fae0/go.mod h1:PauQQkHmAvL5lFGr4gIgi+PE0aUPggBIBYN34sX2Oes=
 github.com/viant/tagly v0.4.2-0.20261112224436-bd351557715d h1:J/hHSpRW73w7EA/1q1Q8S9xdJV8Uhgle7FGgqRFZZB0=
 github.com/viant/tagly v0.4.2-0.20261112224436-bd351557715d/go.mod h1:PauQQkHmAvL5lFGr4gIgi+PE0aUPggBIBYN34sX2Oes=
+github.com/viant/tagly v0.4.2-0.20261113182338-188615d27a98 h1:vGpVOvcFg8O6pdUV8nfzS5H/DcSeosZXAs/rOp6+feM=
+github.com/viant/tagly v0.4.2-0.20261113182338-188615d27a98/go.mod h1:PauQQkHmAvL5lFGr4gIgi+PE0aUPggBIBYN34sX2Oes=
 github.com/viant/toolbox v0.24.0/go.mod h1:OxMCG57V0PXuIP2HNQrtJf2CjqdmbrOx5EkMILuUhzM=
 github.com/viant/toolbox v0.34.5/go.mod h1:OxMCG57V0PXuIP2HNQrtJf2CjqdmbrOx5EkMILuUhzM=
 github.com/viant/toolbox v0.39.0 h1:za80N68bwfMNbdt9MbzegGY/4j6GWaMR2Pk/edl7jmI=
@@ -1667,8 +1677,12 @@ github.com/viant/xdatly v1.0.1-0.20261102165405-bb0ef2dd2d5e h1:LimCRdv4udY2QZ+1
 github.com/viant/xdatly v1.0.1-0.20261102165405-bb0ef2dd2d5e/go.mod h1:t085YqeJeRWQzuzio1Th4Jkfcb6E35n/XSw3ltCAkrI=
 github.com/viant/xdatly v1.0.1-0.20261106191133-04634a407286 h1:fPoJJ0gmMh5u35n9H3kYVLVCpg3NW9xSImtXfHtSYWo=
 github.com/viant/xdatly v1.0.1-0.20261106191133-04634a407286/go.mod h1:BjRu2N3yexqbnzp/NoFqvp1RYtqNIggQ5Q7edpC65j4=
+github.com/viant/xdatly v1.0.1-0.20261113190124-9ad673c8f3b5 h1:DZ7WmOv2FYYdIgt4qjMiSc7RdSO/BtWDGQ0VE1sUR7Y=
+github.com/viant/xdatly v1.0.1-0.20261113190124-9ad673c8f3b5/go.mod h1:BjRu2N3yexqbnzp/NoFqvp1RYtqNIggQ5Q7edpC65j4=
 github.com/viant/xlsy v0.3.1 h1:KwA7PxOTVg+ns4CCPOdfNy5aEA9OUlIByUbuNC9ju0s=
 github.com/viant/xlsy v0.3.1/go.mod h1:RajfF9HkL/PfIxRCvZSubpNlpdMUNDKYZp8C1o3vF4Q=
+github.com/viant/xlsy v0.3.2-0.20261113010534-151b55bf6abc h1:fzl4gipi5VffeYfhTYIHqvCCRzyhflFXpe84KTaPDdo=
+github.com/viant/xlsy v0.3.2-0.20261113010534-151b55bf6abc/go.mod h1:cptsSzUEN4JqhiMcObdiKm67Q6lTiPDJpVjD+/SeekQ=
 github.com/viant/xmlify v0.1.2-0.20260914155716-e525a8788fd0 h1:KOvP8KJgM8+SmrsnPOOnZ6EPhAvivMj7dS/QCfBk++U=
 github.com/viant/xmlify v0.1.2-0.20260914155716-e525a8788fd0/go.mod h1:w25+umH6nthlQ8ACT3K2/YJOLlbTXKLQXkdqFs6ky9s=
 github.com/viant/xreflect v0.7.5-0.20260314170600-13f09f37d46e h1:z4uCWPkSCnGwqbIc3ENoYJnYwtR2j/9eI79vO4vK9rQ=

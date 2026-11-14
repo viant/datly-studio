@@ -56,6 +56,14 @@ component bindings. Definitions and fetches use Forge's shared
 recheck namespace, identity, window policy and source content before data release.
 A file or component change invalidates an existing pin rather than switching it.
 
+The schema fingerprint covers the native compiled input and output contracts.
+A compiler upgrade can change that fingerprint even when executable source is
+unchanged, for example when output requiredness changes. Such a saved pin is
+rejected; revalidate the component and resolve a fresh binding. The primary-only
+JSON binding format remains usable for its exact contract, but does not grant
+authority to execute generated sibling routes. Native family execution requires
+its separate family binding.
+
 Use `ResolveComponentBinding(ctx, reference)` to resolve an exact executable
 source and `ExecuteComponentJSON(ctx, reference, binding, inputs)` to dispatch it.
 Dynamic revisions are canonical positive version numbers and use their validated

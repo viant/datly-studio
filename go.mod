@@ -12,15 +12,15 @@ require (
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
-	github.com/viant/bindly v0.5.1-0.20261112180526-e480ab9385d1
-	github.com/viant/datly v1.1.1-0.20261113060959-b4da7876a2e8
+	github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d
+	github.com/viant/datly v1.1.1-0.20261113221339-e4e103987ac2
 	github.com/viant/jsonrpc v0.25.2-0.20261109161826-0c7edf60cfc5
 	github.com/viant/mcp v0.24.2-0.20261109162451-9f02fda34b44
-	github.com/viant/mcp-protocol v0.19.2-0.20261112230027-972f0e60ae62
+	github.com/viant/mcp-protocol v0.19.2-0.20261113180806-de65252f3921
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261113035407-72a9f0c3efba
 	github.com/viant/x v0.6.1-0.20261106041415-0487ec66884b
-	github.com/viant/xdatly v1.0.1-0.20261106191133-04634a407286
+	github.com/viant/xdatly v1.0.1-0.20261113190124-9ad673c8f3b5
 	github.com/viant/xunsafe v0.11.1
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/mod v0.38.0
@@ -122,12 +122,12 @@ require (
 	github.com/viant/igo v0.2.0 // indirect
 	github.com/viant/parsly v0.3.3 // indirect
 	github.com/viant/sqlparser v0.13.2-0.20261030130653-1d6f5c59d3f8
-	github.com/viant/structology v0.10.2-0.20261111231637-f368452ca3b3 // indirect
+	github.com/viant/structology v0.10.2-0.20261113180916-935b893ed193 // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
-	github.com/viant/tagly v0.4.2-0.20261112224436-bd351557715d
+	github.com/viant/tagly v0.4.2-0.20261113182338-188615d27a98
 	github.com/viant/toolbox v0.39.0 // indirect
 	github.com/viant/velty v0.4.1-0.20260915052314-fca47c0595f8 // indirect
-	github.com/viant/xlsy v0.3.1 // indirect
+	github.com/viant/xlsy v0.3.2-0.20261113010534-151b55bf6abc // indirect
 	github.com/viant/xmlify v0.1.2-0.20260914155716-e525a8788fd0 // indirect
 	github.com/viant/xreflect v0.7.5-0.20260314170600-13f09f37d46e // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
