@@ -90,6 +90,10 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/report_versions/reader
     - github.com/viant/datly-studio/studio/report_versions/create
     - github.com/viant/datly-studio/studio/report_versions/clone
+    - github.com/viant/datly-studio/studio/report_versions/delete
+    - github.com/viant/datly-studio/studio/reports/delete
+    - github.com/viant/datly-studio/studio/reports/store_removal
+    - github.com/viant/datly-studio/studio/reports/store_removal_snapshot
     - github.com/viant/datly-studio/studio/report_versions/load_dql
     - github.com/viant/datly-studio/studio/report_versions/load_archive
     - github.com/viant/datly-studio/studio/report_versions/inspect
@@ -174,7 +178,6 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/reports/publish_guard
     - github.com/viant/datly-studio/studio/reports/store_run_access
     - github.com/viant/datly-studio/studio/preview/execute
-    - github.com/viant/datly-studio/studio/reports/writer
     - github.com/viant/datly-studio/studio/resources/get
     - github.com/viant/datly-studio/studio/resources/mutate
     - github.com/viant/datly-studio/studio/resource_namespace_claims/store_write

@@ -40,7 +40,7 @@ func (t *Transport) writeImportedVersion(ctx context.Context, tx *sql.Tx, row *s
 	if err := resources.Register(stored.VersionDatlyResourceNamespace, stored.VersionDatlyResources); err != nil {
 		return err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB}
+	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
 	if err := connector.RegisterConnector("studio", t.DB); err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (t *Transport) writeImportedVersion(ctx context.Context, tx *sql.Tx, row *s
 		}
 		providers = append(providers, views)
 	}
-	handler, err := writerhandler.New(component, reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), "post")
+	handler, err := writerhandler.New(component, reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), "patch")
 	if err != nil {
 		return err
 	}
@@ -92,8 +92,9 @@ func (t *Transport) writeImportedVersion(ctx context.Context, tx *sql.Tx, row *s
 	if len(component.Routes) > 0 && component.Routes[0] != nil {
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
+	previous := row.VersionNo - 1
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target,
-		Input: &stored.Input{Versions: []*stored.ImportedVersion{row}, Has: &stored.InputHas{Versions: true}}})
+		Input: &stored.Input{Allocations: []*stored.VersionAllocation{{Id: row.ReportId, NamespaceId: row.NamespaceId, LastVersionNo: &previous, Draft: []*stored.ImportedVersion{row}, Has: &stored.VersionAllocationHas{Id: true, NamespaceId: true, LastVersionNo: true, Draft: true}}}, Has: &stored.InputHas{Allocations: true}}})
 	if err != nil {
 		return err
 	}

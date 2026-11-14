@@ -31,7 +31,7 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 		"connectors":                         {"name", "dsn_template", "last_test_status"},
 		"namespaces":                         {"owner_id", "name", "title", "status", "etag"},
 		"authorization_predicates":           {"name", "package_path", "type_name", "owner_id", "status", "etag"},
-		"components":                         {"id", "namespace", "default_connector_name", "component_scope", "component_name", "current_draft_version"},
+		"components":                         {"id", "namespace", "default_connector_name", "component_scope", "component_name", "current_draft_version", "last_version_no"},
 		"component_versions":                 {"report_id", "authoring_mode", "authored_sql", "authored_dql", "generated_dql", "spec_hash", "resource_check_enabled"},
 		"component_views":                    {"report_id", "view_id", "source_kind"},
 		"component_fields":                   {"view_id", "field_name", "go_type"},
@@ -48,9 +48,11 @@ func TestCanonicalStudioSchemaInventory(t *testing.T) {
 		"bff_sessions":                       {"session_id_hash", "subject_id", "payload_ciphertext", "expires_at_unix"},
 		"component_publications":             {"active_version_no", "desired_version_no", "desired_generation", "publication_status"},
 		"component_publication_events":       {"event_id", "report_id", "owner_id", "operation", "version_no", "generation_no", "status", "requested_by", "failure_message", "occurred_at"},
+		"component_deletions":                {"component_id", "namespace_id", "owner_id", "deleted_at", "deleted_by"},
 		"component_acl":                      {"subject_type", "subject_id", "can_use_dql", "etag"},
 	}
 	wantPrimaryKeys := map[string][]string{
+		"component_deletions":                {"component_id"},
 		"namespace_settings":                 {"owner_id", "namespace", "setting_key"},
 		"resource_policy_namespace_bindings": {"tenant_id", "resource_kind", "resource_id", "resource_version", "policy_revision"},
 	}

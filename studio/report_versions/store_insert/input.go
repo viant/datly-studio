@@ -4,10 +4,17 @@ package store_insert
 
 // Input is the generated input scaffold for version.
 type Input struct {
-	Versions []*StoredVersion `parameter:"Versions,kind=body,in=data,dataType=[]*github.com/viant/datly-studio/studio/report_versions/store_insert.StoredVersion" sql:"uri=studio_report_versions_store_insert_version:sql/read.sql" view:"version,type=StoredVersion,entityHooks=VersionInsertRules,table=component_versions"`
-	Has      *InputHas        `json:"-" setMarker:"true" sqlx:"-" typeName:"InputHas"`
+	Allocations                []*VersionAllocation       `parameter:"Allocations,kind=body,in=data,dataType=[]*github.com/viant/datly-studio/studio/report_versions/store_insert.VersionAllocation" sql:"uri=studio_report_versions_store_insert_version:sql/read.sql" view:"version,type=VersionAllocation,entityHooks=AllocationRules,table=components"`
+	VersionKeys                []VersionKeysRow           `codec:"structql,'uri=studio_report_versions_store_insert_version:sql/version_keys.sql'" parameter:"VersionKeys,kind=param,in=Allocations,cardinality=Many"`
+	CurrentVersion             []*CurrentVersionView      `parameter:"CurrentVersion,kind=view,in=CurrentVersion,cardinality=Many" sql:"uri=studio_report_versions_store_insert_version:sql/current_version.sql" view:"CurrentVersion,table=components"`
+	CurrentDraft               []*CurrentDraftView        `parameter:"CurrentDraft,kind=view,in=CurrentDraft,cardinality=Many" sql:"uri=studio_report_versions_store_insert_version:sql/current_draft.sql" view:"CurrentDraft,table=component_versions"`
+	_versionHandlerReadIndexes *VersionHandlerReadIndexes `json:"-" sqlx:"-"`
+	Has                        *InputHas                  `json:"-" setMarker:"true" sqlx:"-" typeName:"InputHas"`
 }
 
 type InputHas struct {
-	Versions bool
+	Allocations    bool
+	VersionKeys    bool
+	CurrentVersion bool
+	CurrentDraft   bool
 }

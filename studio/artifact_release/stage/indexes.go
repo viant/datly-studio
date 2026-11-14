@@ -11,6 +11,150 @@ import (
 	time "time"
 )
 
+type StageHandlerComponentLocksSlice []*LockedComponent
+
+func StageHandlerComponentLocksIndexByIdKey(value *LockedComponent) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.Id, true
+}
+
+type StageHandlerComponentLocksIndexedById map[string]*LockedComponent
+
+func (rows StageHandlerComponentLocksSlice) IndexById() (StageHandlerComponentLocksIndexedById, error) {
+	result := make(StageHandlerComponentLocksIndexedById)
+	for _, row := range rows {
+		key, ok := StageHandlerComponentLocksIndexByIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index StageHandlerComponentLocksSlice.IndexById")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index StageHandlerComponentLocksIndexedById) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type StageHandlerComponentLocksGroupedById map[string][]*LockedComponent
+
+func (rows StageHandlerComponentLocksSlice) GroupById() StageHandlerComponentLocksGroupedById {
+	result := make(StageHandlerComponentLocksGroupedById)
+	for _, row := range rows {
+		key, ok := StageHandlerComponentLocksIndexByIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index StageHandlerComponentLocksGroupedById) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type StageHandlerBoundVersionsSlice []*BoundVersion
+
+func StageHandlerBoundVersionsIndexByReportIdKey(value *BoundVersion) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.ReportId, true
+}
+
+type StageHandlerBoundVersionsIndexedByReportId map[string]*BoundVersion
+
+func (rows StageHandlerBoundVersionsSlice) IndexByReportId() (StageHandlerBoundVersionsIndexedByReportId, error) {
+	result := make(StageHandlerBoundVersionsIndexedByReportId)
+	for _, row := range rows {
+		key, ok := StageHandlerBoundVersionsIndexByReportIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index StageHandlerBoundVersionsSlice.IndexByReportId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index StageHandlerBoundVersionsIndexedByReportId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type StageHandlerBoundVersionsGroupedByReportId map[string][]*BoundVersion
+
+func (rows StageHandlerBoundVersionsSlice) GroupByReportId() StageHandlerBoundVersionsGroupedByReportId {
+	result := make(StageHandlerBoundVersionsGroupedByReportId)
+	for _, row := range rows {
+		key, ok := StageHandlerBoundVersionsIndexByReportIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index StageHandlerBoundVersionsGroupedByReportId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func StageHandlerBoundVersionsIndexByVersionNoKey(value *BoundVersion) (int, bool) {
+	var zero int
+	if value == nil {
+		return zero, false
+	}
+	return value.VersionNo, true
+}
+
+type StageHandlerBoundVersionsIndexedByVersionNo map[int]*BoundVersion
+
+func (rows StageHandlerBoundVersionsSlice) IndexByVersionNo() (StageHandlerBoundVersionsIndexedByVersionNo, error) {
+	result := make(StageHandlerBoundVersionsIndexedByVersionNo)
+	for _, row := range rows {
+		key, ok := StageHandlerBoundVersionsIndexByVersionNoKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index StageHandlerBoundVersionsSlice.IndexByVersionNo")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index StageHandlerBoundVersionsIndexedByVersionNo) Has(key int) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type StageHandlerBoundVersionsGroupedByVersionNo map[int][]*BoundVersion
+
+func (rows StageHandlerBoundVersionsSlice) GroupByVersionNo() StageHandlerBoundVersionsGroupedByVersionNo {
+	result := make(StageHandlerBoundVersionsGroupedByVersionNo)
+	for _, row := range rows {
+		key, ok := StageHandlerBoundVersionsIndexByVersionNoKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index StageHandlerBoundVersionsGroupedByVersionNo) Has(key int) bool {
+	_, ok := index[key]
+	return ok
+}
+
 type StageHandlerChannelSnapshotSlice []*ChannelSnapshot
 
 func StageHandlerChannelSnapshotIndexByRevisionKey(value *ChannelSnapshot) (int64, bool) {
@@ -693,64 +837,6 @@ func (rows StageHandlerChannelSnapshotSlice) GroupByUpdatedBy() StageHandlerChan
 	return result
 }
 func (index StageHandlerChannelSnapshotGroupedByUpdatedBy) Has(key string) bool {
-	_, ok := index[key]
-	return ok
-}
-
-type StageHandlerChannelSnapshotKey struct {
-	ScopeId string
-	Name    string
-}
-
-func StageHandlerChannelSnapshotIndexByKeyKey(value *ChannelSnapshot) (StageHandlerChannelSnapshotKey, bool) {
-	var zero StageHandlerChannelSnapshotKey
-	if value == nil {
-		return zero, false
-	}
-	if value.ScopeId == nil {
-		return zero, false
-	}
-	if value.Name == nil {
-		return zero, false
-	}
-	return StageHandlerChannelSnapshotKey{ScopeId: *value.ScopeId, Name: *value.Name}, true
-}
-
-type StageHandlerChannelSnapshotIndexedByKey map[StageHandlerChannelSnapshotKey]*ChannelSnapshot
-
-func (rows StageHandlerChannelSnapshotSlice) IndexByKey() (StageHandlerChannelSnapshotIndexedByKey, error) {
-	result := make(StageHandlerChannelSnapshotIndexedByKey)
-	for _, row := range rows {
-		key, ok := StageHandlerChannelSnapshotIndexByKeyKey(row)
-		if !ok {
-			continue
-		}
-		if _, exists := result[key]; exists {
-			return nil, fmt.Errorf("ambiguous application index StageHandlerChannelSnapshotSlice.IndexByKey")
-		}
-		result[key] = row
-	}
-	return result, nil
-}
-func (index StageHandlerChannelSnapshotIndexedByKey) Has(key StageHandlerChannelSnapshotKey) bool {
-	_, ok := index[key]
-	return ok
-}
-
-type StageHandlerChannelSnapshotGroupedByKey map[StageHandlerChannelSnapshotKey][]*ChannelSnapshot
-
-func (rows StageHandlerChannelSnapshotSlice) GroupByKey() StageHandlerChannelSnapshotGroupedByKey {
-	result := make(StageHandlerChannelSnapshotGroupedByKey)
-	for _, row := range rows {
-		key, ok := StageHandlerChannelSnapshotIndexByKeyKey(row)
-		if !ok {
-			continue
-		}
-		result[key] = append(result[key], row)
-	}
-	return result
-}
-func (index StageHandlerChannelSnapshotGroupedByKey) Has(key StageHandlerChannelSnapshotKey) bool {
 	_, ok := index[key]
 	return ok
 }
@@ -2856,8 +2942,9 @@ func (index StageHandlerCurrentBundleGroupedByKey) Has(key StageHandlerCurrentBu
 }
 
 type StageHandlerReadIndexes struct {
+	ComponentLocks                                  StageHandlerComponentLocksSlice
+	BoundVersions                                   StageHandlerBoundVersionsSlice
 	ChannelSnapshot                                 StageHandlerChannelSnapshotSlice
-	ChannelSnapshotByKey                            StageHandlerChannelSnapshotIndexedByKey
 	CurrentStage                                    StageHandlerCurrentStageSlice
 	CurrentStageByKey                               StageHandlerCurrentStageIndexedByKey
 	CurrentStageGroupedByKey                        StageHandlerCurrentStageGroupedByKey
@@ -2882,6 +2969,137 @@ func BuildStageHandlerReadIndexes(ctx context.Context, input *Input) (*StageHand
 		return nil, fmt.Errorf("read indexes require bound read metadata")
 	}
 	result := &StageHandlerReadIndexes{}
+	{
+		projection, err := metadata.Projection("ComponentLocks")
+		if err != nil {
+			return nil, err
+		}
+		if (xshape.Runtime{}).IsNil(projection) {
+			return nil, fmt.Errorf("application read projection is unavailable: ComponentLocks")
+		}
+		inputAccess, err := xshape.Linked(reflect.TypeOf((*Input)(nil)).Elem()).Accessor("ComponentLocks")
+		if err != nil {
+			return nil, err
+		}
+		carrier, err := inputAccess.Get(input)
+		if err != nil {
+			return nil, err
+		}
+		value := carrier.Interface()
+		if projection.DirectOutput() && projection.RootHolder() != "" {
+			return nil, fmt.Errorf("direct application read cannot declare a root holder")
+		}
+		if !projection.DirectOutput() {
+			holder := projection.RootHolder()
+			if holder == "" {
+				return nil, fmt.Errorf("wrapped read projection requires a canonical root holder")
+			}
+			accessor, err := xshape.Linked(carrier.Type()).Accessor(holder)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := (xshape.Collection[LockedComponent]{}).Pointers(reflect.Zero(accessor.Type()).Interface()); err != nil {
+				return nil, err
+			}
+			root, present, err := accessor.GetOptional(value)
+			if err != nil {
+				return nil, err
+			}
+			if present {
+				value = root.Interface()
+			} else {
+				value = []*LockedComponent(nil)
+			}
+		}
+		rows, err := (xshape.Collection[LockedComponent]{}).Pointers(value)
+		if err != nil {
+			return nil, err
+		}
+		for ordinal, row := range rows {
+			if row == nil {
+				continue
+			}
+			loaded, err := projection.Fields(ordinal)
+			if err != nil {
+				return nil, err
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("Id") {
+				return nil, fmt.Errorf("application index field was not loaded: ComponentLocks.Id")
+			}
+		}
+		cloned, err := (xshape.Runtime{}).CloneValue(rows, xshape.CloneOptions{})
+		if err != nil {
+			return nil, err
+		}
+		result.ComponentLocks = StageHandlerComponentLocksSlice(cloned.([]*LockedComponent))
+	}
+	{
+		projection, err := metadata.Projection("BoundVersions")
+		if err != nil {
+			return nil, err
+		}
+		if (xshape.Runtime{}).IsNil(projection) {
+			return nil, fmt.Errorf("application read projection is unavailable: BoundVersions")
+		}
+		inputAccess, err := xshape.Linked(reflect.TypeOf((*Input)(nil)).Elem()).Accessor("BoundVersions")
+		if err != nil {
+			return nil, err
+		}
+		carrier, err := inputAccess.Get(input)
+		if err != nil {
+			return nil, err
+		}
+		value := carrier.Interface()
+		if projection.DirectOutput() && projection.RootHolder() != "" {
+			return nil, fmt.Errorf("direct application read cannot declare a root holder")
+		}
+		if !projection.DirectOutput() {
+			holder := projection.RootHolder()
+			if holder == "" {
+				return nil, fmt.Errorf("wrapped read projection requires a canonical root holder")
+			}
+			accessor, err := xshape.Linked(carrier.Type()).Accessor(holder)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := (xshape.Collection[BoundVersion]{}).Pointers(reflect.Zero(accessor.Type()).Interface()); err != nil {
+				return nil, err
+			}
+			root, present, err := accessor.GetOptional(value)
+			if err != nil {
+				return nil, err
+			}
+			if present {
+				value = root.Interface()
+			} else {
+				value = []*BoundVersion(nil)
+			}
+		}
+		rows, err := (xshape.Collection[BoundVersion]{}).Pointers(value)
+		if err != nil {
+			return nil, err
+		}
+		for ordinal, row := range rows {
+			if row == nil {
+				continue
+			}
+			loaded, err := projection.Fields(ordinal)
+			if err != nil {
+				return nil, err
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ReportId") {
+				return nil, fmt.Errorf("application index field was not loaded: BoundVersions.ReportId")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("VersionNo") {
+				return nil, fmt.Errorf("application index field was not loaded: BoundVersions.VersionNo")
+			}
+		}
+		cloned, err := (xshape.Runtime{}).CloneValue(rows, xshape.CloneOptions{})
+		if err != nil {
+			return nil, err
+		}
+		result.BoundVersions = StageHandlerBoundVersionsSlice(cloned.([]*BoundVersion))
+	}
 	{
 		projection, err := metadata.Projection("ChannelSnapshot")
 		if err != nil {
@@ -2990,10 +3208,6 @@ func BuildStageHandlerReadIndexes(ctx context.Context, input *Input) (*StageHand
 			return nil, err
 		}
 		result.ChannelSnapshot = StageHandlerChannelSnapshotSlice(cloned.([]*ChannelSnapshot))
-		result.ChannelSnapshotByKey, err = result.ChannelSnapshot.IndexByKey()
-		if err != nil {
-			return nil, err
-		}
 	}
 	{
 		projection, err := metadata.Projection("CurrentStage")

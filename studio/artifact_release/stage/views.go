@@ -9,12 +9,12 @@ import (
 
 // StageChannel is generated canonical view metadata for stage.
 type StageChannel struct {
-	ScopeId                  *string           `json:",omitempty" sqlx:"scope_id,refTable=artifact_release_bundles,refColumn=scope_id,required=true,primaryKey=true"`
-	Name                     *string           `json:",omitempty" sqlx:"name,required=true,primaryKey=true"`
-	Revision                 int64             `json:",omitempty" sqlx:"revision,required=true" writer:"concurrency"`
+	ScopeId                  *string           `json:",omitempty" sqlx:"scope_id,primaryKey"`
+	Name                     *string           `json:",omitempty" sqlx:"name,primaryKey"`
+	Revision                 int64             `json:",omitempty" sqlx:"revision" writer:"concurrency"`
 	PendingOperationId       *string           `json:",omitempty" sqlx:"pending_operation_id"`
-	UpdatedAt                *time.Time        `json:",omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy                *string           `json:",omitempty" sqlx:"updated_by,required=true"`
+	UpdatedAt                *time.Time        `json:",omitempty" sqlx:"updated_at"`
+	UpdatedBy                *string           `json:",omitempty" sqlx:"updated_by"`
 	ExpectedTenantId         *string           `json:",omitempty" sqlx:"-"`
 	ExpectedAccountId        *string           `json:",omitempty" sqlx:"-"`
 	ExpectedWorkspaceId      *string           `json:",omitempty" sqlx:"-"`
@@ -51,19 +51,19 @@ type StageChannelHas struct {
 
 // StageOperation is generated canonical view metadata for stage.
 type StageOperation struct {
-	OperationId      *string            `json:",omitempty" sqlx:"operation_id,required=true,primaryKey=true"`
-	ScopeId          *string            `json:",omitempty" sqlx:"scope_id,refTable=artifact_release_channels,refColumn=scope_id,required=true"`
-	ChannelName      *string            `json:",omitempty" sqlx:"channel_name,refTable=artifact_release_channels,refColumn=name,required=true"`
-	ExpectedRevision int64              `json:",omitempty" sqlx:"expected_revision,required=true"`
-	TargetRevision   int64              `json:",omitempty" sqlx:"target_revision,required=true"`
-	TargetBundleHash *string            `json:",omitempty" sqlx:"target_bundle_hash,refTable=artifact_release_bundles,refColumn=bundle_hash,required=true"`
-	NextChannelJson  *json.RawMessage   `json:",omitempty" sqlx:"next_channel_json,required=true,enc=JSON"`
+	OperationId      *string            `json:",omitempty" sqlx:"operation_id,primaryKey"`
+	ScopeId          *string            `json:",omitempty" sqlx:"scope_id"`
+	ChannelName      *string            `json:",omitempty" sqlx:"channel_name"`
+	ExpectedRevision int64              `json:",omitempty" sqlx:"expected_revision"`
+	TargetRevision   int64              `json:",omitempty" sqlx:"target_revision"`
+	TargetBundleHash *string            `json:",omitempty" sqlx:"target_bundle_hash"`
+	NextChannelJson  *json.RawMessage   `json:",omitempty" sqlx:"next_channel_json,enc=JSON"`
 	DependenciesJson *json.RawMessage   `json:",omitempty" sqlx:"dependencies_json,enc=JSON"`
-	Status           *string            `json:",omitempty" sqlx:"status,required=true"`
-	CreatedAt        *time.Time         `json:",omitempty" sqlx:"created_at,required=true"`
-	CreatedBy        *string            `json:",omitempty" sqlx:"created_by,required=true"`
-	UpdatedAt        *time.Time         `json:",omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy        *string            `json:",omitempty" sqlx:"updated_by,required=true"`
+	Status           *string            `json:",omitempty" sqlx:"status"`
+	CreatedAt        *time.Time         `json:",omitempty" sqlx:"created_at"`
+	CreatedBy        *string            `json:",omitempty" sqlx:"created_by"`
+	UpdatedAt        *time.Time         `json:",omitempty" sqlx:"updated_at"`
+	UpdatedBy        *string            `json:",omitempty" sqlx:"updated_by"`
 	CompletedAt      *time.Time         `json:",omitempty" sqlx:"completed_at"`
 	FailureCode      *string            `json:",omitempty" sqlx:"failure_code"`
 	Has              *StageOperationHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"StageOperationHas"`
@@ -89,14 +89,14 @@ type StageOperationHas struct {
 
 // BundleBinding is generated canonical view metadata for stage.
 type BundleBinding struct {
-	ScopeId      *string           `json:",omitempty" sqlx:"scope_id,refTable=artifact_release_bundles,refColumn=scope_id,required=true,primaryKey=true"`
-	BundleHash   *string           `json:",omitempty" sqlx:"bundle_hash,refTable=artifact_release_bundles,refColumn=bundle_hash,required=true,primaryKey=true"`
-	BindingsJson *json.RawMessage  `json:",omitempty" sqlx:"bindings_json,required=true,enc=JSON"`
-	BindingsHash *string           `json:",omitempty" sqlx:"bindings_hash,required=true"`
-	CreatedAt    *time.Time        `json:",omitempty" sqlx:"created_at,required=true"`
-	CreatedBy    *string           `json:",omitempty" sqlx:"created_by,required=true"`
-	UpdatedAt    *time.Time        `json:",omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy    *string           `json:",omitempty" sqlx:"updated_by,required=true"`
+	ScopeId      *string           `json:",omitempty" sqlx:"scope_id,primaryKey"`
+	BundleHash   *string           `json:",omitempty" sqlx:"bundle_hash,primaryKey"`
+	BindingsJson *json.RawMessage  `json:",omitempty" sqlx:"bindings_json,enc=JSON"`
+	BindingsHash *string           `json:",omitempty" sqlx:"bindings_hash"`
+	CreatedAt    *time.Time        `json:",omitempty" sqlx:"created_at"`
+	CreatedBy    *string           `json:",omitempty" sqlx:"created_by"`
+	UpdatedAt    *time.Time        `json:",omitempty" sqlx:"updated_at"`
+	UpdatedBy    *string           `json:",omitempty" sqlx:"updated_by"`
 	Has          *BundleBindingHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"BundleBindingHas"`
 }
 
@@ -113,17 +113,17 @@ type BundleBindingHas struct {
 
 // StoredBundle is generated canonical view metadata for stage.
 type StoredBundle struct {
-	ScopeId     *string          `json:",omitempty" sqlx:"scope_id,required=true,primaryKey=true"`
-	TenantId    *string          `json:",omitempty" sqlx:"tenant_id,required=true"`
-	AccountId   *string          `json:",omitempty" sqlx:"account_id,required=true"`
-	WorkspaceId *string          `json:",omitempty" sqlx:"workspace_id,required=true"`
-	Namespace   *string          `json:",omitempty" sqlx:"namespace,required=true"`
-	BundleHash  *string          `json:",omitempty" sqlx:"bundle_hash,required=true,primaryKey=true"`
-	BundleJson  *json.RawMessage `json:",omitempty" sqlx:"bundle_json,required=true,enc=JSON"`
-	CreatedAt   *time.Time       `json:",omitempty" sqlx:"created_at,required=true"`
-	CreatedBy   *string          `json:",omitempty" sqlx:"created_by,required=true"`
-	UpdatedAt   *time.Time       `json:",omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy   *string          `json:",omitempty" sqlx:"updated_by,required=true"`
+	ScopeId     *string          `json:",omitempty" sqlx:"scope_id,primaryKey"`
+	TenantId    *string          `json:",omitempty" sqlx:"tenant_id"`
+	AccountId   *string          `json:",omitempty" sqlx:"account_id"`
+	WorkspaceId *string          `json:",omitempty" sqlx:"workspace_id"`
+	Namespace   *string          `json:",omitempty" sqlx:"namespace"`
+	BundleHash  *string          `json:",omitempty" sqlx:"bundle_hash,primaryKey"`
+	BundleJson  *json.RawMessage `json:",omitempty" sqlx:"bundle_json,enc=JSON"`
+	CreatedAt   *time.Time       `json:",omitempty" sqlx:"created_at"`
+	CreatedBy   *string          `json:",omitempty" sqlx:"created_by"`
+	UpdatedAt   *time.Time       `json:",omitempty" sqlx:"updated_at"`
+	UpdatedBy   *string          `json:",omitempty" sqlx:"updated_by"`
 	Has         *StoredBundleHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"StoredBundleHas"`
 }
 
@@ -141,81 +141,92 @@ type StoredBundleHas struct {
 	UpdatedBy   bool
 }
 
+// LockedComponent is generated canonical view metadata for stage.
+type LockedComponent struct {
+	Id string `json:"id,omitempty" sqlx:"id"`
+}
+
+// BoundVersion is generated canonical view metadata for stage.
+type BoundVersion struct {
+	ReportId  string `json:"reportId,omitempty" sqlx:"report_id"`
+	VersionNo int    `json:"versionNo,omitempty" sqlx:"version_no"`
+}
+
 // ChannelSnapshot is generated canonical view metadata for stage.
 type ChannelSnapshot struct {
-	Revision               int64            `json:"revision,omitempty" sqlx:"revision,required=true"`
-	ScopeId                *string          `json:"scopeId,omitempty" sqlx:"scope_id,refTable=artifact_release_bundles,refColumn=scope_id,required=true,primaryKey=true"`
-	TenantId               *string          `json:"tenantId,omitempty" sqlx:"tenant_id,required=true"`
-	AccountId              *string          `json:"accountId,omitempty" sqlx:"account_id,required=true"`
-	WorkspaceId            *string          `json:"workspaceId,omitempty" sqlx:"workspace_id,required=true"`
-	Namespace              *string          `json:"namespace,omitempty" sqlx:"namespace,required=true"`
-	Name                   *string          `json:"name,omitempty" sqlx:"name,required=true,primaryKey=true"`
-	Description            *string          `json:"description,omitempty" sqlx:"description,required=true"`
-	PolicyRefsJson         *json.RawMessage `json:"policyRefsJson,omitempty" sqlx:"policy_refs_json,required=true,enc=JSON"`
-	ActiveBundleHash       *string          `json:"activeBundleHash,omitempty" sqlx:"active_bundle_hash,refTable=artifact_release_bundles,refColumn=bundle_hash"`
+	Revision               int64            `json:"revision,omitempty" sqlx:"revision"`
+	ScopeId                *string          `json:"scopeId,omitempty" sqlx:"scope_id"`
+	TenantId               *string          `json:"tenantId,omitempty" sqlx:"tenant_id"`
+	AccountId              *string          `json:"accountId,omitempty" sqlx:"account_id"`
+	WorkspaceId            *string          `json:"workspaceId,omitempty" sqlx:"workspace_id"`
+	Namespace              *string          `json:"namespace,omitempty" sqlx:"namespace"`
+	Name                   *string          `json:"name,omitempty" sqlx:"name"`
+	Description            *string          `json:"description,omitempty" sqlx:"description"`
+	PolicyRefsJson         *json.RawMessage `json:"policyRefsJson,omitempty" sqlx:"policy_refs_json,enc=JSON"`
+	ActiveBundleHash       *string          `json:"activeBundleHash,omitempty" sqlx:"active_bundle_hash"`
 	ActiveDependenciesJson *json.RawMessage `json:"activeDependenciesJson,omitempty" sqlx:"active_dependencies_json,enc=JSON"`
 	PendingOperationId     *string          `json:"pendingOperationId,omitempty" sqlx:"pending_operation_id"`
-	CreatedAt              *time.Time       `json:"createdAt,omitempty" sqlx:"created_at,required=true"`
-	CreatedBy              *string          `json:"createdBy,omitempty" sqlx:"created_by,required=true"`
-	UpdatedAt              *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy              *string          `json:"updatedBy,omitempty" sqlx:"updated_by,required=true"`
+	CreatedAt              *time.Time       `json:"createdAt,omitempty" sqlx:"created_at"`
+	CreatedBy              *string          `json:"createdBy,omitempty" sqlx:"created_by"`
+	UpdatedAt              *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at"`
+	UpdatedBy              *string          `json:"updatedBy,omitempty" sqlx:"updated_by"`
 }
 
 // CurrentStageView is generated canonical view metadata for stage.
 type CurrentStageView struct {
-	ScopeId            *string    `json:"scopeId,omitempty" sqlx:"scope_id,refTable=artifact_release_bundles,refColumn=scope_id,required=true,primaryKey=true"`
-	Name               *string    `json:"name,omitempty" sqlx:"name,required=true,primaryKey=true"`
-	Revision           int64      `json:"revision,omitempty" sqlx:"revision,required=true"`
+	ScopeId            *string    `json:"scopeId,omitempty" sqlx:"scope_id,primaryKey"`
+	Name               *string    `json:"name,omitempty" sqlx:"name,primaryKey"`
+	Revision           int64      `json:"revision,omitempty" sqlx:"revision"`
 	PendingOperationId *string    `json:"pendingOperationId,omitempty" sqlx:"pending_operation_id"`
-	UpdatedAt          *time.Time `json:"updatedAt,omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy          *string    `json:"updatedBy,omitempty" sqlx:"updated_by,required=true"`
+	UpdatedAt          *time.Time `json:"updatedAt,omitempty" sqlx:"updated_at"`
+	UpdatedBy          *string    `json:"updatedBy,omitempty" sqlx:"updated_by"`
 	TargetBundleHash   string     `json:"targetBundleHash" sqlx:"target_bundle_hash"`
 }
 
 // CurrentOperationView is generated canonical view metadata for stage.
 type CurrentOperationView struct {
-	OperationId      *string          `json:"operationId,omitempty" sqlx:"operation_id,required=true,primaryKey=true"`
-	ScopeId          *string          `json:"scopeId,omitempty" sqlx:"scope_id,refTable=artifact_release_channels,refColumn=scope_id,required=true"`
-	ChannelName      *string          `json:"channelName,omitempty" sqlx:"channel_name,refTable=artifact_release_channels,refColumn=name,required=true"`
-	ExpectedRevision int64            `json:"expectedRevision,omitempty" sqlx:"expected_revision,required=true"`
-	TargetRevision   int64            `json:"targetRevision,omitempty" sqlx:"target_revision,required=true"`
-	TargetBundleHash *string          `json:"targetBundleHash,omitempty" sqlx:"target_bundle_hash,refTable=artifact_release_bundles,refColumn=bundle_hash,required=true"`
-	NextChannelJson  *json.RawMessage `json:"nextChannelJson,omitempty" sqlx:"next_channel_json,required=true,enc=JSON"`
+	OperationId      *string          `json:"operationId,omitempty" sqlx:"operation_id,primaryKey"`
+	ScopeId          *string          `json:"scopeId,omitempty" sqlx:"scope_id"`
+	ChannelName      *string          `json:"channelName,omitempty" sqlx:"channel_name"`
+	ExpectedRevision int64            `json:"expectedRevision,omitempty" sqlx:"expected_revision"`
+	TargetRevision   int64            `json:"targetRevision,omitempty" sqlx:"target_revision"`
+	TargetBundleHash *string          `json:"targetBundleHash,omitempty" sqlx:"target_bundle_hash"`
+	NextChannelJson  *json.RawMessage `json:"nextChannelJson,omitempty" sqlx:"next_channel_json,enc=JSON"`
 	DependenciesJson *json.RawMessage `json:"dependenciesJson,omitempty" sqlx:"dependencies_json,enc=JSON"`
-	Status           *string          `json:"status,omitempty" sqlx:"status,required=true"`
-	CreatedAt        *time.Time       `json:"createdAt,omitempty" sqlx:"created_at,required=true"`
-	CreatedBy        *string          `json:"createdBy,omitempty" sqlx:"created_by,required=true"`
-	UpdatedAt        *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy        *string          `json:"updatedBy,omitempty" sqlx:"updated_by,required=true"`
+	Status           *string          `json:"status,omitempty" sqlx:"status"`
+	CreatedAt        *time.Time       `json:"createdAt,omitempty" sqlx:"created_at"`
+	CreatedBy        *string          `json:"createdBy,omitempty" sqlx:"created_by"`
+	UpdatedAt        *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at"`
+	UpdatedBy        *string          `json:"updatedBy,omitempty" sqlx:"updated_by"`
 	CompletedAt      *time.Time       `json:"completedAt,omitempty" sqlx:"completed_at"`
 	FailureCode      *string          `json:"failureCode,omitempty" sqlx:"failure_code"`
 }
 
 // CurrentBindingView is generated canonical view metadata for stage.
 type CurrentBindingView struct {
-	ScopeId      *string          `json:"scopeId,omitempty" sqlx:"scope_id,refTable=artifact_release_bundles,refColumn=scope_id,required=true,primaryKey=true"`
-	BundleHash   *string          `json:"bundleHash,omitempty" sqlx:"bundle_hash,refTable=artifact_release_bundles,refColumn=bundle_hash,required=true,primaryKey=true"`
-	BindingsJson *json.RawMessage `json:"bindingsJson,omitempty" sqlx:"bindings_json,required=true,enc=JSON"`
-	BindingsHash *string          `json:"bindingsHash,omitempty" sqlx:"bindings_hash,required=true"`
-	CreatedAt    *time.Time       `json:"createdAt,omitempty" sqlx:"created_at,required=true"`
-	CreatedBy    *string          `json:"createdBy,omitempty" sqlx:"created_by,required=true"`
-	UpdatedAt    *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy    *string          `json:"updatedBy,omitempty" sqlx:"updated_by,required=true"`
+	ScopeId      *string          `json:"scopeId,omitempty" sqlx:"scope_id,primaryKey"`
+	BundleHash   *string          `json:"bundleHash,omitempty" sqlx:"bundle_hash,primaryKey"`
+	BindingsJson *json.RawMessage `json:"bindingsJson,omitempty" sqlx:"bindings_json,enc=JSON"`
+	BindingsHash *string          `json:"bindingsHash,omitempty" sqlx:"bindings_hash"`
+	CreatedAt    *time.Time       `json:"createdAt,omitempty" sqlx:"created_at"`
+	CreatedBy    *string          `json:"createdBy,omitempty" sqlx:"created_by"`
+	UpdatedAt    *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at"`
+	UpdatedBy    *string          `json:"updatedBy,omitempty" sqlx:"updated_by"`
 }
 
 // CurrentBundleView is generated canonical view metadata for stage.
 type CurrentBundleView struct {
-	ScopeId     *string          `json:"scopeId,omitempty" sqlx:"scope_id,required=true,primaryKey=true"`
-	TenantId    *string          `json:"tenantId,omitempty" sqlx:"tenant_id,required=true"`
-	AccountId   *string          `json:"accountId,omitempty" sqlx:"account_id,required=true"`
-	WorkspaceId *string          `json:"workspaceId,omitempty" sqlx:"workspace_id,required=true"`
-	Namespace   *string          `json:"namespace,omitempty" sqlx:"namespace,required=true"`
-	BundleHash  *string          `json:"bundleHash,omitempty" sqlx:"bundle_hash,required=true,primaryKey=true"`
-	BundleJson  *json.RawMessage `json:"bundleJson,omitempty" sqlx:"bundle_json,required=true,enc=JSON"`
-	CreatedAt   *time.Time       `json:"createdAt,omitempty" sqlx:"created_at,required=true"`
-	CreatedBy   *string          `json:"createdBy,omitempty" sqlx:"created_by,required=true"`
-	UpdatedAt   *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at,required=true"`
-	UpdatedBy   *string          `json:"updatedBy,omitempty" sqlx:"updated_by,required=true"`
+	ScopeId     *string          `json:"scopeId,omitempty" sqlx:"scope_id,primaryKey"`
+	TenantId    *string          `json:"tenantId,omitempty" sqlx:"tenant_id"`
+	AccountId   *string          `json:"accountId,omitempty" sqlx:"account_id"`
+	WorkspaceId *string          `json:"workspaceId,omitempty" sqlx:"workspace_id"`
+	Namespace   *string          `json:"namespace,omitempty" sqlx:"namespace"`
+	BundleHash  *string          `json:"bundleHash,omitempty" sqlx:"bundle_hash,primaryKey"`
+	BundleJson  *json.RawMessage `json:"bundleJson,omitempty" sqlx:"bundle_json,enc=JSON"`
+	CreatedAt   *time.Time       `json:"createdAt,omitempty" sqlx:"created_at"`
+	CreatedBy   *string          `json:"createdBy,omitempty" sqlx:"created_by"`
+	UpdatedAt   *time.Time       `json:"updatedAt,omitempty" sqlx:"updated_at"`
+	UpdatedBy   *string          `json:"updatedBy,omitempty" sqlx:"updated_by"`
 }
 
 type StageKeysRow struct {

@@ -155,17 +155,6 @@ func ImportBundle(ctx context.Context, session xhandler.Session, input *Input, o
 		files = append(files, name)
 	}
 	sort.Strings(files)
-	headInput := &head.Input{}
-	headInput.SetReportId(input.ReportId)
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[head.HeadComponent](), "head", "GET", "/_studio/report-version-store/head"), Input: headInput})
-	if err != nil {
-		return err
-	}
-	latest, ok := value.(*head.Output)
-	if !ok || latest == nil || len(latest.Heads) != 1 || latest.Heads[0] == nil || latest.Heads[0].MaxVersionNo < 0 {
-		return fmt.Errorf("version head returned %T without one valid total", value)
-	}
-	next := latest.Heads[0].MaxVersionNo + 1
 	start, present, err := session.Binder().Lookup(ctx, xhandler.TransactionStarterKey)
 	if err != nil {
 		return err
@@ -177,6 +166,18 @@ func ImportBundle(ctx context.Context, session xhandler.Session, input *Input, o
 	if err := starter.Start(ctx); err != nil {
 		return err
 	}
+	headInput := &head.Input{}
+	headInput.SetReportId(input.ReportId)
+	headInput.SetNamespaceId(namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[head.HeadComponent](), "head", "GET", "/_studio/report-version-store/head"), Input: headInput, ReaderOptions: &exec.ReaderOptions{ForUpdate: []string{exec.RootView}}})
+	if err != nil {
+		return err
+	}
+	latest, ok := value.(*head.Output)
+	if !ok || latest == nil || len(latest.Heads) != 1 || latest.Heads[0] == nil || latest.Heads[0].LastVersionNo < 0 {
+		return fmt.Errorf("version head returned %T without one valid total", value)
+	}
+	next := latest.Heads[0].LastVersionNo + 1
 	now := time.Now().UTC()
 	source := string(bundle.Files[entry])
 	specHash := dqlimport.SpecHash(input.ReportId, next, source, bundle, files)
@@ -203,8 +204,9 @@ func ImportBundle(ctx context.Context, session xhandler.Session, input *Input, o
 	version.Has.File = len(version.File) > 0
 	version.SetNamespaceId(namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
 	write := &stored.Input{}
-	write.SetVersions([]*stored.ImportedVersion{version})
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.VersionComponent](), "version", "POST", "/_studio/report-version-store/import"), Input: write})
+	previous := next - 1
+	write.SetAllocations([]*stored.VersionAllocation{{Id: version.ReportId, NamespaceId: version.NamespaceId, LastVersionNo: &previous, Draft: []*stored.ImportedVersion{version}, Has: &stored.VersionAllocationHas{Id: true, NamespaceId: true, LastVersionNo: true, Draft: true}}})
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.VersionComponent](), "version", "PATCH", "/_studio/report-version-store/import"), Input: write})
 	if err != nil {
 		if errors.Is(err, errx.ErrDuplicateKey) {
 			return publicError(409, "report version changed during import")
@@ -213,7 +215,7 @@ func ImportBundle(ctx context.Context, session xhandler.Session, input *Input, o
 	}
 	inserted, ok := value.(*stored.Output)
 	if !ok || inserted == nil || len(inserted.Data) != 1 || inserted.Data[0] == nil ||
-		inserted.Data[0].ReportId != input.ReportId || inserted.Data[0].VersionNo != next {
+		inserted.Data[0].Id != input.ReportId || len(inserted.Data[0].Draft) != 1 || inserted.Data[0].Draft[0].VersionNo != next {
 		return fmt.Errorf("version import writer returned %T without one matching row", value)
 	}
 	etag, draft := report.Item.Etag, next

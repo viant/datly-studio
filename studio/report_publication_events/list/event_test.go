@@ -4,15 +4,19 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/viant/authz"
+	"github.com/viant/datly-studio/runtime/accessprovider"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	requestprovider "github.com/viant/bindly/provider/request"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/namespacevisibility"
 	"github.com/viant/datly/bootstrap"
 	gateway "github.com/viant/datly/gateway/http"
 	"github.com/viant/datly/gateway/openapi"
@@ -146,7 +150,7 @@ func TestPublicationEventsListSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	handler := gateway.NewHandler(runtime, nil, "test")
 	selectedID := namespaceaccess.ID("alice", "general")
 	wrongID := namespaceaccess.ID("alice", "other")
-	if _, err = db.ExecContext(ctx, `UPDATE namespaces SET namespace_id=? WHERE owner_id='alice' AND name='general'`, selectedID); err != nil {
+	if _, err = db.ExecContext(ctx, `UPDATE namespaces SET visibility='public',namespace_id=? WHERE owner_id='alice' AND name='general'`, selectedID); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = db.ExecContext(ctx, `INSERT INTO namespaces(namespace_id,owner_id,name,title,status,created_at,updated_at) VALUES(?,'alice','other','Other','active',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, wrongID); err != nil {
@@ -240,4 +244,45 @@ func TestPublicationEventsListSDKDatlyHTTPMCPAndOpenAPI(t *testing.T) {
 	if currentErr != nil || len(current.Items) != 3 {
 		t.Fatalf("current owner event history=%+v err=%v", current, currentErr)
 	}
+	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
+	// The deletion receipt records the final owner and namespace, not event-time ownership.
+	if _, err = db.ExecContext(ctx, `INSERT INTO component_deletions(component_id,namespace_id,owner_id,deleted_at,deleted_by) VALUES('r1',?,'carol',CURRENT_TIMESTAMP,'carol'); DELETE FROM components WHERE id='r1'`, selectedID); err != nil {
+		t.Fatal(err)
+	}
+	for _, subject := range []string{"alice", "bob", "dave", "carol"} {
+		for _, selection := range []string{wrongID, selectedID} {
+			request := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/publications.events.list", bytes.NewBufferString(`{"reportId":"r1"}`))
+			callContext := ctx
+			if subject == "dave" {
+				callContext = accessprovider.WithProvider(ctx, historyAdminProvider{})
+				if !namespacevisibility.IsAdministrator(callContext, subject) {
+					t.Fatal("administrator fixture lacks verified authority")
+				}
+			}
+			request = request.WithContext(callContext)
+			request.Header.Set("Content-Type", "application/json")
+			request.Header.Set("Authorization", jwt.Bearer(t, subject))
+			request.Header.Set("X-Studio-Namespace", selection)
+			response := httptest.NewRecorder()
+			handler.ServeHTTP(response, request)
+			want := subject == "carol" && selection == selectedID
+			if bytes.Contains(response.Body.Bytes(), []byte(`"eventId":"e3"`)) != want {
+				t.Fatalf("retained HTTP history subject=%s selection=%s status=%d body=%s", subject, selection, response.Code, response.Body.String())
+			}
+			callCtx := context.WithValue(callContext, authorization.TokenKey, &authorization.Token{Token: jwt.Bearer(t, subject)})
+			result, rpcErr := tool.Handler(callCtx, &schema.CallToolRequest{Method: schema.MethodToolsCall, Params: schema.CallToolRequestParams{Name: "studio.sdk.publications.events.list", Arguments: map[string]any{"namespaceId": selection, "reportId": "r1"}}})
+			payload, marshalErr := json.Marshal(result)
+			if marshalErr != nil || bytes.Contains(payload, []byte(`"eventId":"e3"`)) != want {
+				t.Fatalf("retained MCP history subject=%s result=%s err=%v", subject, payload, rpcErr)
+			}
+		}
+	}
+
+}
+
+// Verified namespace administration must never confer publication-history ownership.
+type historyAdminProvider struct{}
+
+func (historyAdminProvider) Resolve(context.Context) (authz.Facts, error) {
+	return authz.Facts{Subject: "dave", Issuer: "fixture", Tenant: "test", Roles: []string{"NAMESPACE_ADMIN"}, ValidUntil: time.Now().Add(time.Minute)}, nil
 }

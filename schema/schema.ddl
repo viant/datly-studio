@@ -115,6 +115,7 @@ CREATE TABLE components (
     component_scope         VARCHAR(500) NOT NULL,
     component_name          VARCHAR(200) NOT NULL,
     current_draft_version   INT NULL,
+    last_version_no         INT NOT NULL DEFAULT 0,
     etag                    BIGINT NOT NULL DEFAULT 1,
     created_at              DATETIME(6) NOT NULL,
     updated_at              DATETIME(6) NOT NULL,
@@ -138,6 +139,16 @@ CREATE INDEX idx_reports_owner_namespace_updated
 
 CREATE INDEX idx_reports_status_updated
     ON components(status, updated_at DESC);
+
+-- Immutable final-owner receipt; component identities remain reserved after removal.
+CREATE TABLE component_deletions (
+    component_id VARCHAR(64) NOT NULL,
+    namespace_id VARCHAR(64) NOT NULL,
+    owner_id VARCHAR(128) NOT NULL,
+    deleted_at DATETIME(6) NOT NULL,
+    deleted_by VARCHAR(128) NOT NULL,
+    PRIMARY KEY (component_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE component_versions (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
@@ -572,11 +583,6 @@ CREATE TABLE component_publication_events (
     failure_message         VARCHAR(1000) NULL,
     occurred_at             DATETIME(6) NOT NULL,
     PRIMARY KEY (event_id),
-    CONSTRAINT fk_component_publication_events_report
-        FOREIGN KEY (report_id) REFERENCES components(id) ON DELETE CASCADE,
-    CONSTRAINT fk_component_publication_events_version
-        FOREIGN KEY (report_id, version_no)
-        REFERENCES component_versions(report_id, version_no),
     CONSTRAINT fk_component_publication_events_generation
         FOREIGN KEY (generation_no) REFERENCES runtime_generations(generation_no),
     CONSTRAINT chk_component_publication_events_operation
@@ -702,7 +708,7 @@ CREATE TABLE schema_version (
     version                 INTEGER NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO schema_version(version) VALUES (27);
+INSERT INTO schema_version(version) VALUES (28);
 
 CREATE TABLE tool_call_audit (
     id BIGINT NOT NULL AUTO_INCREMENT,

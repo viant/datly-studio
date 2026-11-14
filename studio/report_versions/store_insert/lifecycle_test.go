@@ -16,7 +16,7 @@ func TestVersionInsertRulesRequireInitialRevisionContract(t *testing.T) {
 		CompileStatus: "pending", DatlyVersion: "v1", CompilerVersion: "studio.v1",
 		SourceRevision: 1, CreatedBy: "owner", CreatedAt: time.Now().UTC()}
 	rules := &VersionInsertRules{}
-	state := xhandler.LifecycleContext[StoredVersion, xhandler.NoParent, Output]{}
+	state := xhandler.LifecycleContext[StoredVersion, VersionAllocation, Output]{}
 	if err := rules.Init(context.Background(), row, state); err != nil {
 		t.Fatal(err)
 	}

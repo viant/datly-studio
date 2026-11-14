@@ -238,21 +238,21 @@ func TestDQLImportWriterRejectsDuplicateVersionAllocation(t *testing.T) {
 	if _, err := f.client.Versions().LoadDQL(f.ctx, f.report.ID, sdk.LoadDQLInput{DQL: "SELECT 1"}); err != nil {
 		t.Fatal(err)
 	}
-	next, err := f.transport.nextVersionNo(f.ctx, f.report.ID)
-	if err != nil || next != 2 {
-		t.Fatalf("next version=%d err=%v", next, err)
-	}
 	tx, err := f.db.BeginTx(f.ctx, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer tx.Rollback()
+	next, err := f.transport.nextVersionNo(f.ctx, tx, f.report.ID, namespaceaccess.ID(f.report.OwnerID, f.report.Namespace))
+	if err != nil || next != 2 {
+		t.Fatalf("next version=%d err=%v", next, err)
+	}
 	row := importedVersionRow(f.report.ID, 1, "SELECT 9", "hash-9", "", "owner", f.now)
 	row.File = []*imported.ImportedResourceFile{importedResourceFileRow("ns", "main.dql", []byte("SELECT 9"), f.now)}
 	row.Has.File = true
 	err = f.transport.writeImportedVersion(f.ctx, tx, row)
-	var sdkErr *sdk.Error
-	if err == nil || !errors.As(classify(err, "report version", f.report.ID), &sdkErr) || sdkErr.Code != sdk.ErrorConflict {
+	var conflict *xhandler.Conflict
+	if err == nil || !errors.As(err, &conflict) {
 		t.Fatalf("duplicate version error=%v", err)
 	}
 }

@@ -7,28 +7,44 @@ import (
 	time "time"
 )
 
+// VersionAllocation is generated canonical view metadata for version.
+type VersionAllocation struct {
+	Id            string                `json:",omitempty" sqlx:"id,primaryKey"`
+	NamespaceId   string                `json:",omitempty" sqlx:"namespace_id"`
+	LastVersionNo *int                  `json:",omitempty" sqlx:"last_version_no" writer:"concurrency"`
+	Draft         []*StoredVersion      `on:"Id:allocation.id=ReportId:draft.report_id,NamespaceId:allocation.namespace_id=NamespaceId:draft.namespace_id" sql:"uri=studio_report_versions_store_insert_version:sql/draft.sql" view:"draft,type=StoredVersion,entityHooks=VersionInsertRules,table=component_versions"`
+	Has           *VersionAllocationHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"VersionAllocationHas"`
+}
+
+type VersionAllocationHas struct {
+	Id            bool
+	NamespaceId   bool
+	LastVersionNo bool
+	Draft         bool
+}
+
 // StoredVersion is generated canonical view metadata for version.
 type StoredVersion struct {
-	ReportId             string            `json:",omitempty" sqlx:"report_id,primaryKey,refTable=components,refColumn=id,required=true"`
-	ResourceCheckEnabled bool              `json:",omitempty" sqlx:"resource_check_enabled,required=true"`
-	NamespaceId          string            `json:",omitempty" sqlx:"namespace_id,required=true"`
-	VersionNo            int               `json:",omitempty" sqlx:"version_no,primaryKey,required=true"`
-	State                string            `json:",omitempty" sqlx:"state,required=true"`
-	AuthoringMode        string            `json:",omitempty" sqlx:"authoring_mode,required=true"`
+	ReportId             string            `json:",omitempty" sqlx:"report_id,primaryKey"`
+	ResourceCheckEnabled bool              `json:",omitempty" sqlx:"resource_check_enabled"`
+	NamespaceId          string            `json:",omitempty" sqlx:"namespace_id"`
+	VersionNo            int               `json:",omitempty" sqlx:"version_no,primaryKey"`
+	State                string            `json:",omitempty" sqlx:"state"`
+	AuthoringMode        string            `json:",omitempty" sqlx:"authoring_mode"`
 	AuthoredSql          *string           `json:",omitempty" sqlx:"authored_sql"`
 	AuthoredDql          *string           `json:",omitempty" sqlx:"authored_dql"`
-	ComponentSpecJson    json.RawMessage   `json:",omitempty" sqlx:"component_spec_json,enc=JSON,required=true"`
-	SpecFormatVersion    string            `json:",omitempty" sqlx:"spec_format_version,required=true"`
-	SpecHash             string            `json:",omitempty" sqlx:"spec_hash,required=true"`
+	ComponentSpecJson    json.RawMessage   `json:",omitempty" sqlx:"component_spec_json,enc=JSON"`
+	SpecFormatVersion    string            `json:",omitempty" sqlx:"spec_format_version"`
+	SpecHash             string            `json:",omitempty" sqlx:"spec_hash"`
 	GeneratedDql         *string           `json:",omitempty" sqlx:"generated_dql"`
-	TypeManifestJson     json.RawMessage   `json:",omitempty" sqlx:"type_manifest_json,enc=JSON,required=true"`
-	CompileStatus        string            `json:",omitempty" sqlx:"compile_status,required=true"`
-	DatlyVersion         string            `json:",omitempty" sqlx:"datly_version,required=true"`
-	CompilerVersion      string            `json:",omitempty" sqlx:"compiler_version,required=true"`
-	SourceRevision       int64             `json:",omitempty" sqlx:"source_revision,required=true"`
+	TypeManifestJson     json.RawMessage   `json:",omitempty" sqlx:"type_manifest_json,enc=JSON"`
+	CompileStatus        string            `json:",omitempty" sqlx:"compile_status"`
+	DatlyVersion         string            `json:",omitempty" sqlx:"datly_version"`
+	CompilerVersion      string            `json:",omitempty" sqlx:"compiler_version"`
+	SourceRevision       int64             `json:",omitempty" sqlx:"source_revision"`
 	Notes                *string           `json:",omitempty" sqlx:"notes"`
-	CreatedBy            string            `json:",omitempty" sqlx:"created_by,required=true"`
-	CreatedAt            time.Time         `json:",omitempty" sqlx:"created_at,required=true"`
+	CreatedBy            string            `json:",omitempty" sqlx:"created_by"`
+	CreatedAt            time.Time         `json:",omitempty" sqlx:"created_at"`
 	Has                  *StoredVersionHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"StoredVersionHas"`
 }
 
@@ -53,4 +69,39 @@ type StoredVersionHas struct {
 	Notes                bool
 	CreatedBy            bool
 	CreatedAt            bool
+}
+
+// CurrentVersionView is generated canonical view metadata for version.
+type CurrentVersionView struct {
+	Id            string `json:"id,omitempty" sqlx:"id,primaryKey"`
+	NamespaceId   string `json:"namespaceId,omitempty" sqlx:"namespace_id"`
+	LastVersionNo *int   `json:"lastVersionNo,omitempty" sqlx:"last_version_no"`
+}
+
+// CurrentDraftView is generated canonical view metadata for version.
+type CurrentDraftView struct {
+	ReportId             string          `json:"reportId,omitempty" sqlx:"report_id,primaryKey"`
+	ResourceCheckEnabled bool            `json:"resourceCheckEnabled,omitempty" sqlx:"resource_check_enabled"`
+	NamespaceId          string          `json:"namespaceId,omitempty" sqlx:"namespace_id"`
+	VersionNo            int             `json:"versionNo,omitempty" sqlx:"version_no,primaryKey"`
+	State                string          `json:"state,omitempty" sqlx:"state"`
+	AuthoringMode        string          `json:"authoringMode,omitempty" sqlx:"authoring_mode"`
+	AuthoredSql          *string         `json:"authoredSql,omitempty" sqlx:"authored_sql"`
+	AuthoredDql          *string         `json:"authoredDql,omitempty" sqlx:"authored_dql"`
+	ComponentSpecJson    json.RawMessage `json:"componentSpecJson,omitempty" sqlx:"component_spec_json,enc=JSON"`
+	SpecFormatVersion    string          `json:"specFormatVersion,omitempty" sqlx:"spec_format_version"`
+	SpecHash             string          `json:"specHash,omitempty" sqlx:"spec_hash"`
+	GeneratedDql         *string         `json:"generatedDql,omitempty" sqlx:"generated_dql"`
+	TypeManifestJson     json.RawMessage `json:"typeManifestJson,omitempty" sqlx:"type_manifest_json,enc=JSON"`
+	CompileStatus        string          `json:"compileStatus,omitempty" sqlx:"compile_status"`
+	DatlyVersion         string          `json:"datlyVersion,omitempty" sqlx:"datly_version"`
+	CompilerVersion      string          `json:"compilerVersion,omitempty" sqlx:"compiler_version"`
+	SourceRevision       int64           `json:"sourceRevision,omitempty" sqlx:"source_revision"`
+	Notes                *string         `json:"notes,omitempty" sqlx:"notes"`
+	CreatedBy            string          `json:"createdBy,omitempty" sqlx:"created_by"`
+	CreatedAt            time.Time       `json:"createdAt,omitempty" sqlx:"created_at"`
+}
+
+type VersionKeysRow struct {
+	Id string `sqlx:"id"`
 }

@@ -13,11 +13,25 @@
 
 #define($_ = $Jwt<string,*jwt.Claims>(header/Authorization).Required().WithCodec(JwtClaim).WithStatusCode(401))
 #define($_ = $Versions<[]*ReportVersion>(body/data))
+#define($_ = $ComponentIds<?>(param/Versions) /* SELECT ARRAY_AGG(ReportId) AS Values FROM `/` LIMIT 1 */)
+#define($_ = $CurrentAllocation<?>(view/CurrentAllocation).Cardinality('Many').WithTypeName('CurrentAllocationView').WithLimit(0).WithColumnType('id','string').WithColumnType('namespace_id','string').WithColumnType('last_version_no','int') /*
+${embed:sql/current_components.sql}
+*/)
+
 #define($_ = $Status<response.Status>(output/status).Embed())
 #define($_ = $Violations<?>(transient/status).Output())
 #define($_ = $Data<[]*ReportVersion>(body/).Output())
 
-SELECT report_version.*, type(report_version, 'ReportVersion'),
+SELECT report_version.report_id,report_version.namespace_id,report_version.version_no,report_version.state,
+ report_version.authoring_mode,report_version.authored_sql,report_version.authored_dql,report_version.component_spec_json,
+ report_version.spec_format_version,report_version.spec_hash,report_version.generated_dql,report_version.dql_export_limits_json,
+ report_version.type_manifest_json,report_version.resource_manifest_json,report_version.component_descriptor_json,
+ report_version.compile_status,report_version.compile_diagnostics_json,report_version.datly_version,report_version.compiler_version,
+ report_version.source_revision,report_version.notes,report_version.created_by,report_version.created_at,report_version.validated_at,report_version.published_at, CAST(report_version.report_id AS *string), CAST(report_version.version_no AS *int), allocation.*, type(allocation,'VersionAllocation'),
+       CAST(allocation.id AS *string), CAST(allocation.last_version_no AS *int),
+       tag(allocation.id,'sqlx:"id,primaryKey"'), concurrency_token(allocation.last_version_no),
+       lifecycle_type(allocation,'CounterRules'), tag(allocation,'json:"-" internal:"true"'),
+       CAST(report_version.namespace_id AS *string), tag(report_version.namespace_id,'json:"-" internal:"true"'), type(report_version, 'ReportVersion'),
 	   lifecycle_type(report_version, 'VersionRules'),
 	   CAST(report_version.component_spec_json AS json.RawMessage),
 	   CAST(report_version.dql_export_limits_json AS json.RawMessage),
@@ -42,7 +56,8 @@ SELECT report_version.*, type(report_version, 'ReportVersion'),
 	   tag(report_version.created_by, 'validate:"required"'),
 	   tag(report_version.compile_diagnostics_json, 'sqlx:"compile_diagnostics_json,enc=JSON"'),
        concurrency_token(report_version.source_revision)
-FROM (
-    ${embed:sql/patch.sql}
-) report_version
-WHERE 1=1
+FROM component_versions report_version
+LEFT JOIN (SELECT c.id,c.last_version_no FROM components c) allocation ON allocation.id=report_version.report_id
+WHERE $criteria.In("report_version.report_id", $ComponentIds.Values)
+ORDER BY report_version.report_id,report_version.version_no
+#if($ComponentIds.Values) ${View.ForUpdate()} #end

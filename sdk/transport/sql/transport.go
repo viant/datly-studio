@@ -266,6 +266,8 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.deleteAuthorizationPredicate(ctx, input)
 	case sdk.OperationAuthorizationPredicateTypes:
 		return t.scopedAuthorizationPredicateTypes(ctx, input, output)
+	case sdk.OperationComponentDelete, sdk.OperationVersionDelete:
+		return t.deleteNative(ctx, operation, input, output)
 	case sdk.OperationComponentCreate:
 		return t.createReport(ctx, input, output)
 	case sdk.OperationComponentGet:
@@ -505,7 +507,7 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	if operation == sdk.OperationComponentCreate {
 		reportID = ""
 	}
-	if _, scoped := selectedNamespace(ctx); scoped && reportID != "" {
+	if _, scoped := selectedNamespace(ctx); scoped && reportID != "" && operation != sdk.OperationPublicationEventsList {
 		rows, err := t.readReportCatalog(ctx, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
 		if err != nil || len(rows) != 1 {
 			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component is outside the selected namespace", Cause: err}
@@ -887,6 +889,10 @@ func (t *Transport) createReport(ctx context.Context, input, output any) error {
 			ComponentScope: true, ComponentName: true, Etag: true, CreatedAt: true, UpdatedAt: true},
 	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Field: "id", Message: "component identity is permanently reserved", Cause: err}
+		}
 		return classify(err, "report", in.ID)
 	}
 	return t.getReport(ctx, struct {
@@ -1029,11 +1035,11 @@ func (t *Transport) updateReport(ctx context.Context, input, output any) error {
 			if connector.Status != "active" {
 				return invalid(errors.New("default connector must be active"))
 			}
-			nextVersion, versionErr := t.nextVersionNo(ctx, in.ID)
+			versions, versionErr := t.readVersionCatalog(ctx, versionCatalogRequest{ReportID: in.ID, Limit: 1})
 			if versionErr != nil {
 				return internal(versionErr)
 			}
-			if nextVersion > 1 {
+			if len(versions) > 0 {
 				return &sdk.Error{Code: sdk.ErrorConflict, Message: "default connector is part of the versioned reader contract; change it through Reader Builder and create a validated version"}
 			}
 			current.DefaultConnectorName = requested
@@ -1165,7 +1171,16 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 	if mode != "sql" && mode != "dql" && mode != "structured" {
 		return invalid(errors.New("authoringMode must be sql, dql, or structured"))
 	}
-	next, err := t.nextVersionNo(ctx, in.ReportID)
+	namespaceID, err := t.resourceWorkspaceID(ctx, nil, in.ReportID)
+	if err != nil {
+		return err
+	}
+	tx, err := t.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return internal(err)
+	}
+	defer tx.Rollback()
+	next, err := t.nextVersionNo(ctx, tx, in.ReportID, namespaceID)
 	if err != nil {
 		return internal(err)
 	}
@@ -1179,7 +1194,7 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 	}
 	specHash := hashVersion(in.ReportID, next, mode, in.Input.AuthoredSQL, in.Input.AuthoredDQL, spec)
 	now := t.now()
-	err = t.writeVersionInsert(ctx, &versioninsert.StoredVersion{
+	err = t.writeVersionInsert(ctx, tx, &versioninsert.StoredVersion{
 		ResourceCheckEnabled: in.Input.ResourceCheckEnabled, ReportId: in.ReportID, VersionNo: next, State: "draft", AuthoringMode: mode,
 		AuthoredSql:       namespaceOptionalDescription(in.Input.AuthoredSQL),
 		AuthoredDql:       namespaceOptionalDescription(in.Input.AuthoredDQL),
@@ -1195,7 +1210,14 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 			Notes: true, CreatedBy: true, CreatedAt: true},
 	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "Component version changed concurrently", Cause: err}
+		}
 		return classify(err, "report version", fmt.Sprintf("%s/%d", in.ReportID, next))
+	}
+	if err = commitWithServerGuard(ctx, tx); err != nil {
+		return internal(err)
 	}
 	return t.getVersion(ctx, versionIdentityRequest{ReportID: in.ReportID, VersionNo: next}, output)
 }

@@ -433,6 +433,10 @@ export type InputAdff4675F499A769Cb093E90Fbca27E902Af83Cc23C5E13071057671Fe8D89F
     versionNo?: number;
 };
 
+export type InputAe6F59A187D655D1Fcbd39952Ffc02Eaaa1D8Dbc64E4Bc293601118C88077Fd6 = {
+    etag?: number;
+};
+
 export type InputB11523Bf8A7Cc12531330E851F7Fb2Dd5C4F01768E8Eaf6D9A50D7D84Ad1250b = {
     additionalVersions?: Array<InputDa2B3E655A12Ef21C05Da22075Dced832460528Bf97A14E0C9F4A4A1140B97B0> | null;
     expectedSourceRevision?: number;
@@ -793,6 +797,12 @@ export type Output2914A64D6F54333C61713839F0D41E0Bc4A70208751189288A2870C3Ee2496
     status?: string;
     subject?: string;
     toolName?: string;
+};
+
+export type Output2C60683B08B76F39208271B18A2B94730B1F1E37172D73Ad8B5720Be47593866 = {
+    componentId?: string;
+    deletedVersions?: number;
+    versionNo?: number;
 };
 
 export type Output2C9Aea90415Dac647Efe579C8889A77A58C3E88F24A1C30F945E7743E5Dd5Ae2 = {
@@ -1243,6 +1253,12 @@ export type OutputCa207E9470562713039Abace94A8B79C331512Fc095Ce1E937D8C988756534
     type?: string;
 };
 
+export type OutputCebad8Ca6654E6Bf48Eaed22585705Bb5Faf50E574B898E50147049F0430D0Ae = {
+    componentId?: string;
+    deletedVersions?: number;
+    versionNo?: number;
+};
+
 export type OutputD14887150549E1252499C617Aacbd48B5Aab3C262Cdf2F62Fa7Fbaf8F1Edbaa2 = {
     id?: string;
     kind?: string;
@@ -1672,6 +1688,7 @@ export type Wire221846F313892219B53265500A015547384983C9F728252D253349F904Fb06A9
     reportId?: string;
     requestedBy?: string;
     status?: string;
+    versionDeleted?: boolean;
     versionNo?: number | null;
 };
 
@@ -4244,6 +4261,28 @@ export type PostV1StudioSdkComponentsCreateResponses = {
 
 export type PostV1StudioSdkComponentsCreateResponse = PostV1StudioSdkComponentsCreateResponses[keyof PostV1StudioSdkComponentsCreateResponses];
 
+export type PostV1StudioSdkComponentsDeleteData = {
+    body: {
+        id: string;
+        input: InputAe6F59A187D655D1Fcbd39952Ffc02Eaaa1D8Dbc64E4Bc293601118C88077Fd6;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/components.delete';
+};
+
+export type PostV1StudioSdkComponentsDeleteResponses = {
+    /**
+     * Success response
+     */
+    200: Output2C60683B08B76F39208271B18A2B94730B1F1E37172D73Ad8B5720Be47593866;
+};
+
+export type PostV1StudioSdkComponentsDeleteResponse = PostV1StudioSdkComponentsDeleteResponses[keyof PostV1StudioSdkComponentsDeleteResponses];
+
 export type PostV1StudioSdkComponentsGetData = {
     body: {
         id: string;
@@ -5253,6 +5292,29 @@ export type PostV1StudioSdkVersionsCreateResponses = {
 };
 
 export type PostV1StudioSdkVersionsCreateResponse = PostV1StudioSdkVersionsCreateResponses[keyof PostV1StudioSdkVersionsCreateResponses];
+
+export type PostV1StudioSdkVersionsDeleteData = {
+    body: {
+        expectedSourceRevision: number;
+        reportId: string;
+        versionNo: number;
+    };
+    headers: {
+        'X-Studio-Namespace': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.delete';
+};
+
+export type PostV1StudioSdkVersionsDeleteResponses = {
+    /**
+     * Success response
+     */
+    200: OutputCebad8Ca6654E6Bf48Eaed22585705Bb5Faf50E574B898E50147049F0430D0Ae;
+};
+
+export type PostV1StudioSdkVersionsDeleteResponse = PostV1StudioSdkVersionsDeleteResponses[keyof PostV1StudioSdkVersionsDeleteResponses];
 
 export type PostV1StudioSdkVersionsDescriptorData = {
     body: {

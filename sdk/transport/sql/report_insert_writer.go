@@ -80,8 +80,9 @@ func (t *Transport) writeReportInsert(ctx context.Context, row *stored.StoredRep
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
 	input := &stored.Input{}
+	input.SetComponentIds([]string{row.Id})
 	input.SetReports([]*stored.StoredReport{row})
-	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
+	value, err := runtime.InvokeComponent((dexec.ReaderOptions{ForUpdate: []string{"Deletions"}}).Context(ctx), dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return err
 	}

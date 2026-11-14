@@ -7,6 +7,46 @@ import (
 	time "time"
 )
 
+func (entity *VersionAllocation) GetId() string {
+	return entity.Id
+}
+func (entity *VersionAllocation) SetId(value string) {
+	entity.Id = value
+	if entity.Has == nil {
+		entity.Has = &VersionAllocationHas{}
+	}
+	entity.Has.Id = true
+}
+func (entity *VersionAllocation) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *VersionAllocation) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &VersionAllocationHas{}
+	}
+	entity.Has.NamespaceId = true
+}
+func (entity *VersionAllocation) GetLastVersionNo() *int {
+	return entity.LastVersionNo
+}
+func (entity *VersionAllocation) SetLastVersionNo(value *int) {
+	entity.LastVersionNo = value
+	if entity.Has == nil {
+		entity.Has = &VersionAllocationHas{}
+	}
+	entity.Has.LastVersionNo = true
+}
+func (entity *VersionAllocation) GetDraft() []*StoredVersion {
+	return entity.Draft
+}
+func (entity *VersionAllocation) SetDraft(value []*StoredVersion) {
+	entity.Draft = value
+	if entity.Has == nil {
+		entity.Has = &VersionAllocationHas{}
+	}
+	entity.Has.Draft = true
+}
 func (entity *StoredVersion) GetReportId() string {
 	return entity.ReportId
 }
@@ -206,4 +246,23 @@ func (entity *StoredVersion) SetCreatedAt(value time.Time) {
 		entity.Has = &StoredVersionHas{}
 	}
 	entity.Has.CreatedAt = true
+}
+func (input *Input) ProjectCurrentDraftParentKeys(previous []*CurrentVersionView) ([]struct {
+	ReportId    string `sqlx:"report_id"`
+	NamespaceId string `sqlx:"namespace_id"`
+}, error) {
+	result := []struct {
+		ReportId    string `sqlx:"report_id"`
+		NamespaceId string `sqlx:"namespace_id"`
+	}{}
+	for _, row := range previous {
+		if row == nil {
+			continue
+		}
+		result = append(result, struct {
+			ReportId    string `sqlx:"report_id"`
+			NamespaceId string `sqlx:"namespace_id"`
+		}{ReportId: row.Id, NamespaceId: row.NamespaceId})
+	}
+	return result, nil
 }

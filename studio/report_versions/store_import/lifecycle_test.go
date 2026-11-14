@@ -24,7 +24,7 @@ func linkedFile(path string, content []byte) *ImportedResourceFile {
 
 func TestImportRulesDeriveFileIdentityAndDefaults(t *testing.T) {
 	hooks := new(ImportRules)
-	state := xhandler.LifecycleContext[ImportedVersion, xhandler.NoParent, Output]{}
+	state := xhandler.LifecycleContext[ImportedVersion, VersionAllocation, Output]{}
 	source := "SELECT 1"
 	version := &ImportedVersion{NamespaceId: strings.Repeat("a", 64), ReportId: "r1", VersionNo: 1, AuthoredDql: &source, SpecFormatVersion: "studio.v1", SpecHash: "h", DatlyVersion: "v1",
 		CompilerVersion: "studio.v1", CreatedBy: "owner", CreatedAt: time.Date(2026, 9, 24, 0, 0, 0, 0, time.UTC),
@@ -54,7 +54,7 @@ func TestImportRulesDeriveFileIdentityAndDefaults(t *testing.T) {
 
 func TestImportRulesValidateDeniesEveryContractViolation(t *testing.T) {
 	hooks := new(ImportRules)
-	ctx, state := context.Background(), xhandler.LifecycleContext[ImportedVersion, xhandler.NoParent, Output]{}
+	ctx, state := context.Background(), xhandler.LifecycleContext[ImportedVersion, VersionAllocation, Output]{}
 	valid := func() *ImportedVersion {
 		version := importedVersion("SELECT 1", linkedFile("main.dql", []byte("SELECT 1")), linkedFile("sql/q.sql", []byte("SELECT 2")))
 		if err := hooks.Init(ctx, version, state); err != nil {

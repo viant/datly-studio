@@ -82,6 +82,7 @@ type PublicationEvent struct {
 	OwnerID        string    `json:"ownerId"`
 	Operation      string    `json:"operation"`
 	VersionNo      *int      `json:"versionNo,omitempty"`
+	VersionDeleted bool      `json:"versionDeleted"`
 	GenerationNo   *int64    `json:"generationNo,omitempty"`
 	Status         string    `json:"status"`
 	RequestedBy    string    `json:"requestedBy"`

@@ -1296,6 +1296,15 @@
           }
         }
       },
+      "Input_ae6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6": {
+        "type": "object",
+        "properties": {
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_b11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b": {
         "type": "object",
         "properties": {
@@ -2399,6 +2408,22 @@
           },
           "toolName": {
             "type": "string"
+          }
+        }
+      },
+      "Output_2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866": {
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string"
+          },
+          "deletedVersions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -3860,6 +3885,22 @@
           }
         }
       },
+      "Output_cebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae": {
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string"
+          },
+          "deletedVersions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2": {
         "type": "object",
         "properties": {
@@ -5288,6 +5329,9 @@
           },
           "status": {
             "type": "string"
+          },
+          "versionDeleted": {
+            "type": "boolean"
           },
           "versionNo": {
             "type": "integer",
@@ -13223,6 +13267,60 @@
         ]
       }
     },
+    "/v1/studio/sdk/components.delete": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/components.delete",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "input": {
+                    "$ref": "#/components/schemas/Input_ae6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6"
+                  }
+                },
+                "required": [
+                  "id",
+                  "input"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
     "/v1/studio/sdk/components.get": {
       "post": {
         "summary": "report",
@@ -15603,6 +15701,66 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/versions.delete": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/versions.delete",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedSourceRevision": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "reportId": {
+                    "type": "string"
+                  },
+                  "versionNo": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "reportId",
+                  "versionNo",
+                  "expectedSourceRevision"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_cebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae"
                 }
               }
             }

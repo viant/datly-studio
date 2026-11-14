@@ -4,5 +4,5 @@ package store_insert
 
 // Output is the generated output scaffold for version.
 type Output struct {
-	Data []*StoredVersion `json:"data" parameter:"Data,kind=output,in=body,dataType=[]*github.com/viant/datly-studio/studio/report_versions/store_insert.StoredVersion"`
+	Data []*VersionAllocation `json:"data" parameter:"Data,kind=output,in=body,dataType=[]*github.com/viant/datly-studio/studio/report_versions/store_insert.VersionAllocation"`
 }

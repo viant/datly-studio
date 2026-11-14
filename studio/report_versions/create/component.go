@@ -160,17 +160,29 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 		return fmt.Errorf("report capability reader returned %T without one matching row", value)
 	}
 	canUseDQL := report.Item.OwnerId == input.Jwt.Subject || caps.Capabilities[0].CanUseDql
+	start, present, err := session.Binder().Lookup(ctx, xhandler.TransactionStarterKey)
+	if err != nil {
+		return err
+	}
+	starter, ok := start.(xhandler.TransactionStarter)
+	if !present || !ok {
+		return fmt.Errorf("managed transaction starter is unavailable")
+	}
+	if err = starter.Start(ctx); err != nil {
+		return err
+	}
 	headInput := &head.Input{}
 	headInput.SetReportId(input.ReportId)
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[head.HeadComponent](), "head", "GET", "/_studio/report-version-store/head"), Input: headInput})
+	headInput.SetNamespaceId(namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[head.HeadComponent](), "head", "GET", "/_studio/report-version-store/head"), Input: headInput, ReaderOptions: &exec.ReaderOptions{ForUpdate: []string{exec.RootView}}})
 	if err != nil {
 		return err
 	}
 	latest, ok := value.(*head.Output)
-	if !ok || latest == nil || len(latest.Heads) != 1 || latest.Heads[0] == nil || latest.Heads[0].MaxVersionNo < 0 {
+	if !ok || latest == nil || len(latest.Heads) != 1 || latest.Heads[0] == nil || latest.Heads[0].LastVersionNo < 0 {
 		return fmt.Errorf("version head returned %T without one valid total", value)
 	}
-	next := latest.Heads[0].MaxVersionNo + 1
+	next := latest.Heads[0].LastVersionNo + 1
 	spec := append(json.RawMessage(nil), input.Input.ComponentSpec...)
 	if len(spec) == 0 {
 		spec = json.RawMessage(`{}`)
@@ -194,14 +206,15 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 			Notes: true, CreatedBy: true, CreatedAt: true}}
 	row.SetNamespaceId(namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
 	write := &stored.Input{}
-	write.SetVersions([]*stored.StoredVersion{row})
-	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.VersionComponent](), "version", "POST", "/_studio/report-version-store/insert"), Input: write})
+	previous := next - 1
+	write.SetAllocations([]*stored.VersionAllocation{{Id: row.ReportId, NamespaceId: row.NamespaceId, LastVersionNo: &previous, Draft: []*stored.StoredVersion{row}, Has: &stored.VersionAllocationHas{Id: true, NamespaceId: true, LastVersionNo: true, Draft: true}}})
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.VersionComponent](), "version", "PATCH", "/_studio/report-version-store/insert"), Input: write})
 	if err != nil {
 		return err
 	}
 	inserted, ok := value.(*stored.Output)
 	if !ok || inserted == nil || len(inserted.Data) != 1 || inserted.Data[0] == nil ||
-		inserted.Data[0].ReportId != input.ReportId || inserted.Data[0].VersionNo != next {
+		inserted.Data[0].Id != input.ReportId || len(inserted.Data[0].Draft) != 1 || inserted.Data[0].Draft[0].VersionNo != next {
 		return fmt.Errorf("version insert returned %T without one matching row", value)
 	}
 	*output = Output{ResourceCheckEnabled: input.Input.ResourceCheckEnabled, ReportId: input.ReportId, VersionNo: next, State: "draft", AuthoringMode: mode,

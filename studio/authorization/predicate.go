@@ -258,20 +258,46 @@ func (p *PublicationEdit) Compute(ctx context.Context, _ any) (*xpredicate.Crite
 	return p.InputBinding.report(ctx, "publication.report_id", permissionPublish)
 }
 
-// PublicationEventRead requires the report's current owner. The audit trail
-// follows the report on transfer; former owners and delegated publishers
-// cannot use historical rows to bypass the present ownership boundary.
+// PublicationEventRead follows current ownership while live and final ownership
+// after removal. Event-time ownership and management grants confer no access.
 func (p *PublicationEventRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
-	subject, err := subject(ctx, p.Input)
+	principal, err := subject(ctx, p.Input)
 	if err != nil {
 		return nil, err
 	}
-	criteria := &xpredicate.Criteria{Expression: `EXISTS (
+	criteria := &xpredicate.Criteria{Expression: `(EXISTS (
 SELECT 1 FROM components studio_event_report
 WHERE studio_event_report.id = e.report_id
   AND studio_event_report.owner_id = ?
-  AND studio_event_report.deleted_at IS NULL)`, Placeholders: []any{subject}}
-	return p.NamespaceSelection.constrain(ctx, p.Input, criteria, "e.report_id")
+  AND studio_event_report.deleted_at IS NULL)
+OR EXISTS (SELECT 1 FROM component_deletions studio_event_deletion
+WHERE studio_event_deletion.component_id = e.report_id
+  AND studio_event_deletion.owner_id = ?
+  AND NOT EXISTS (SELECT 1 FROM components live_component WHERE live_component.id = e.report_id)))`, Placeholders: []any{principal, principal}}
+	if p.NamespaceID == nil {
+		return criteria, nil
+	}
+	ctx = oauth.WithBearer(ctx, strings.TrimPrefix(p.Authorization, "Bearer "))
+	// Reuse native namespace selection validation and visibility for both sources.
+	live, err := namespacevisibility.ComponentCriteria(ctx, p.Connectors, principal, p.NamespaceID, "e.report_id")
+	if err != nil {
+		return nil, err
+	}
+	visibility, err := namespacevisibility.Criteria(ctx, p.Connectors, principal, "n")
+	if err != nil {
+		return nil, err
+	}
+	criteria.Expression += " AND (" + live.Expression + ` OR EXISTS (
+SELECT 1 FROM component_deletions selected_deletion
+JOIN namespaces n ON n.namespace_id = selected_deletion.namespace_id
+WHERE selected_deletion.component_id = e.report_id
+  AND NOT EXISTS (SELECT 1 FROM components live_component WHERE live_component.id = e.report_id)
+  AND n.namespace_id = ? AND n.deleted_at IS NULL AND n.status = 'active'
+  AND ` + visibility.Expression + "))"
+	criteria.Placeholders = append(criteria.Placeholders, live.Placeholders...)
+	criteria.Placeholders = append(criteria.Placeholders, *p.NamespaceID)
+	criteria.Placeholders = append(criteria.Placeholders, visibility.Placeholders...)
+	return criteria, nil
 }
 func (p *ACLRead) Compute(ctx context.Context, _ any) (*xpredicate.Criteria, error) {
 	principal, err := subject(ctx, p.Input)

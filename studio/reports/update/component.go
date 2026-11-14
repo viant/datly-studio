@@ -13,7 +13,7 @@ import (
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
 	connectors "github.com/viant/datly-studio/studio/connectors/get"
 	namespaces "github.com/viant/datly-studio/studio/namespaces/store_read"
-	versions "github.com/viant/datly-studio/studio/report_versions/store_head"
+	versions "github.com/viant/datly-studio/studio/report_versions/list"
 	reportcreate "github.com/viant/datly-studio/studio/reports/create"
 	guard "github.com/viant/datly-studio/studio/reports/edit_guard"
 	reports "github.com/viant/datly-studio/studio/reports/get"
@@ -170,17 +170,17 @@ func (*updateHandler) Exec(ctx context.Context, session xhandler.Session, input 
 			if connector.Item.Status != "active" {
 				return publicError(400, "default connector must be active")
 			}
-			headInput := &versions.Input{}
-			headInput.SetReportId(input.Id)
-			value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[versions.HeadComponent](), "head", "GET", "/_studio/report-version-store/head"), Input: headInput})
+			headInput := &versions.VersionListInput{NamespaceId: input.NamespaceId, Jwt: input.Jwt, Auth: input.Auth, ReportId: input.Id}
+			headInput.Input.Limit = 1
+			value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[versions.VersionComponent](), "version", "POST", "/v1/studio/sdk/versions.list"), Input: headInput})
 			if err != nil {
 				return err
 			}
-			head, ok := value.(*versions.Output)
-			if !ok || head == nil || len(head.Heads) != 1 || head.Heads[0] == nil {
+			head, ok := value.(*versions.VersionListOutput)
+			if !ok || head == nil {
 				return fmt.Errorf("version head returned %T without one total", value)
 			}
-			if head.Heads[0].MaxVersionNo > 0 {
+			if len(head.Items) > 0 {
 				return publicError(409, "default connector is part of the versioned reader contract; change it through Reader Builder and create a validated version")
 			}
 			current.DefaultConnectorName = requested

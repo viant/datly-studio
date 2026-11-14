@@ -1,0 +1,1 @@
+SELECT ARRAY_AGG(ReportId) AS Values FROM `/` LIMIT 1

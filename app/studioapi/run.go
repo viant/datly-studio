@@ -127,6 +127,8 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/components.get",
 	"/v1/studio/sdk/components.create",
 	"/v1/studio/sdk/components.update",
+	"/v1/studio/sdk/components.delete",
+	"/v1/studio/sdk/versions.delete",
 	"/v1/studio/sdk/components.list",
 	"/v1/studio/sdk/versions.get",
 	"/v1/studio/sdk/versions.create",
@@ -500,6 +502,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 		}
 		defer cloneHost.Shutdown(context.Background())
 		sdkTransport = &versionclone.Transport{Next: sdkTransport, Invoker: cloneHost}
+		transport.ComponentInvoker = cloneHost
 		transport.SystemCredentialProvider = func(ctx context.Context) (sdk.VerifiedCredential, error) {
 			return devJWT.Credential(ctx, sdk.SystemPrincipal().Subject)
 		}

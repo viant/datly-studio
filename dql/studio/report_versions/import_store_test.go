@@ -34,10 +34,23 @@ func TestVersionImportStoreWriterContract(t *testing.T) {
 			t.Fatalf("server-only import writer must not be an MCP exposure: %+v", route.MCP)
 		}
 	}
-	if len(routes) != 1 || !routes["POST /_studio/report-version-store/import"] {
+	if len(routes) != 1 || !routes["PATCH /_studio/report-version-store/import"] {
 		t.Fatalf("import writer routes = %#v", routes)
 	}
-	view := compiled.Component.RootView
+	parent := compiled.Component.RootView
+	if parent.EntityHooks != "AllocationRules" || len(parent.Relations) != 1 || parent.Relations[0].View == nil {
+		t.Fatalf("allocation parent=%+v", parent)
+	}
+	counter := false
+	for _, field := range parent.Columns {
+		if field != nil && field.Name == "last_version_no" && field.ConcurrencyToken {
+			counter = true
+		}
+	}
+	if !counter {
+		t.Fatal("allocation must retain native high-water concurrency token")
+	}
+	view := parent.Relations[0].View
 	if view.EntityHooks != "ImportRules" {
 		t.Fatalf("lifecycle hooks=%q", view.EntityHooks)
 	}
@@ -65,7 +78,7 @@ func TestVersionImportStoreWriterContract(t *testing.T) {
 	if len(fileKeys) != 3 || !fileKeys["report_id"] || !fileKeys["version_no"] || !fileKeys["resource_id"] {
 		t.Fatalf("file keys=%v", fileKeys)
 	}
-	if source := view.Source; source == nil || len(source.Embeds) != 1 || source.Embeds[0].Path != "sql/read.sql" {
+	if source := view.Source; source == nil || len(source.Embeds) != 1 || source.Embeds[0].Path != "sql/versions.sql" {
 		t.Fatalf("version embedded SQL = %#v", source)
 	}
 	if source := view.Relations[0].View.Source; source == nil || len(source.Embeds) != 1 || source.Embeds[0].Path != "sql/files.sql" {
@@ -73,8 +86,8 @@ func TestVersionImportStoreWriterContract(t *testing.T) {
 	}
 }
 
-// The head reader is the version allocator's only read: one required report
-// scope, one aggregate row, no exposure.
+// The head reader exposes the component high-water with a native physical
+// lock capability and complete component/namespace scope, without exposure.
 func TestVersionHeadStoreReaderContract(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "head_store", "studio")
@@ -97,19 +110,22 @@ func TestVersionHeadStoreReaderContract(t *testing.T) {
 		if parameter == nil || parameter.Source.Kind != "query" {
 			continue
 		}
-		if parameter.Name != "ReportId" || parameter.Required == nil || !*parameter.Required {
-			t.Fatalf("head reader must require exactly the report scope: %+v", parameter)
+		if (parameter.Name != "ReportId" && parameter.Name != "NamespaceId") || parameter.Required == nil || !*parameter.Required {
+			t.Fatalf("head reader must require component and namespace scope: %+v", parameter)
 		}
 		required++
 	}
-	if required != 1 {
+	if required != 2 {
 		t.Fatalf("head reader query parameters = %d", required)
 	}
 	view := compiled.Component.RootView
 	if view.Source == nil || view.Source.Controls == nil || view.Source.Controls.Limit == nil || *view.Source.Controls.Limit != 1 {
 		t.Fatalf("head reader must return one aggregate row: %+v", view.Source)
 	}
-	if len(view.Columns) != 1 || !strings.EqualFold(view.Columns[0].Name, "max_version_no") {
+	if view.RowLock != "components c" || view.RowLockOrder != "c.id" {
+		t.Fatalf("head lock target=%+v", view)
+	}
+	if len(view.Columns) != 4 {
 		t.Fatalf("head reader columns = %+v", view.Columns)
 	}
 }
@@ -118,7 +134,7 @@ func TestVersionStoreComponentsTranscribeDeclaredPackages(t *testing.T) {
 	ctx := context.Background()
 	db := datatest.OpenSQLite(t, "store_compile", "studio")
 	module := datatest.NewGeneratedModule(t)
-	for _, component := range []struct{ directory, name, operation string }{{"store_head", "head", "get"}, {"store_import", "version", "post"}} {
+	for _, component := range []struct{ directory, name, operation string }{{"store_head", "head", "get"}, {"store_import", "version", "patch"}} {
 		compiled := compileVersionStore(ctx, t, component.directory, component.name, column.New(column.Connections{"studio": db}))
 		generated, err := (transcribe.Generator{Operation: component.operation}).Generate(ctx, transcribe.GenerationRequest{Compiled: compiled, Destination: module.Root})
 		if err != nil {

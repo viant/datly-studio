@@ -1747,8 +1747,8 @@ FROM (SELECT status,COUNT(*) AS product_count FROM components GROUP BY status) s
 		{http.MethodGet, "/_studio/report-version-store/head?reportId=missing"},
 		{http.MethodGet, "/_studio/report-version-store/catalog?reportId=missing"},
 		{http.MethodPatch, "/_studio/report-version-store/validation"},
-		{http.MethodPost, "/_studio/report-version-store/insert"},
-		{http.MethodPost, "/_studio/report-version-store/import"},
+		{http.MethodPatch, "/_studio/report-version-store/insert"},
+		{http.MethodPatch, "/_studio/report-version-store/import"},
 		{http.MethodPatch, "/_studio/report-store/draft-pointer"},
 		{http.MethodPost, "/_studio/report-store/insert"},
 	} {

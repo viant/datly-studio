@@ -23,6 +23,7 @@
 #define($_ = $PageOffset<int>(output/body).WithTag('json:"offset"'))
 
 SELECT event.*, type(event, 'PublicationEvent'),
+       CAST(event.version_deleted AS bool), tag(event.version_deleted,'json:"versionDeleted"'),
        CAST(event.event_id AS string), CAST(event.report_id AS string), CAST(event.owner_id AS string), CAST(event.operation AS string), CAST(event.version_no AS *int), CAST(event.generation_no AS *int64), CAST(event.status AS string), CAST(event.requested_by AS string), CAST(event.reason AS *string), CAST(event.failure_code AS *string), CAST(event.failure_message AS *string), CAST(event.occurred_at AS time.Time),
        CAST(event.event_id AS string), CAST(event.report_id AS string),
        CAST(event.owner_id AS string), CAST(event.operation AS string),

@@ -196,8 +196,9 @@ func (*createHandler) Exec(ctx context.Context, session xhandler.Session, input 
 	}
 	row.SetNamespaceId(namespaceaccess.ID(row.OwnerId, row.Namespace))
 	write := &stored.Input{}
+	write.SetComponentIds([]string{row.Id})
 	write.SetReports([]*stored.StoredReport{row})
-	written, err := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[stored.ReportComponent](), "report", "POST", "/_studio/report-store/insert"), Input: write})
+	written, err := invoker.InvokeComponent((exec.ReaderOptions{ForUpdate: []string{"Deletions"}}).Context(ctx), exec.ComponentRequest{Target: target(reflect.TypeFor[stored.ReportComponent](), "report", "POST", "/_studio/report-store/insert"), Input: write})
 	if err != nil {
 		return err
 	}

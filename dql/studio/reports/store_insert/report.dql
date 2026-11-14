@@ -8,6 +8,11 @@
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('report', 'sql/read.sql'))
 
+#define($_ = $ComponentIds<[]string>(query/componentIds).Required().WithTag('json:"-" internal:"true"'))
+#define($_ = $Deletions<[]*DeletionReceipt>(view/Deletions).WithColumnType('component_id','string').WithConnector('studio').WithLimit(0) /*
+${embed:sql/deletions.sql}
+*/)
+
 #define($_ = $Reports<[]*StoredReport>(body/data))
 
 SELECT report.*, type(report, 'StoredReport'),

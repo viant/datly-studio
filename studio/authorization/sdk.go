@@ -71,6 +71,11 @@ func (a SDKAuthorizer) Authorize(ctx context.Context, request sqltransport.Autho
 	if request.OwnerID != "" && request.OwnerID != principal.Subject {
 		return &sdk.Error{Code: sdk.ErrorForbidden, Message: "cannot create another principal's resource"}
 	}
+	// History resolves current or final ownership through its native owner graph.
+	// Live capability and administrator grants must not override owner-only history.
+	if request.Operation == sdk.OperationPublicationEventsList {
+		return nil
+	}
 	// This authorizes management SDK operations only. Published reader execution
 	// and its own access predicates retain their separate runtime authorization.
 	if namespacevisibility.IsAdministrator(ctx, principal.Subject) {

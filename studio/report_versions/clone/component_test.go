@@ -60,7 +60,7 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 	if err := datatest.Hydrate(ctx, db,
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": now, "updated_at": now}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"namespace_id": namespace, "owner_id": "alice", "name": "alpha", "title": "Alpha", "status": "active", "created_at": now, "updated_at": now}, {"namespace_id": namespaceaccess.ID("alice", "beta"), "owner_id": "alice", "name": "beta", "title": "Beta", "status": "active", "created_at": now, "updated_at": now}}},
-		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "namespace_id": namespace, "namespace": "alpha", "slug": "source", "title": "Source", "owner_id": "alice", "status": "active", "default_connector_name": "main", "component_scope": "reader/source", "component_name": "source", "created_at": now, "updated_at": now}}},
+		datatest.Table{Name: "components", Rows: []datatest.Row{{"id": "r1", "namespace_id": namespace, "namespace": "alpha", "slug": "source", "last_version_no": 1, "title": "Source", "owner_id": "alice", "status": "active", "default_connector_name": "main", "component_scope": "reader/source", "component_name": "source", "created_at": now, "updated_at": now}}},
 		datatest.Table{Name: "component_versions", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "state": "published", "authoring_mode": "dql", "authored_dql": "#package('reader/source')\nSELECT 1 AS id", "generated_dql": "#package('reader/source')\nSELECT 1 AS id", "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": "source", "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": now}}},
 		datatest.Table{Name: "component_resource_files", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "resource_id": fileID, "namespace": "alice.bundle", "resource_path": "skills/clone/SKILL.md", "media_type": "text/markdown", "content": []byte(markdown), "content_size": len(markdown), "content_sha256": hex.EncodeToString(digest[:]), "is_binary": false, "created_at": now}}},
 		datatest.Table{Name: "component_resource_folders", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": "r1", "version_no": 1, "folder_id": folderID, "namespace": "alice.bundle", "root_path": "skills/clone", "uri_prefix": "skill://clone/", "ordinal": 0}}},
@@ -218,6 +218,10 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 			t.Fatalf("partial policy survived in %s: %d %v", table, count, err)
 		}
 	}
+	var highWater int
+	if err := db.QueryRowContext(ctx, "SELECT last_version_no FROM components WHERE id='r1'").Scan(&highWater); err != nil || highWater != 2 {
+		t.Fatalf("failed native clone advanced high-water=%d err=%v", highWater, err)
+	}
 	if _, err := db.ExecContext(ctx, "DROP TRIGGER reject_clone_policy"); err != nil {
 		t.Fatal(err)
 	}
@@ -287,4 +291,35 @@ func TestNativeClonePreservesPolicyAndRejectsStaleSource(t *testing.T) {
 	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_versions WHERE report_id='r1'").Scan(&count); err != nil || count != 4 {
 		t.Fatalf("corrupt source created a partial version: %d %v", count, err)
 	}
+	// Native import shares allocation with native create/clone. Remove the last
+	// imported version as fixture setup, then prove its number stays consumed.
+	load := func(want int) {
+		t.Helper()
+		body, _ := json.Marshal(map[string]any{"reportId": "r1", "input": map[string]any{"dql": "SELECT 5 AS id"}})
+		req := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/versions.load_dql", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", bearer)
+		req.Header.Set("X-Studio-Namespace", namespace)
+		result := httptest.NewRecorder()
+		server.ServeHTTP(result, req)
+		if result.Code != 200 {
+			t.Fatalf("native import: %d %s", result.Code, result.Body.String())
+		}
+		var response struct {
+			Version struct {
+				VersionNo int `json:"versionNo"`
+			} `json:"version"`
+		}
+		if err := json.Unmarshal(result.Body.Bytes(), &response); err != nil || response.Version.VersionNo != want {
+			t.Fatalf("native import wanted %d: %s err=%v", want, result.Body.String(), err)
+		}
+	}
+	load(5)
+	for _, table := range []string{"component_resource_files", "component_versions"} {
+		if _, err := db.ExecContext(ctx, "DELETE FROM "+table+" WHERE report_id='r1' AND version_no=5"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	load(6)
+
 }

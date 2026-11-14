@@ -8,6 +8,7 @@ import (
 
 const (
 	OperationVersionCreate          = "versions.create"
+	OperationVersionDelete          = "versions.delete"
 	OperationVersionClone           = "versions.clone"
 	OperationVersionGet             = "versions.get"
 	OperationVersionList            = "versions.list"
@@ -66,6 +67,12 @@ type CreateVersionInput struct {
 
 type CloneVersionInput struct {
 	VersionNo              int   `json:"versionNo"`
+	ExpectedSourceRevision int64 `json:"expectedSourceRevision"`
+}
+
+// DeleteVersionInput targets the exact saved source of one numbered version.
+// Only the component owner may delete an unused version.
+type DeleteVersionInput struct {
 	ExpectedSourceRevision int64 `json:"expectedSourceRevision"`
 }
 type ListVersionsInput struct {
@@ -299,6 +306,7 @@ type WarmupRunPage struct {
 }
 
 type VersionService interface {
+	Delete(context.Context, string, int, DeleteVersionInput) (*DeletionResult, error)
 	Clone(context.Context, string, CloneVersionInput) (*ReportVersion, error)
 	Download(context.Context, string, int) (*ComponentDownload, error)
 	LoadDQL(context.Context, string, LoadDQLInput) (*DQLLoadResult, error)
@@ -423,4 +431,12 @@ func (c versionClient) ListWarmupRuns(ctx context.Context, id string, v int, inp
 		versionIdentity
 		Input ListWarmupRunsInput `json:"input"`
 	}{versionIdentity{id, v}, input})
+}
+
+func (c versionClient) Delete(ctx context.Context, id string, versionNo int, input DeleteVersionInput) (*DeletionResult, error) {
+	return invoke[DeletionResult](ctx, c.transport, OperationVersionDelete, struct {
+		ReportID               string `json:"reportId"`
+		VersionNo              int    `json:"versionNo"`
+		ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
+	}{id, versionNo, input.ExpectedSourceRevision})
 }

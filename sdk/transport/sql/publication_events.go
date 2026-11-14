@@ -53,7 +53,7 @@ type publicationEventListRequest struct {
 }
 
 // listPublicationEvents exposes only a report's immutable, non-secret audit
-// trail. It also checks current ownership here because delegated publish
+// trail. It checks current or final ownership because delegated publish
 // permission must not grant access to the owner's event history.
 func (t *Transport) listPublicationEvents(ctx context.Context, input, output any) error {
 	var in publicationEventListRequest
@@ -114,7 +114,7 @@ func (t *Transport) listPublicationEvents(ctx context.Context, input, output any
 			return internal(errors.New("publication event reader returned a mismatched report"))
 		}
 		item := &sdk.PublicationEvent{EventID: row.EventId, ReportID: row.ReportId, OwnerID: row.OwnerId,
-			Operation: row.Operation, VersionNo: row.VersionNo, GenerationNo: row.GenerationNo,
+			Operation: row.Operation, VersionNo: row.VersionNo, VersionDeleted: row.VersionDeleted, GenerationNo: row.GenerationNo,
 			Status: row.Status, RequestedBy: row.RequestedBy, OccurredAt: row.OccurredAt}
 		if row.Reason != nil {
 			item.Reason = *row.Reason
@@ -135,8 +135,12 @@ func (t *Transport) publicationEventOwner(ctx context.Context, reportID string) 
 	if err != nil {
 		return "", internal(err)
 	}
+	namespaceID := ""
+	if selection, ok := selectedNamespace(ctx); ok {
+		namespaceID = selection.NamespaceID
+	}
 	value, err := reader.runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: reader.owner, Input: &owner.Input{
-		ReportId: reportID, Has: &owner.InputHas{ReportId: true},
+		ReportId: reportID, NamespaceId: namespaceID, Has: &owner.InputHas{ReportId: true, NamespaceId: true},
 	}})
 	if err != nil {
 		return "", internal(err)

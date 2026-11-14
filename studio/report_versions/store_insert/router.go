@@ -12,11 +12,13 @@ func init() {}
 
 var _anchorVersionComponent = reflect.TypeFor[VersionComponent]()
 
+var _anchorAllocationRules_VersionComponent = reflect.TypeFor[AllocationRules]()
+
 var _anchorVersionInsertRules_VersionComponent = reflect.TypeFor[VersionInsertRules]()
 
 // Component is the generated component scaffold for version.
 type VersionComponent struct {
-	Contract xdatly.Component[Input, Output] `caseFormat:"lc" component:"version,path=/_studio/report-version-store/insert,method=POST,connector=studio,view=version,internal=true" mutation:"post" routeName:"version"`
+	Contract xdatly.Component[Input, Output] `caseFormat:"lc" component:"version,path=/_studio/report-version-store/insert,method=PATCH,connector=studio,view=version,internal=true" mutation:"patch" routeName:"version"`
 }
 
 // VersionDatlyType returns the public component type.

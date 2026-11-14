@@ -19,7 +19,11 @@ func TestPublicationEventStoreReads(t *testing.T) {
 	db.SetMaxOpenConns(1)
 	defer db.Close()
 	for _, statement := range []string{
-		`CREATE TABLE components (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, deleted_at TEXT)`,
+		`CREATE TABLE components (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, namespace TEXT, deleted_at TEXT)`,
+		`CREATE TABLE component_versions (report_id TEXT, version_no INTEGER, PRIMARY KEY(report_id,version_no))`,
+		`INSERT INTO component_versions VALUES ('r1',3)`,
+		`CREATE TABLE namespaces (owner_id TEXT, name TEXT, namespace_id TEXT, deleted_at TEXT, status TEXT)`,
+		`CREATE TABLE component_deletions (component_id TEXT PRIMARY KEY, namespace_id TEXT, owner_id TEXT, deleted_at TEXT, deleted_by TEXT)`,
 		`CREATE TABLE component_publication_events (event_id TEXT PRIMARY KEY, report_id TEXT, owner_id TEXT, operation TEXT, version_no INTEGER, generation_no INTEGER, status TEXT, requested_by TEXT, reason TEXT, failure_code TEXT, failure_message TEXT, occurred_at TIMESTAMP)`,
 		`INSERT INTO components(id,owner_id) VALUES ('r1','alice'),('r2','bob')`,
 		`INSERT INTO components(id,owner_id,deleted_at) VALUES ('deleted','alice','2026-01-01')`,
@@ -64,7 +68,7 @@ func TestPublicationEventStoreReads(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(page.Items) != 2 || page.Items[1].VersionNo != nil || page.Items[1].GenerationNo != nil ||
-		page.Items[1].Reason != "" || page.Items[0].OccurredAt.IsZero() {
+		page.Items[1].Reason != "" || page.Items[0].OccurredAt.IsZero() || page.Items[0].VersionDeleted || page.Items[1].VersionDeleted {
 		t.Fatalf("nullable event fields=%+v", page.Items)
 	}
 	page = sdk.PublicationEventPage{}
@@ -73,7 +77,7 @@ func TestPublicationEventStoreReads(t *testing.T) {
 	}
 	if len(page.Items) != 1 || page.Items[0].VersionNo == nil || *page.Items[0].VersionNo != 2 ||
 		page.Items[0].GenerationNo == nil || *page.Items[0].GenerationNo != 20 ||
-		page.Items[0].Reason != "retry" || page.Items[0].FailureCode != "timeout" || page.Items[0].FailureMessage != "failed" {
+		page.Items[0].Reason != "retry" || page.Items[0].FailureCode != "timeout" || page.Items[0].FailureMessage != "failed" || !page.Items[0].VersionDeleted {
 		t.Fatalf("failed event fields=%+v", page.Items)
 	}
 	for _, input := range []publicationEventListRequest{
@@ -114,6 +118,21 @@ func TestPublicationEventStoreReads(t *testing.T) {
 		var sdkErr *sdk.Error
 		if _, err := transport.publicationEventOwner(ctx, id); !errors.As(err, &sdkErr) || sdkErr.Code != sdk.ErrorNotFound || sdkErr.Message != "report not found" {
 			t.Fatalf("owner %q error=%v", id, err)
+		}
+	}
+
+	if _, err = db.ExecContext(ctx, `INSERT INTO component_deletions VALUES('r1','selected','carol',CURRENT_TIMESTAMP,'carol'); DELETE FROM components WHERE id='r1'`); err != nil {
+		t.Fatal(err)
+	}
+	for _, subject := range []string{"alice", "bob", "carol"} {
+		for _, selection := range []string{"selected", "other"} {
+			readCtx := context.WithValue(sdk.WithPrincipal(ctx, sdk.Principal{Subject: subject}), resolvedNamespaceKey{}, sdk.Namespace{NamespaceID: selection})
+			var retained sdk.PublicationEventPage
+			readErr := transport.listPublicationEvents(readCtx, publicationEventListRequest{ReportID: "r1"}, &retained)
+			want := subject == "carol" && selection == "selected"
+			if want && (readErr != nil || len(retained.Items) != 3) || !want && readErr == nil {
+				t.Fatalf("retained SDK history subject=%s selection=%s items=%d err=%v", subject, selection, len(retained.Items), readErr)
+			}
 		}
 	}
 	if transport.publicationReader == nil {

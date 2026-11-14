@@ -116,7 +116,7 @@ func managementWindow(config Config, name string) ([]Definition, error) {
 	}
 	if name == "components" {
 		prefix = "component"
-		operations = []string{"components.get", "components.create", "components.update", "versions.list", "versions.create", "versions.clone", "versions.inspect", "versions.apply", "versions.validate", "versions.builder", "resources.get", "resources.upsert_file", "preview.execute", "publications.get", "publications.publish", "publications.unpublish", "publications.rollback"}
+		operations = []string{"components.get", "components.create", "components.update", "components.delete", "versions.delete", "versions.list", "versions.create", "versions.clone", "versions.inspect", "versions.apply", "versions.validate", "versions.builder", "resources.get", "resources.upsert_file", "preview.execute", "publications.get", "publications.publish", "publications.unpublish", "publications.rollback"}
 	}
 	if name == "audit" || name == "schema" || name == "runtime" || name == "reader-input" || name == "overview" || name == "reader-output" || name == "reader-predicate" || name == "component-catalog" || name == "skills" || name == "security" || name == "access-review" || name == "reader-workbench" || name == "reader-composition" {
 		operations = nil // All SDK bindings for these windows are declared in their source.

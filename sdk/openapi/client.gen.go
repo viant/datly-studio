@@ -587,6 +587,11 @@ type InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0 struc
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
+// InputAe6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6 defines model for Input_ae6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6.
+type InputAe6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6 struct {
+	Etag *int64 `json:"etag,omitempty"`
+}
+
 // InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b defines model for Input_b11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b.
 type InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b struct {
 	AdditionalVersions     *[]InputDa2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0 `json:"additionalVersions,omitempty"`
@@ -1056,6 +1061,13 @@ type Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 stru
 	Status            *string    `json:"status,omitempty"`
 	Subject           *string    `json:"subject,omitempty"`
 	ToolName          *string    `json:"toolName,omitempty"`
+}
+
+// Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866 defines model for Output_2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866.
+type Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866 struct {
+	ComponentId     *string `json:"componentId,omitempty"`
+	DeletedVersions *int64  `json:"deletedVersions,omitempty"`
+	VersionNo       *int64  `json:"versionNo,omitempty"`
 }
 
 // Output2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2 defines model for Output_2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2.
@@ -1632,6 +1644,13 @@ type OutputC97b7b59c0c99ea53e6472f7e79baee9949576f0200174c238c8b514fcc51b69 stru
 type OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b struct {
 	Id   *string `json:"id,omitempty"`
 	Type *string `json:"type,omitempty"`
+}
+
+// OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae defines model for Output_cebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae.
+type OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae struct {
+	ComponentId     *string `json:"componentId,omitempty"`
+	DeletedVersions *int64  `json:"deletedVersions,omitempty"`
+	VersionNo       *int64  `json:"versionNo,omitempty"`
 }
 
 // OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 defines model for Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2.
@@ -2219,6 +2238,7 @@ type Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 struct
 	ReportId       *string    `json:"reportId,omitempty"`
 	RequestedBy    *string    `json:"requestedBy,omitempty"`
 	Status         *string    `json:"status,omitempty"`
+	VersionDeleted *bool      `json:"versionDeleted,omitempty"`
 	VersionNo      *int64     `json:"versionNo,omitempty"`
 }
 
@@ -5321,6 +5341,17 @@ type POSTv1studiosdkcomponentsCreateParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
+// POSTv1studiosdkcomponentsDeleteJSONBody defines parameters for POSTv1studiosdkcomponentsDelete.
+type POSTv1studiosdkcomponentsDeleteJSONBody struct {
+	Id    string                                                                `json:"id"`
+	Input InputAe6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6 `json:"input"`
+}
+
+// POSTv1studiosdkcomponentsDeleteParams defines parameters for POSTv1studiosdkcomponentsDelete.
+type POSTv1studiosdkcomponentsDeleteParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
 // POSTv1studiosdkcomponentsGetJSONBody defines parameters for POSTv1studiosdkcomponentsGet.
 type POSTv1studiosdkcomponentsGetJSONBody struct {
 	Id string `json:"id"`
@@ -5741,6 +5772,18 @@ type POSTv1studiosdkversionsCreateParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
+// POSTv1studiosdkversionsDeleteJSONBody defines parameters for POSTv1studiosdkversionsDelete.
+type POSTv1studiosdkversionsDeleteJSONBody struct {
+	ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
+	ReportId               string `json:"reportId"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsDeleteParams defines parameters for POSTv1studiosdkversionsDelete.
+type POSTv1studiosdkversionsDeleteParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
 // POSTv1studiosdkversionsDescriptorJSONBody defines parameters for POSTv1studiosdkversionsDescriptor.
 type POSTv1studiosdkversionsDescriptorJSONBody struct {
 	ReportId  string `json:"reportId"`
@@ -6001,6 +6044,9 @@ type POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody POSTv1studiosdk
 // POSTv1studiosdkcomponentsCreateJSONRequestBody defines body for POSTv1studiosdkcomponentsCreate for application/json ContentType.
 type POSTv1studiosdkcomponentsCreateJSONRequestBody POSTv1studiosdkcomponentsCreateJSONBody
 
+// POSTv1studiosdkcomponentsDeleteJSONRequestBody defines body for POSTv1studiosdkcomponentsDelete for application/json ContentType.
+type POSTv1studiosdkcomponentsDeleteJSONRequestBody POSTv1studiosdkcomponentsDeleteJSONBody
+
 // POSTv1studiosdkcomponentsGetJSONRequestBody defines body for POSTv1studiosdkcomponentsGet for application/json ContentType.
 type POSTv1studiosdkcomponentsGetJSONRequestBody POSTv1studiosdkcomponentsGetJSONBody
 
@@ -6144,6 +6190,9 @@ type POSTv1studiosdkversionsCloneJSONRequestBody POSTv1studiosdkversionsCloneJSO
 
 // POSTv1studiosdkversionsCreateJSONRequestBody defines body for POSTv1studiosdkversionsCreate for application/json ContentType.
 type POSTv1studiosdkversionsCreateJSONRequestBody POSTv1studiosdkversionsCreateJSONBody
+
+// POSTv1studiosdkversionsDeleteJSONRequestBody defines body for POSTv1studiosdkversionsDelete for application/json ContentType.
+type POSTv1studiosdkversionsDeleteJSONRequestBody POSTv1studiosdkversionsDeleteJSONBody
 
 // POSTv1studiosdkversionsDescriptorJSONRequestBody defines body for POSTv1studiosdkversionsDescriptor for application/json ContentType.
 type POSTv1studiosdkversionsDescriptorJSONRequestBody POSTv1studiosdkversionsDescriptorJSONBody
@@ -14714,6 +14763,14 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkcomponentsCreate(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkcomponentsDeleteWithBody performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkcomponentsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsDelete performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkcomponentsDelete(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkcomponentsGetWithBody report
 	//
 	// Takes any type of body and a specified content type.
@@ -15160,6 +15217,14 @@ type ClientInterface interface {
 	// POSTv1studiosdkversionsCreate performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkversionsCreate(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsDeleteWithBody performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsDelete performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsDelete(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsDescriptorWithBody version
 	//
@@ -16007,6 +16072,34 @@ func (c *Client) POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, pa
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkcomponentsCreate(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkcomponentsCreateRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsDeleteWithBody performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkcomponentsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsDeleteRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsDelete performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkcomponentsDelete(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsDeleteRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17424,6 +17517,34 @@ func (c *Client) POSTv1studiosdkversionsCreateWithBody(ctx context.Context, para
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkversionsCreate(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkversionsCreateRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsDeleteWithBody performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDeleteRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsDelete performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsDelete(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDeleteRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -19208,6 +19329,59 @@ func NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server string, params *PO
 
 			req.Header.Set("X-Studio-Namespace", headerParam0)
 		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkcomponentsDeleteRequest calls the generic POSTv1studiosdkcomponentsDelete builder with application/json body
+func NewPOSTv1studiosdkcomponentsDeleteRequest(server string, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkcomponentsDeleteRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkcomponentsDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkcomponentsDeleteRequestWithBody(server string, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/components.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
 
 	}
 
@@ -21578,6 +21752,59 @@ func NewPOSTv1studiosdkversionsCreateRequestWithBody(server string, params *POST
 	return req, nil
 }
 
+// NewPOSTv1studiosdkversionsDeleteRequest calls the generic POSTv1studiosdkversionsDelete builder with application/json body
+func NewPOSTv1studiosdkversionsDeleteRequest(server string, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsDeleteRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsDeleteRequestWithBody(server string, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkversionsDescriptorRequest calls the generic POSTv1studiosdkversionsDescriptor builder with application/json body
 func NewPOSTv1studiosdkversionsDescriptorRequest(server string, params *POSTv1studiosdkversionsDescriptorParams, body POSTv1studiosdkversionsDescriptorJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -22749,6 +22976,16 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
 
+	// POSTv1studiosdkcomponentsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error)
+
+	// POSTv1studiosdkcomponentsDeleteWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error)
+
 	// POSTv1studiosdkcomponentsGetWithBodyWithResponse report
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -23273,6 +23510,16 @@ type ClientWithResponsesInterface interface {
 	// POSTv1studiosdkversionsCreateWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
+
+	// POSTv1studiosdkversionsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error)
+
+	// POSTv1studiosdkversionsDeleteWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error)
 
 	// POSTv1studiosdkversionsDescriptorWithBodyWithResponse version
 	//
@@ -24464,6 +24711,47 @@ func (r POSTv1studiosdkcomponentsCreateResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkcomponentsCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkcomponentsDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkcomponentsDeleteResponse) GetJSON200() *Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkcomponentsDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkcomponentsDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkcomponentsDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkcomponentsDeleteResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -26465,6 +26753,47 @@ func (r POSTv1studiosdkversionsCreateResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdkversionsDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsDeleteResponse) GetJSON200() *OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type POSTv1studiosdkversionsDescriptorResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27674,6 +28003,28 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithResponse(ctx co
 	return ParsePOSTv1studiosdkcomponentsCreateResponse(rsp)
 }
 
+// POSTv1studiosdkcomponentsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsDeleteWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsDeleteWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsDelete(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsDeleteResponse(rsp)
+}
+
 // POSTv1studiosdkcomponentsGetWithBodyWithResponse report
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -28781,6 +29132,28 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithResponse(ctx cont
 	return ParsePOSTv1studiosdkversionsCreateResponse(rsp)
 }
 
+// POSTv1studiosdkversionsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDeleteWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkversionsDeleteWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDelete(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsDeleteResponse(rsp)
+}
+
 // POSTv1studiosdkversionsDescriptorWithBodyWithResponse version
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -29777,6 +30150,32 @@ func ParsePOSTv1studiosdkcomponentsCreateResponse(rsp *http.Response) (*POSTv1st
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkcomponentsDeleteResponse parses an HTTP response from a POSTv1studiosdkcomponentsDeleteWithResponse call
+func ParsePOSTv1studiosdkcomponentsDeleteResponse(rsp *http.Response) (*POSTv1studiosdkcomponentsDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkcomponentsDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -31031,6 +31430,32 @@ func ParsePOSTv1studiosdkversionsCreateResponse(rsp *http.Response) (*POSTv1stud
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsDeleteResponse parses an HTTP response from a POSTv1studiosdkversionsDeleteWithResponse call
+func ParsePOSTv1studiosdkversionsDeleteResponse(rsp *http.Response) (*POSTv1studiosdkversionsDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
