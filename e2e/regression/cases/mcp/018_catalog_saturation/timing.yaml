@@ -1,11 +1,16 @@
 pipeline:
+  ownerBearerToken:
+    action: secret:reveal
+    URL: $ownerToken
+    logging: false
   initialize:
     action: http/runner:send
+    logging: false
     requests:
       - URL: $status.StructuredContent.host.mcpUrl
         method: POST
-        bearerTokenSecret: $ownerToken
         header:
+          Authorization: ["Bearer $ownerBearerToken.Data"]
           Content-Type: [application/json]
           Accept: [application/json]
           MCP-Protocol-Version: ['2025-11-25']
@@ -25,11 +30,12 @@ pipeline:
     message: 'initialize milliseconds: $initialize.Responses[0].TimeTakenMs'
   list:
     action: http/runner:send
+    logging: false
     requests:
       - URL: $status.StructuredContent.host.mcpUrl
         method: POST
-        bearerTokenSecret: $ownerToken
         header:
+          Authorization: ["Bearer $ownerBearerToken.Data"]
           Content-Type: [application/json]
           Accept: [application/json]
           MCP-Protocol-Version: ['2025-11-25']
@@ -49,11 +55,12 @@ pipeline:
     message: 'list milliseconds: $list.Responses[0].TimeTakenMs'
   read:
     action: http/runner:send
+    logging: false
     requests:
       - URL: $status.StructuredContent.host.mcpUrl
         method: POST
-        bearerTokenSecret: $ownerToken
         header:
+          Authorization: ["Bearer $ownerBearerToken.Data"]
           Content-Type: [application/json]
           Accept: [application/json]
           MCP-Protocol-Version: ['2025-11-25']

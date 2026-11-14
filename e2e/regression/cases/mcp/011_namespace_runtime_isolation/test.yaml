@@ -534,25 +534,57 @@ pipeline:
             requireSecurityPredicate: true
             requireInternalComponents: false
     allowToolError: true
-  missingRequiredPredicateReported:
+  authoringPredicateRequirementSaved:
     action: validator:assert
     normalizeKVPairs: true
     actual: $requireAlphaPredicate
     expect:
-      IsError: true
+      IsError: false
       StructuredContent:
-        committed: true
-        diagnostics:
-          - code: namespace_security_predicate_required
+        settings:
+          security:
+            requireSecurityPredicate: true
   predicateRestrictedCatalog:
     action: mcp/runner:listTools
     url: $alphastatus.StructuredContent.host.mcpUrl
     bearerTokenSecret: $ownerToken
-  predicateRestrictedReaderHidden:
+  publishedReaderRetained:
     action: validator:assert
     actual: $predicateRestrictedCatalog
     expect:
-      '@length@Tools': 0
+      '@length@Tools': 1
+      Tools:
+        - Name: $alphastatus.StructuredContent.readers[0].mcpExposures[0].name
+  validateWithRequiredPredicate:
+    action: mcp/runner:call
+    url: $nativeMCP
+    bearerTokenSecret: $ownerToken
+    '@name': studio.sdk.versions.validate
+    arguments:
+      namespaceId: $alphanamespace.StructuredContent.namespaceId
+      reportId: $alphacomponent.StructuredContent.id
+      versionNo: $alphaimport.StructuredContent.version.versionNo
+      expectedSourceRevision: $alphaimport.StructuredContent.version.sourceRevision
+  authoringPredicateRequirementEnforced:
+    action: validator:assert
+    normalizeKVPairs: true
+    actual: $validateWithRequiredPredicate
+    expect:
+      IsError: false
+      StructuredContent:
+        valid: false
+        diagnostics:
+          - code: namespace_security_predicate_required
+  invokeAcceptedPublication:
+    action: mcp/runner:call
+    url: $alphastatus.StructuredContent.host.mcpUrl
+    bearerTokenSecret: $ownerToken
+    '@name': $alphastatus.StructuredContent.readers[0].mcpExposures[0].name
+    arguments: $AsMap('{}')
+  acceptedPublicationStillExecutes:
+    action: validator:assert
+    actual: $invokeAcceptedPublication.IsError
+    expect: false
   predicateRestrictionReadback:
     action: mcp/runner:call
     url: $nativeMCP

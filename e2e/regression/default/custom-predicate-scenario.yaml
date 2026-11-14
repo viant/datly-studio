@@ -100,6 +100,7 @@ pipeline:
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("Presence")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("presence")
@@ -303,7 +304,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': $caseTool
     arguments:
-      Presence: eligible
+      presence: eligible
   eligibleRows:
     action: validator:assert
     normalizeKVPairs: true
@@ -320,7 +321,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': $caseTool
     arguments:
-      Presence: exists
+      presence: exists
   paidOrdersRows:
     action: validator:assert
     normalizeKVPairs: true
@@ -338,7 +339,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': $caseTool
     arguments:
-      Presence: not_exists
+      presence: not_exists
   noPaidOrdersRows:
     action: validator:assert
     normalizeKVPairs: true
@@ -356,7 +357,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': $caseTool
     arguments:
-      Presence: eligible
+      presence: eligible
   eligibleAgainRows:
     action: validator:assert
     normalizeKVPairs: true
@@ -373,7 +374,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     '@name': $caseTool
     arguments:
-      Presence: exists OR 1=1
+      presence: exists OR 1=1
     allowToolError: true
     allowProtocolError: true
   invalidRejected:

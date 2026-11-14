@@ -356,8 +356,8 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_views.read
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
   readViewsAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -374,8 +374,8 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_parameters.read
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
   readParametersAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -390,8 +390,8 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_mcp_exposures.read
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
   readExposuresAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -406,8 +406,8 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_versions.read
     arguments:
-      OrderBy: version_no ASC
-      ReportId: $component.StructuredContent.id
+      orderBy: version_no ASC
+      reportId: $component.StructuredContent.id
   readVersionsAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -427,8 +427,8 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_versions.readByVersionNo
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
   readVersionAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -446,7 +446,7 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_publications.read
     arguments:
-      ReportId: $component.StructuredContent.id
+      reportId: $component.StructuredContent.id
   readPublicationAssert:
     action: validator:assert
     normalizeKVPairs: true

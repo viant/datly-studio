@@ -90,6 +90,7 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("Limit")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("limit")
@@ -98,6 +99,7 @@ pipeline:
       - page.getByRole("button", "Save input").click()
       - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("IDs")
       - page.getByLabel("Type expression").fill("[]int")
       - page.getByLabel("Kind source").fill("ids")
@@ -110,6 +112,7 @@ pipeline:
       - page.getByRole("button", "Save input").click()
       - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("Active")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("active")
@@ -120,6 +123,7 @@ pipeline:
       - page.getByRole("button", "Save input").click()
       - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("Tenant")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("tenant")
@@ -191,7 +195,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          Limit: 1
+          limit: 1
         limit: 50
     allowToolError: true
   limitedSucceeded:
@@ -223,7 +227,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          IDs:
+          idS:
             - 1
             - 3
         limit: 50
@@ -258,7 +262,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          Active: 0
+          active: 0
         limit: 50
     allowToolError: true
   zeroSucceeded:
@@ -290,7 +294,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          Tenant: alpha
+          tenant: alpha
         limit: 50
     allowToolError: true
   customSucceeded:
@@ -324,12 +328,12 @@ pipeline:
       versionNo: 1
       input:
         input:
-          IDs:
+          idS:
             - 1
             - 2
             - 3
-          Active: 1
-          Tenant: alpha
+          active: 1
+          tenant: alpha
         limit: 50
     allowToolError: true
   combinedSucceeded:
@@ -374,7 +378,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          Limit: 1
+          limit: 1
         limit: 50
     allowToolError: true
   selectorRemovedSucceeded:
@@ -422,7 +426,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          Limit: 1
+          limit: 1
         limit: 50
     allowToolError: true
   selectorRestoredSucceeded:
@@ -477,7 +481,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          IDs:
+          idS:
             - 1
             - 3
         limit: 50
@@ -512,7 +516,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          Active: 0
+          active: 0
         limit: 50
     allowToolError: true
   expressionEditedSucceeded:
@@ -544,6 +548,7 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.locator("xpath://div[contains(@class,'studio-contract-list')]//button[.//strong[normalize-space(.)='Tenant']]").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("TenantFilter")
       - page.getByRole("button", "Save input").click()
       - expect(page.locator(".studio-forge-contract-window")).toHaveCount(0,15000)
@@ -558,7 +563,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          TenantFilter: beta
+          tenantFilter: beta
         limit: 50
     allowToolError: true
   renamedSucceeded:
@@ -607,7 +612,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          TenantFilter: exists
+          tenantFilter: exists
         limit: 50
     allowToolError: true
   handlerEditedSucceeded:
@@ -655,8 +660,8 @@ pipeline:
       versionNo: 1
       input:
         input:
-          Active: 0
-          TenantFilter: alpha
+          active: 0
+          tenantFilter: alpha
         limit: 50
     allowToolError: true
   predicatesRemovedSucceeded:
@@ -769,6 +774,7 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("JWT")
       - page.locator("xpath://summary[normalize-space(.)='Binding options']").click()
       - page.getByLabel("Codec").click()
@@ -876,6 +882,7 @@ pipeline:
       directory: ${runDir}/artifacts/webdriver
     commands:
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("TenantName")
       - page.getByLabel("Kind source").fill("tenantName")
       - page.locator("xpath://summary[normalize-space(.)='Predicate']").click()
@@ -903,7 +910,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          TenantName: " ALPHA "
+          tenantName: " ALPHA "
         limit: 50
     allowToolError: true
   customCodecSucceeded:
@@ -929,7 +936,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          TenantName: invalid
+          tenantName: invalid
         limit: 50
     allowToolError: true
   customCodecInvalidCheck:
@@ -966,7 +973,7 @@ pipeline:
       versionNo: 1
       input:
         input:
-          TenantName: " ALPHA "
+          tenantName: " ALPHA "
         limit: 50
     allowToolError: true
   withoutCodecSucceeded:

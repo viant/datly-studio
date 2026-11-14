@@ -161,7 +161,7 @@ pipeline:
       versionNo: $import.StructuredContent.version.versionNo
       input:
         input:
-          Tenant: ' ALPHA '
+          tenant: ' ALPHA '
         limit: 20
   previewRows:
     action: validator:assert
@@ -200,7 +200,7 @@ pipeline:
       versionNo: $import.StructuredContent.version.versionNo
       input:
         input:
-          Tenant: 'alpha OR 1=1'
+          tenant: 'alpha OR 1=1'
         limit: 20
     allowToolError: true
     allowProtocolError: true
@@ -295,7 +295,7 @@ pipeline:
     action: mcp/runner:call
     url: $status.StructuredContent.host.mcpUrl
     arguments:
-      Tenant: ' BETA '
+      tenant: ' BETA '
     bearerTokenSecret: $ownerToken
     '@name': $status.StructuredContent.readers[0].mcpExposures[0].name
     allowToolError: true
@@ -323,7 +323,7 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': codecs.read
     arguments:
-      Tenant: 'alpha OR 1=1'
+      tenant: 'alpha OR 1=1'
     allowToolError: true
     allowProtocolError: true
   invalidRejected:

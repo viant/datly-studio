@@ -140,6 +140,7 @@ pipeline:
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("CustomerID")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("customerId")
@@ -162,6 +163,7 @@ pipeline:
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("Name")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("name")
@@ -184,6 +186,7 @@ pipeline:
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("State")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("state")
@@ -206,6 +209,7 @@ pipeline:
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("Score")
       - page.getByLabel("Type expression").fill("int")
       - page.getByLabel("Kind source").fill("score")
@@ -400,7 +404,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     "@name": ${caseTool}
     arguments:
-      CustomerID: 10
+      customerId: 10
   verifyCustomerID:
     action: validator:assert
     normalizeKVPairs: true
@@ -418,7 +422,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     "@name": ${caseTool}
     arguments:
-      Name: ui_complex first
+      name: ui_complex first
   verifyName:
     action: validator:assert
     normalizeKVPairs: true
@@ -436,7 +440,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     "@name": ${caseTool}
     arguments:
-      State: active
+      state: active
   verifyState:
     action: validator:assert
     normalizeKVPairs: true
@@ -454,7 +458,7 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     "@name": ${caseTool}
     arguments:
-      Score: 90
+      score: 90
   verifyScore:
     action: validator:assert
     normalizeKVPairs: true
@@ -491,6 +495,7 @@ pipeline:
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("Region")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("region")
@@ -513,6 +518,7 @@ pipeline:
       - page.getByRole("tab", "Inputs").click()
       - page.locator("#reader-input-parameters-tab").click()
       - page.getByRole("button", "Add input").click()
+      - expect(page.getByLabel("Input name")).toBeEnabled(15000)
       - page.getByLabel("Input name").fill("ContactLabel")
       - page.getByLabel("Type expression").fill("string")
       - page.getByLabel("Kind source").fill("contactLabel")
@@ -616,9 +622,9 @@ pipeline:
         - Name: ${caseTool}
           InputSchema:
             Properties:
-              Region:
+              region:
                 type: string
-              ContactLabel:
+              contactLabel:
                 type: string
   invokeSecondRevision:
     action: mcp/runner:call
@@ -626,8 +632,8 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     "@name": ${caseTool}
     arguments:
-      Region: east
-      ContactLabel: secondary
+      region: east
+      contactLabel: secondary
   updatedResults:
     action: validator:assert
     normalizeKVPairs: true
@@ -656,12 +662,12 @@ pipeline:
     bearerTokenSecret: ${runDir}/${allowedUser}.token
     "@name": ${caseTool}
     arguments:
-      CustomerID: 10
-      Name: ui_complex first
-      State: active
-      Score: 90
-      Region: west
-      ContactLabel: primary
+      customerId: 10
+      name: ui_complex first
+      state: active
+      score: 90
+      region: west
+      contactLabel: primary
   combinedResults:
     action: validator:assert
     normalizeKVPairs: true
