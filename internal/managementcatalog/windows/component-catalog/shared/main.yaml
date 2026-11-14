@@ -4,6 +4,8 @@ window:
   on:
     - event: onInit
       handler: management.initialize
+    - event: onDestroy
+      handler: management.dispose
   view:
     content:
       id: component-catalog
@@ -137,6 +139,16 @@ window:
                 on:
                   - event: onClick
                     handler: management.openAudit
+              - id: delete
+                name: ''
+                type: button
+                icon: trash
+                tooltip: Permanently delete component
+                visibleWhen: {source: row, field: canDelete, equals: true}
+                cellProperties: {aria-label: Permanently delete component}
+                on:
+                  - event: onClick
+                    handler: management.confirmDelete
               - id: download
                 name: ""
                 type: button
@@ -183,6 +195,12 @@ window:
                 equals: true
         - id: catalog-bindings
           containers:
+            - id: catalog_delete-binding
+              dataSourceRef: catalog_delete
+              fetchData: false
+            - id: catalog_delete_component-binding
+              dataSourceRef: catalog_delete_component
+              fetchData: false
             - id: catalog_state-binding
               dataSourceRef: catalog_state
               fetchData: false
@@ -241,6 +259,39 @@ window:
               dataSourceRef: catalog_resource_apply
               fetchData: false
   dialogs:
+    - id: catalog-delete
+      title: Permanently delete component
+      dataSourceRef: catalog_delete
+      fetchOnOpen: false
+      properties:
+        closeDisabledWhen: {selector: saving, equals: true}
+      content:
+        id: catalog-delete-confirmation
+        items:
+          - {id: title, label: Component, dataField: title, type: text, readOnly: true}
+          - {id: id, label: Component ID, dataField: id, type: text, readOnly: true}
+          - id: impact
+            label: Permanent removal
+            type: textarea
+            dataField: impact
+            readOnly: true
+          - {id: outcome, label: Outcome, dataField: outcome, type: text, readOnly: true}
+      actions:
+        - id: delete
+          label: Permanently delete component
+          intent: danger
+          close: false
+          disabledWhen:
+            any:
+              - {selector: saving, equals: true}
+              - {selector: deleted, equals: true}
+          on:
+            - event: onClick
+              handler: management.deleteComponent
+        - id: cancel
+          label: Cancel
+          close: true
+          disabledWhen: {selector: saving, equals: true}
     - id: component-resource-check
       title: Component query resource checks
       dataSourceRef: catalog_resource_check
@@ -643,4 +694,14 @@ dataSources:
     id: catalog_resource_apply
     cardinality: object
     backend: {kind: mcp_tool, method: studio.sdk.versions.apply}
+    cache: {enabled: false}
+  catalog_delete:
+    id: catalog_delete
+    cardinality: object
+    backend: {kind: inline, rows: []}
+    cache: {enabled: false}
+  catalog_delete_component:
+    id: catalog_delete_component
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.components.delete}
     cache: {enabled: false}

@@ -90,11 +90,15 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
           return <div className={target==='builder'?'studio-reader-host':'studio-management-host'} role={target==='builder'?undefined:'main'}>
             <ManagementWindow key={target==='builder'?`${builderReport?.id||''}:${builderReport?.versionNo||''}:${builderReport?.sourceRevision??''}`:target} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready}
               uri={`window://datastudio/${managementWindowDestination(target)?.name || target}`}
-              parameters={{currentNamespace:namespaceWorkspace.current,report:builderReport,hasNamespaceSkillsRenderer:Boolean(renderNamespaceSkills)}}
+              parameters={{subject,currentNamespace:namespaceWorkspace.current,report:builderReport,hasNamespaceSkillsRenderer:Boolean(renderNamespaceSkills)}}
               renderSlots={renderNamespaceSkills?{'namespace-skills':props=>renderNamespaceSkills({api,namespace:namespaceWorkspace.current,subject,onDirtyChange:props.onDirtyChange})}:undefined}
               onDirtyChange={value=>{if(target===section)setSkillEditing(value);}}
               instanceKey={`native-datastudio-${target}`} onOperationCompleted={onManagementOperation}
-              onNavigate={(next,parameters)=>next==='builder'?openBuilder(parameters.report):navigate(next,parameters?.discardConfirmed===true)}/>
+              onNavigate={(next,parameters)=>{
+                if(next==='builder')return openBuilder(parameters.report);
+                if(target==='builder'&&next==='components'&&parameters?.discardConfirmed===true)setBuilderReport(null);
+                navigate(next,parameters?.discardConfirmed===true);
+              }}/>
           </div>;
         }}/>}}/>
     </div></div>
