@@ -1535,6 +1535,8 @@ github.com/viant/forge v0.3.47-0.20261115144544-b8b41d59fd6d h1:5DwAHjeF9/XJcq5W
 github.com/viant/forge v0.3.47-0.20261115144544-b8b41d59fd6d/go.mod h1:ARzdA6Erk79xUD9ILEM1m32KT+0g83+KLaFOxyYXTv8=
 github.com/viant/forge v0.3.47-0.20261115193319-60f0e771ece2 h1:gJrxQuFlO8N5NUsUAe8/PzYhrXnWdeiRfurYng//6Zc=
 github.com/viant/forge v0.3.47-0.20261115193319-60f0e771ece2/go.mod h1:ARzdA6Erk79xUD9ILEM1m32KT+0g83+KLaFOxyYXTv8=
+github.com/viant/forge v0.3.47-0.20261115201622-55817b202e12 h1:dAZXmlneg7xMd+bD2CG/VAfdPcHJmcs6qjPNLH9hcqs=
+github.com/viant/forge v0.3.47-0.20261115201622-55817b202e12/go.mod h1:ARzdA6Erk79xUD9ILEM1m32KT+0g83+KLaFOxyYXTv8=
 github.com/viant/gmetric v0.3.2 h1:zTdW9QrPk2P0i/do9fokxtHesFQCvYqIc5Yktzmyxtg=
 github.com/viant/gmetric v0.3.2/go.mod h1:3WGxSMCL+owUb0HewYXMLxkoen8e8MlX1Vd2C6tJ5qw=
 github.com/viant/godiff v0.4.3-0.20260914060527-9f2005ca82e8 h1:PCgpoW8IwGsYDs805dCXp25vLTWkakpfvIYll0Twir4=
