@@ -97,6 +97,12 @@ window:
               discoverColumns:
                 arg: 2
                 selector: discoverColumns
+              includePreviewInput:
+                arg: 2
+                selector: includePreviewInput
+              includeEffectiveWarmup:
+                arg: 2
+                selector: includeEffectiveWarmup
           validateVersion:
             dataSourceRef: workbench_validate_version
             parameters:
