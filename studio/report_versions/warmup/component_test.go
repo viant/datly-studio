@@ -95,8 +95,10 @@ func TestMCPWarmupRetainsAuthorizedContextAfterClientDisconnect(t *testing.T) {
 	); err != nil {
 		t.Fatal(err)
 	}
-	for _, id := range []string{"accepted", "rejected", "missing"} {
-		scope := "example.com/fixture/" + id
+	ids := []string{"accepted", "rejected", "missing", "named-root", "named-child", "named-multiple", "named-plural", "named-rejected", "no-policy", "unresolved"}
+	readerCaches := map[string]*spec.CacheSettings{}
+	for _, id := range ids {
+		scope := "example.com/fixture/" + strings.ReplaceAll(id, "-", "_")
 		warmupConnector := "batch"
 		if id == "missing" {
 			warmupConnector = "unavailable"
@@ -112,6 +114,34 @@ func TestMCPWarmupRetainsAuthorizedContextAfterClientDisconnect(t *testing.T) {
 #define($_ = $Tenant<int>(param/Identity.UserID).WithPredicate(0,'expr','OWNER = ?'))
 #define($_ = $Records<[]*Record>(output/view))
 SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predicate.FilterGroup(0,"AND")).Build("WHERE")}) records`, scope, id, filepath.Join(directory, id, "cache"), warmupConnector)
+
+		if id != "accepted" && id != "rejected" && id != "missing" {
+			dql = strings.Replace(dql, fmt.Sprintf("#setting($_ = $cache('records','1m').WithLocation('%s'))\n#setting($_ = $cache_warmup('ID','Connector=%s','Limit=0'))\n", filepath.Join(directory, id, "cache"), warmupConnector), "", 1)
+			rootCache, childCache, rootPolicy, childPolicy := id+"-root-cache", id+"-child-cache", id+"-root-policy", id+"-child-policy"
+			one, zero := 1, 0
+			readerCaches[rootCache] = &spec.CacheSettings{Enabled: true, Location: filepath.Join(directory, id, "cache", "root"), TTL: "1m"}
+			readerCaches[childCache] = &spec.CacheSettings{Enabled: true, Location: filepath.Join(directory, id, "cache", "child"), TTL: "1m"}
+			readerCaches[rootPolicy] = &spec.CacheSettings{Warmup: &spec.CacheWarmupSettings{Name: rootPolicy, IndexColumn: "ID", Connector: "batch", MaxCases: &one, Limit: &zero}}
+			readerCaches[childPolicy] = &spec.CacheSettings{Warmup: &spec.CacheWarmupSettings{Name: childPolicy, IndexColumn: "ID", Connector: "batch", MaxCases: &one, Limit: &zero}}
+			projection := "SELECT records.*, type(records,'Record')"
+			if id == "named-root" || id == "named-rejected" || id == "named-multiple" || id == "named-plural" || id == "unresolved" {
+				if id == "unresolved" {
+					rootPolicy = "undefined-policy"
+				}
+				projection += fmt.Sprintf(", use_cache(records,'%s'), cache_warmup(records,'%s')", rootCache, rootPolicy)
+			}
+			if id == "named-plural" {
+				settings := readerCaches[rootPolicy]
+				settings.Warmups = []*spec.CacheWarmupSettings{settings.Warmup, {Name: rootPolicy + "-second", IndexColumn: "NAME", Connector: "batch", MaxCases: &one, Limit: &zero}}
+				settings.Warmup = nil
+			}
+			dql = strings.Replace(dql, "SELECT records.*, type(records,'Record')", projection, 1)
+			if id == "named-child" || id == "named-multiple" {
+				dql = strings.Replace(dql, projection, projection+fmt.Sprintf(", child.*, type(child,'Child'), use_cache(child,'%s'), cache_warmup(child,'%s')", childCache, childPolicy), 1)
+				dql += `
+LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predicate.FilterGroup(0,"AND")).Build("WHERE")}) child ON child.ID=records.ID`
+			}
+		}
 		if err = datatest.Hydrate(ctx, db,
 			datatest.Table{Name: "components", Rows: []datatest.Row{{"id": id, "namespace_id": namespace, "namespace": "alpha", "slug": id, "title": id, "owner_id": "alice", "status": "draft", "default_connector_name": "main", "component_scope": scope, "component_name": "reader", "created_at": now, "updated_at": now}}},
 			datatest.Table{Name: "component_versions", Rows: []datatest.Row{{"namespace_id": namespace, "report_id": id, "version_no": 1, "state": "draft", "authoring_mode": "dql", "authored_dql": dql, "generated_dql": dql, "component_spec_json": "{}", "type_manifest_json": "{}", "spec_format_version": "1", "spec_hash": id, "compile_status": "valid", "datly_version": "v1", "compiler_version": "v1", "source_revision": 1, "created_by": "alice", "created_at": now}}},
@@ -139,7 +169,7 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 	}()
 	var cleaned atomic.Int32
 	var previewing atomic.Bool
-	authoring, err := host.NewAuthoring(host.AuthoringConfig{ModulePath: "example.com/fixture", Dependencies: func(ctx context.Context, component *spec.Component) (*preview.DependencyRuntime, error) {
+	authoring, err := host.NewAuthoring(host.AuthoringConfig{ModulePath: "example.com/fixture", ReaderCaches: readerCaches, Dependencies: func(ctx context.Context, component *spec.Component) (*preview.DependencyRuntime, error) {
 		selected, ok := sdk.NamespaceSelectionFromContext(ctx)
 		if !ok || selected != namespace {
 			return nil, fmt.Errorf("authorized namespace lost")
@@ -172,7 +202,7 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 			if ctx.Err() != nil {
 				return nil, ctx.Err()
 			}
-		} else {
+		} else if strings.HasSuffix(component.Key.Scope, "/rejected") || strings.HasSuffix(component.Key.Scope, "/named_rejected") {
 			selectedFactory = deniedFixture.Factory
 		}
 		artifact, e := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Component: &spec.Component{Key: spec.Key{Kind: spec.KindComponent, Scope: "fixture/identity", Name: "Identity"}, Routes: []*spec.Route{{Method: "GET", Path: "/identity", Internal: true}}}, InputType: reflect.TypeFor[identityInput](), OutputType: reflect.TypeFor[jwt.Claims](), CodecFactory: selectedFactory})
@@ -284,7 +314,7 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 	if jobs != 0 {
 		t.Fatal("rejection created a job")
 	}
-	for _, id := range []string{"accepted", "rejected", "missing"} {
+	for _, id := range ids {
 		t.Run(id, func(t *testing.T) {
 			clientCtx, disconnect := context.WithCancel(ctx)
 			accepted, ok := call(clientCtx, "studio.sdk.versions.warmup", bearer, args(id, namespace))
@@ -318,23 +348,56 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 				time.Sleep(20 * time.Millisecond)
 			}
 			expected := "completed"
-			if id != "accepted" {
+			successful := id == "accepted" || id == "named-root" || id == "named-child" || id == "named-multiple" || id == "named-plural"
+			if !successful {
 				expected = "failed"
 			}
 			if run.Status != expected {
 				t.Fatalf("terminal run=%+v", run)
 			}
-			if id == "rejected" && (len(run.Diagnostics) != 1 || !strings.Contains(run.Diagnostics[0].Message, "prepare dynamic cache warmup")) {
+			if (id == "rejected" || id == "named-rejected") && (len(run.Diagnostics) != 1 || !strings.Contains(run.Diagnostics[0].Message, "prepare dynamic cache warmup")) {
 				t.Fatalf("rejection did not come from native JWT preparation: %+v", run.Diagnostics)
 			}
 			if id == "missing" && (len(run.Diagnostics) != 1 || !strings.Contains(run.Diagnostics[0].Message, `requires active Studio connector "unavailable"`)) {
 				t.Fatalf("missing warmup connector did not fail explicitly: %+v", run.Diagnostics)
 			}
+			if id == "no-policy" && (len(run.Diagnostics) != 1 || run.Diagnostics[0].Code != "invalid_argument" || !strings.Contains(run.Diagnostics[0].Message, "no effective cache warmup policy")) {
+				t.Fatalf("no-policy diagnostic: %+v", run)
+			}
+			if id == "unresolved" && (len(run.Diagnostics) != 1 || run.Diagnostics[0].Code != "internal" || run.Diagnostics[0].Message != "initialize dynamic reader") {
+				t.Fatalf("native resolution failure: %+v", run)
+			}
+			if strings.HasPrefix(id, "named-") && successful {
+				count := 1
+				if id == "named-multiple" || id == "named-plural" {
+					count = 2
+				}
+				if run.PlannedCases != count || run.CompletedCases != count || run.Entries != 2*count || len(run.Target.ScheduledTargets) != count {
+					t.Fatalf("named execution counts/evidence: %+v", run)
+				}
+				if count == 1 && (run.MaxCases == nil || *run.MaxCases != 1 || run.RowLimit == nil || *run.RowLimit != 0) {
+					t.Fatalf("singular native limits: %+v", run)
+				}
+				if count > 1 && (run.MaxCases != nil || run.RowLimit != nil) {
+					t.Fatalf("ambiguous singular limits: %+v", run)
+				}
+				for _, target := range run.Target.ScheduledTargets {
+					if target.PolicyName == "" || target.CacheProvider != "afs" || target.ConnectorName != "batch" {
+						t.Fatalf("named metadata: %+v", target)
+					}
+				}
+				if id == "named-child" && run.Target.ScheduledTargets[0].View == "" {
+					t.Fatalf("child warmup attributed to root: %+v", run.Target)
+				}
+			}
 			if id == "accepted" && (run.Entries != 2 || run.CompletedCases != 1) {
 				t.Fatalf("successful run=%+v", run)
 			}
-			if id == "accepted" {
-				if run.Target.CacheProvider != "afs" || len(run.Target.ScheduledTargets) != 1 || len(run.Target.ScheduledTargets[0].Work) != 1 || run.Target.ScheduledTargets[0].Work[0].CacheProvider != "afs" {
+			if id == "accepted" && (run.MaxCases != nil || run.RowLimit == nil || *run.RowLimit != 0) {
+				t.Fatalf("inline native limits changed: %+v", run)
+			}
+			if successful {
+				if id == "accepted" && (run.Target.CacheProvider != "afs" || len(run.Target.ScheduledTargets) != 1 || len(run.Target.ScheduledTargets[0].Work) != 1 || run.Target.ScheduledTargets[0].Work[0].CacheProvider != "afs") {
 					t.Fatalf("native evidence not persisted: %+v", run.Target)
 				}
 				body, _ := json.Marshal(map[string]any{"reportId": id, "runId": run.RunID})
@@ -372,11 +435,11 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 			if e != nil && !os.IsNotExist(e) {
 				t.Fatal(e)
 			}
-			if id == "accepted" && files == 0 {
+			if successful && files == 0 {
 				t.Fatal("cache preparation produced no files")
 			}
-			if id != "accepted" && (files != 0 || run.Entries != 0) {
-				t.Fatalf("JWT rejection wrote cache: files=%d run=%+v", files, run)
+			if !successful && (files != 0 || run.Entries != 0 || run.CompletedCases != 0) {
+				t.Fatalf("rejected warmup wrote cache: files=%d run=%+v", files, run)
 			}
 		})
 	}
@@ -391,7 +454,7 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 		t.Fatalf("ordinary preview required a warmup-only source or changed its native identity scope: %s", raw)
 	}
 
-	if cleaned.Load() != 4 {
+	if cleaned.Load() != int32(len(ids)+1) {
 		t.Fatalf("dependency cleanup count=%d", cleaned.Load())
 	}
 }

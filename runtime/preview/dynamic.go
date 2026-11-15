@@ -532,8 +532,8 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
-	if contract.Component == nil || contract.Component.RootView == nil || contract.Component.CacheWarmup() == nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no authored cache warmup policy"}
+	if contract.Component == nil || contract.Component.RootView == nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no warmup reader"}
 	}
 	if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); policyErr != nil {
 		return nil, policyErr
@@ -557,15 +557,18 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	var warmupTargets []dexec.ReaderWarmupTarget
 	if targeter, ok := reader.(dexec.ReaderWarmupTargeter); ok {
 		warmupTargets = targeter.WarmupTargets()
-		var connectors []string
-		for _, target := range warmupTargets {
-			if target.Settings != nil && target.Settings.Connector != "" {
-				connectors = append(connectors, target.Settings.Connector)
-			}
+	}
+	if len(warmupTargets) == 0 {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no effective cache warmup policy"}
+	}
+	var connectors []string
+	for _, target := range warmupTargets {
+		if target.Settings != nil && target.Settings.Connector != "" {
+			connectors = append(connectors, target.Settings.Connector)
 		}
-		if err := sources.require(ctx, definition, connectors, d.Const); err != nil {
-			return nil, err
-		}
+	}
+	if err := sources.require(ctx, definition, connectors, d.Const); err != nil {
+		return nil, err
 	}
 	providers, err := artifact.ReaderCompilation().NewProviders(readerConfig)
 	if err != nil {
@@ -617,15 +620,19 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "prepare dynamic cache warmup: " + err.Error(), Cause: err}
 	}
-	settings := contract.Component.CacheWarmup()
 	result := &sdk.WarmupResult{Status: "running", PlannedCases: planned, Target: warmupTargetEvidence(contract.Component.RootView.Name, warmupTargets)}
-	if settings.MaxCases != nil {
-		value := *settings.MaxCases
-		result.MaxCases = &value
-	}
-	if settings.Limit != nil {
-		value := *settings.Limit
-		result.RowLimit = &value
+	// Singular limits describe one scheduled policy, independently of any
+	// descriptive Work expansion (for example IndexMeta).
+	if len(warmupTargets) == 1 && warmupTargets[0].Settings != nil {
+		settings := warmupTargets[0].Settings
+		if settings.MaxCases != nil {
+			value := *settings.MaxCases
+			result.MaxCases = &value
+		}
+		if settings.Limit != nil {
+			value := *settings.Limit
+			result.RowLimit = &value
+		}
 	}
 	started := time.Now()
 	entries, err := operation.Run(ctx)
