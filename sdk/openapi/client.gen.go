@@ -1008,7 +1008,9 @@ type Output1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619 stru
 	IndexColumn    *string                                                                   `json:"indexColumn,omitempty"`
 	IndexMeta      *bool                                                                     `json:"indexMeta,omitempty"`
 	IndexParameter *string                                                                   `json:"indexParameter,omitempty"`
+	Origin         *string                                                                   `json:"origin,omitempty"`
 	PolicyName     *string                                                                   `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                   `json:"policyRef,omitempty"`
 	View           *string                                                                   `json:"view,omitempty"`
 	Work           *[]OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 `json:"work,omitempty"`
 }
@@ -1323,7 +1325,9 @@ type Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f stru
 	IndexColumn    *string                                                                   `json:"indexColumn,omitempty"`
 	IndexMeta      *bool                                                                     `json:"indexMeta,omitempty"`
 	IndexParameter *string                                                                   `json:"indexParameter,omitempty"`
+	Origin         *string                                                                   `json:"origin,omitempty"`
 	PolicyName     *string                                                                   `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                   `json:"policyRef,omitempty"`
 	View           *string                                                                   `json:"view,omitempty"`
 	Work           *[]Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 `json:"work,omitempty"`
 }
@@ -1348,7 +1352,9 @@ type Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 stru
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
 	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
 	View           *string `json:"view,omitempty"`
 }
 
@@ -1477,7 +1483,9 @@ type OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 stru
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
 	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
 	View           *string `json:"view,omitempty"`
 }
 
@@ -2559,7 +2567,9 @@ type Wire32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa struct
 	IndexColumn    *string                                                                 `json:"indexColumn,omitempty"`
 	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
 	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
+	Origin         *string                                                                 `json:"origin,omitempty"`
 	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                 `json:"policyRef,omitempty"`
 	View           *string                                                                 `json:"view,omitempty"`
 	Work           *[]WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 `json:"work,omitempty"`
 }
@@ -3363,7 +3373,9 @@ type Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff struct
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
 	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
 	View           *string `json:"view,omitempty"`
 }
 
@@ -3660,7 +3672,9 @@ type Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db struct
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
 	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
 	View           *string `json:"view,omitempty"`
 }
 
@@ -4140,7 +4154,9 @@ type WireAe7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db struct
 	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
 	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
 	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
+	Origin         *string                                                                 `json:"origin,omitempty"`
 	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                 `json:"policyRef,omitempty"`
 	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
 	View           *string                                                                 `json:"view,omitempty"`
 	Work           *[]Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db `json:"work,omitempty"`
@@ -4349,7 +4365,9 @@ type WireBdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c struct
 	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
 	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
 	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
+	Origin         *string                                                                 `json:"origin,omitempty"`
 	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                 `json:"policyRef,omitempty"`
 	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
 	View           *string                                                                 `json:"view,omitempty"`
 	Work           *[]Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff `json:"work,omitempty"`
@@ -5184,7 +5202,9 @@ type WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 struct
 	ConnectorName  *string `json:"connectorName,omitempty"`
 	IndexColumn    *string `json:"indexColumn,omitempty"`
 	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
 	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
 	View           *string `json:"view,omitempty"`
 }
 

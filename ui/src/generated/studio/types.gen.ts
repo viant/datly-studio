@@ -755,7 +755,9 @@ export type Output1Fa7891831078D2Bd3C395F23B92A9F29613C13D9E995639402D73867Aef36
     indexColumn?: string;
     indexMeta?: boolean;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
     work?: Array<OutputA620C9Cdb7932D674689Ffd84Ac85Dbcb429685Fe710C1877Cda1038De84D261> | null;
 };
@@ -1018,7 +1020,9 @@ export type Output7B381D62F3Badad104E139473Ebed24D20B65D0E87860A76A09801383C4E92
     indexColumn?: string;
     indexMeta?: boolean;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
     work?: Array<Output7F8C2E575Ef0274159A31F33C6Cf9Be7C3Fa485E125Fe895C49E798D6225Fa43> | null;
 };
@@ -1041,7 +1045,9 @@ export type Output7F8C2E575Ef0274159A31F33C6Cf9Be7C3Fa485E125Fe895C49E798D6225Fa
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
 };
 
@@ -1151,7 +1157,9 @@ export type OutputA620C9Cdb7932D674689Ffd84Ac85Dbcb429685Fe710C1877Cda1038De84D2
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
 };
 
@@ -1932,7 +1940,9 @@ export type Wire32F8F7D808Ff059Ae8283308Be99Fd2Ba2E355D10944C0Dbb72756F78E066Afa
     indexColumn?: string;
     indexMeta?: boolean;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
     work?: Array<WireFbe11D837E929789A12B89Ddfda7882878Aa92Ce43Ae86779F88F0D4302560E6> | null;
 };
@@ -2505,7 +2515,9 @@ export type Wire6F7C44Eab66917Ac250B10B98196F2E05Afa5A32D324E146302A7Ab49F2Ff5Ff
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
 };
 
@@ -2718,7 +2730,9 @@ export type Wire837407B1Fc28775753Adc0892F1Befa09Ca9Dbe67A14E15Dd26Ce6Bcbcc0C5Db
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
 };
 
@@ -3015,7 +3029,9 @@ export type WireAe7F652Cfa697Bf95E41D911Ebfdc1729062029Caed45Fe012Ad3B25D49A22Db
     indexMeta?: boolean;
     indexParameter?: string;
     maxCases?: number | null;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     rowLimit?: number | null;
     view?: string;
     work?: Array<Wire837407B1Fc28775753Adc0892F1Befa09Ca9Dbe67A14E15Dd26Ce6Bcbcc0C5Db> | null;
@@ -3152,7 +3168,9 @@ export type WireBdd521B40Af50Ee2A6Adae9Bef89B6347863Ba049Bfdfbdcaca818F86C2C849c
     indexMeta?: boolean;
     indexParameter?: string;
     maxCases?: number | null;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     rowLimit?: number | null;
     view?: string;
     work?: Array<Wire6F7C44Eab66917Ac250B10B98196F2E05Afa5A32D324E146302A7Ab49F2Ff5Ff> | null;
@@ -3783,7 +3801,9 @@ export type WireFbe11D837E929789A12B89Ddfda7882878Aa92Ce43Ae86779F88F0D4302560E6
     connectorName?: string;
     indexColumn?: string;
     indexParameter?: string;
+    origin?: string;
     policyName?: string;
+    policyRef?: string;
     view?: string;
 };
 

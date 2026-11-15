@@ -264,8 +264,12 @@ type WarmupTarget struct {
 // WarmupScheduledTarget describes one scheduled native policy. Work describes
 // its population, including IndexMeta expansion; it does not schedule more calls.
 type WarmupScheduledTarget struct {
-	View           string       `json:"view"`
-	PolicyName     string       `json:"policyName,omitempty"`
+	View       string `json:"view"`
+	PolicyName string `json:"policyName,omitempty"`
+	// Origin and PolicyRef are native provenance, absent on older evidence.
+	// PolicyRef is the logical host configuration key, not storage configuration.
+	Origin         string       `json:"origin,omitempty"`
+	PolicyRef      string       `json:"policyRef,omitempty"`
 	CacheName      string       `json:"cacheName,omitempty"`
 	CacheProvider  string       `json:"cacheProvider,omitempty"`
 	ConnectorName  string       `json:"connectorName,omitempty"`
@@ -281,6 +285,8 @@ type WarmupScheduledTarget struct {
 type WarmupWork struct {
 	View           string `json:"view"`
 	PolicyName     string `json:"policyName,omitempty"`
+	Origin         string `json:"origin,omitempty"`
+	PolicyRef      string `json:"policyRef,omitempty"`
 	CacheName      string `json:"cacheName,omitempty"`
 	CacheProvider  string `json:"cacheProvider,omitempty"`
 	ConnectorName  string `json:"connectorName,omitempty"`

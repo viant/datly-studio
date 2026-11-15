@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
 	github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d
-	github.com/viant/datly v1.1.1-0.20261115185528-327e7fc72d78
+	github.com/viant/datly v1.1.1-0.20261115190735-666734056181
 	github.com/viant/jsonrpc v0.25.2-0.20261109161826-0c7edf60cfc5
 	github.com/viant/mcp v0.24.2-0.20261109162451-9f02fda34b44
 	github.com/viant/mcp-protocol v0.19.2-0.20261114220942-9489f5fccb2b

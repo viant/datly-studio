@@ -12,7 +12,7 @@ import (
 func warmupTargetEvidence(rootView string, targets []dexec.ReaderWarmupTarget) sdk.WarmupTarget {
 	result := sdk.WarmupTarget{View: rootView}
 	for _, target := range targets {
-		scheduled := sdk.WarmupScheduledTarget{View: target.View, CacheName: target.CacheName, CacheProvider: target.Backend}
+		scheduled := sdk.WarmupScheduledTarget{View: target.View, Origin: target.Origin, PolicyRef: target.PolicyRef, CacheName: target.CacheName, CacheProvider: target.Backend}
 		if settings := target.Settings; settings != nil {
 			scheduled.PolicyName = settings.Name
 			scheduled.ConnectorName = settings.Connector
@@ -21,7 +21,7 @@ func warmupTargetEvidence(rootView string, targets []dexec.ReaderWarmupTarget) s
 			scheduled.IndexMeta = settings.IndexMeta
 		}
 		for _, work := range target.Work {
-			item := sdk.WarmupWork{View: work.View, CacheName: work.CacheName, CacheProvider: work.Backend}
+			item := sdk.WarmupWork{View: work.View, Origin: work.Origin, PolicyRef: work.PolicyRef, CacheName: work.CacheName, CacheProvider: work.Backend}
 			if settings := work.Settings; settings != nil {
 				item.PolicyName = settings.Name
 				item.ConnectorName = settings.Connector

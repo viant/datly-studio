@@ -94,7 +94,7 @@ func TestInspectionEffectiveWarmup(t *testing.T) {
 						t.Fatal("wrong target count")
 					}
 					target := (*m.Targets)[0]
-					if target.PolicyName != "profile" || target.MaxCases == nil || *target.MaxCases != 1 || target.RowLimit == nil || *target.RowLimit != 0 || len(target.Cases) != 1 || target.Cases[0].Dimensions[0].ValueCount != 1 || !target.Cases[0].Dimensions[0].ExcludeDefault {
+					if target.Origin != "host" || target.PolicyRef != "profile" || target.PolicyName != "profile" || target.MaxCases == nil || *target.MaxCases != 1 || target.RowLimit == nil || *target.RowLimit != 0 || len(target.Cases) != 1 || target.Cases[0].Dimensions[0].ValueCount != 1 || !target.Cases[0].Dimensions[0].ExcludeDefault {
 						t.Fatalf("native projection: %+v", target)
 					}
 				}

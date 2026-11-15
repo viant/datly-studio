@@ -397,6 +397,25 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 				if len(*metadata.Targets) != expectedTargets {
 					t.Fatalf("native target count: %+v", metadata)
 				}
+				for i, target := range *metadata.Targets {
+					origin, ref := "inline", ""
+					if strings.HasPrefix(id, "named-") {
+						origin = "host"
+						ref = id + "-root-policy"
+						if id == "named-child" || id == "named-multiple" && i == 1 {
+							ref = id + "-child-policy"
+						}
+					}
+					if target.Origin != origin || target.PolicyRef != ref {
+						t.Fatalf("native policy origin lost: %+v", target)
+					}
+					for _, work := range target.Work {
+						if work.Origin != origin || work.PolicyRef != ref {
+							t.Fatalf("native work origin lost: %+v", work)
+						}
+					}
+				}
+
 			}
 			if id == "named-root" || id == "no-policy" || id == "unresolved" {
 				body, _ := json.Marshal(map[string]any{"reportId": id, "versionNo": 1, "discoverColumns": false})
@@ -535,7 +554,7 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 				}
 				for i, target := range *metadata.Targets {
 					actual := run.Target.ScheduledTargets[i]
-					if target.View != actual.View || target.CacheName != actual.CacheName || target.CacheProvider != actual.CacheProvider || target.ConnectorName != actual.ConnectorName || target.IndexColumn != actual.IndexColumn || !reflect.DeepEqual(target.Work, actual.Work) {
+					if target.Origin != actual.Origin || target.PolicyRef != actual.PolicyRef || target.View != actual.View || target.CacheName != actual.CacheName || target.CacheProvider != actual.CacheProvider || target.ConnectorName != actual.ConnectorName || target.IndexColumn != actual.IndexColumn || !reflect.DeepEqual(target.Work, actual.Work) {
 						t.Fatalf("inspection/execution metadata mismatch: %+v %+v", target, actual)
 					}
 				}

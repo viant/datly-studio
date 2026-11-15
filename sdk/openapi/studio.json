@@ -2286,7 +2286,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {
@@ -3112,7 +3118,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {
@@ -3185,7 +3197,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {
@@ -3497,7 +3515,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {
@@ -6107,7 +6131,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {
@@ -7950,7 +7980,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {
@@ -8653,7 +8689,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {
@@ -9724,7 +9766,13 @@
             "format": "int64",
             "nullable": true
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "rowLimit": {
@@ -10201,7 +10249,13 @@
             "format": "int64",
             "nullable": true
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "rowLimit": {
@@ -12200,7 +12254,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "origin": {
+            "type": "string"
+          },
           "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
             "type": "string"
           },
           "view": {

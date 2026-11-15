@@ -59,6 +59,9 @@ func TestWarmupEvidenceResolvedNativeMetadata(t *testing.T) {
 					t.Fatalf("scheduled targets changed: %+v", evidence)
 				}
 				first := evidence.ScheduledTargets[0]
+				if first.Origin != "inline" || first.PolicyRef != "" || first.Work[0].Origin != "inline" || first.Work[0].PolicyRef != "" {
+					t.Fatalf("inline native provenance lost: %+v", first)
+				}
 				if first.View != "" || first.PolicyName != "root-policy" || first.CacheName != tc.logical || first.CacheProvider != tc.backend || first.ConnectorName != "batch" || first.IndexColumn != "id" || first.IndexMeta != expanded {
 					t.Fatalf("native policy lost: %+v", first)
 				}
@@ -66,6 +69,9 @@ func TestWarmupEvidenceResolvedNativeMetadata(t *testing.T) {
 					t.Fatalf("root work=%+v", first.Work)
 				}
 				if expanded {
+					if first.Work[1].Origin != "host" || first.Work[1].PolicyRef != "child-policy" || evidence.ScheduledTargets[1].Origin != "host" || evidence.ScheduledTargets[1].PolicyRef != "child-policy" {
+						t.Fatalf("per-work native provenance lost: %+v", evidence)
+					}
 					if len(targets) != 2 || len(first.Work) != 2 || first.Work[1].View != "summary" || first.Work[1].CacheProvider != "afs" || first.Work[1].CacheName != "summary-cache" || evidence.ScheduledTargets[1].PolicyName != "child-policy" {
 						t.Fatalf("expanded work=%+v", evidence)
 					}
@@ -92,6 +98,17 @@ func TestWarmupEvidenceResolvedNativeMetadata(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestWarmupEvidenceDoesNotInferOrigin(t *testing.T) {
+	projected := warmupTargetEvidence("records", []dexec.ReaderWarmupTarget{{CacheName: "named-cache", Settings: &spec.CacheWarmupSettings{Name: "host-looking-policy"}, Work: []dexec.ReaderWarmupWork{{CacheName: "named-cache"}}}})
+	raw, err := json.Marshal(projected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), `"origin"`) || strings.Contains(string(raw), `"policyRef"`) {
+		t.Fatalf("unknown provenance invented: %s", raw)
 	}
 }
 
