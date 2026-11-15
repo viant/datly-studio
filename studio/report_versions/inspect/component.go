@@ -41,12 +41,14 @@ import (
 )
 
 type Input struct {
-	NamespaceId     *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
-	Jwt             *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth            *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportId        string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo       int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
-	DiscoverColumns *bool              `parameter:"DiscoverColumns,kind=body,in=discoverColumns,dataType=*bool,required=false" json:"discoverColumns,omitempty"`
+	NamespaceId            *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt                    *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth                   *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportId               string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo              int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	DiscoverColumns        *bool              `parameter:"DiscoverColumns,kind=body,in=discoverColumns,dataType=*bool,required=false" json:"discoverColumns,omitempty"`
+	IncludePreviewInput    *bool              `parameter:"IncludePreviewInput,kind=body,in=includePreviewInput,dataType=*bool,required=false" json:"includePreviewInput,omitempty"`
+	IncludeEffectiveWarmup *bool              `parameter:"IncludeEffectiveWarmup,kind=body,in=includeEffectiveWarmup,dataType=*bool,required=false" json:"includeEffectiveWarmup,omitempty"`
 }
 
 type Output struct {
@@ -207,41 +209,52 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		}
 	}
 	projected := readerinspection.Project(version, &inspected, permissions)
-	if permissions.CanRun {
-		var metadata *sdk.PreviewInputContract
-		previewCtx, engine, cancel, authorizeErr := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportId, input.VersionNo, 0)
+	wantInput := (input.IncludePreviewInput == nil || *input.IncludePreviewInput) && permissions.CanRun
+	wantWarmup := false
+	metadataCtx := ctx
+	engine := preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}
+	inputAuthorized := false
+	if wantInput {
+		previewCtx, previewEngine, cancel, authorizeErr := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportId, input.VersionNo, 0)
 		if authorizeErr == nil {
-			metadata, err = engine.InspectPreviewInput(previewCtx, input.ReportId, input.VersionNo)
-			cancel()
-			if err != nil {
-				metadata = nil
-			}
+			defer cancel()
+			metadataCtx, engine, inputAuthorized = previewCtx, previewEngine, true
 		}
-		readerinspection.SetPreviewInput(projected, metadata)
 	}
-	warmupAccess := &publishguard.Input{}
-	warmupAccess.SetJwt(input.Jwt)
-	warmupAccess.SetAuth(input.Auth)
-	warmupAccess.SetReportId(input.ReportId)
-	allowed, accessErr := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[publishguard.ReportComponent](), "report", "POST", "/_studio/reports/publish-guard"), Input: warmupAccess})
-	if granted, ok := allowed.(*publishguard.Output); accessErr == nil && ok && granted != nil && granted.Item != nil && granted.Item.Id == input.ReportId {
-		var header struct {
-			Authorization string `bind:"kind=header,in=Authorization"`
-		}
-		var metadata *sdk.EffectiveWarmupInspection
-		if bindErr := session.Binder().Bind(ctx, &header); bindErr == nil {
-			metadataCtx := sdk.WithPrincipal(ctx, sdk.Principal{Subject: input.Jwt.Subject})
-			metadataCtx = sdk.WithNamespaceSelection(metadataCtx, namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
-			metadataCtx = sdk.WithVerifiedCredential(metadataCtx, sdk.VerifiedCredential{Bearer: strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer ")), Claims: input.Jwt})
-			metadataCtx, cancel := context.WithTimeout(metadataCtx, 30*time.Second)
-			engine := preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}
-			metadata, err = engine.InspectEffectiveWarmup(metadataCtx, input.ReportId, input.VersionNo)
-			cancel()
-			if err != nil {
-				metadata = nil
+	warmupAuthorized := false
+	if input.IncludeEffectiveWarmup == nil || *input.IncludeEffectiveWarmup {
+		warmupAccess := &publishguard.Input{}
+		warmupAccess.SetJwt(input.Jwt)
+		warmupAccess.SetAuth(input.Auth)
+		warmupAccess.SetReportId(input.ReportId)
+		allowed, accessErr := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[publishguard.ReportComponent](), "report", "POST", "/_studio/reports/publish-guard"), Input: warmupAccess})
+		if granted, ok := allowed.(*publishguard.Output); accessErr == nil && ok && granted != nil && granted.Item != nil && granted.Item.Id == input.ReportId {
+			wantWarmup = true
+			var header struct {
+				Authorization string `bind:"kind=header,in=Authorization"`
+			}
+			if bindErr := session.Binder().Bind(ctx, &header); bindErr == nil {
+				// Warmup inspection has always retained the verified bearer, even
+				// when preview authorization does not need an ACL provider.
+				metadataCtx = sdk.WithPrincipal(metadataCtx, sdk.Principal{Subject: input.Jwt.Subject})
+				metadataCtx = sdk.WithNamespaceSelection(metadataCtx, namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
+				metadataCtx = sdk.WithVerifiedCredential(metadataCtx, sdk.VerifiedCredential{Bearer: strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer ")), Claims: input.Jwt})
+				if !inputAuthorized {
+					var cancel context.CancelFunc
+					metadataCtx, cancel = context.WithTimeout(metadataCtx, 30*time.Second)
+					defer cancel()
+				}
+				engine.SourceValidator = authoring.SourceValidator()
+				warmupAuthorized = true
 			}
 		}
-		readerinspection.SetEffectiveWarmup(projected, metadata)
+	}
+	previewInput, effectiveWarmup, _, _ := engine.InspectExecutionMetadata(metadataCtx, input.ReportId, input.VersionNo, inputAuthorized, warmupAuthorized)
+	if wantInput {
+		readerinspection.SetPreviewInput(projected, previewInput)
+	}
+	if wantWarmup {
+		readerinspection.SetEffectiveWarmup(projected, effectiveWarmup)
 	}
 	*output = Output{Version: projected.Version, DQL: projected.DQL, EffectiveWarmup: projected.EffectiveWarmup,
 		Structure: projected.Structure, Diagnostics: projected.Diagnostics, Capabilities: projected.Capabilities, PreviewInput: projected.PreviewInput}

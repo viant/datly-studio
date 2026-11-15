@@ -173,7 +173,7 @@ type EffectiveWarmupDimension struct {
 
 // PreviewInputContract describes the advertised full-reader preview arguments.
 // Schema is compiled by the native preview binder, not reconstructed from DQL.
-// A nil PreviewInput means unavailable or not authorized; an object schema with
+// A nil PreviewInput means not requested, unavailable, or not authorized; an object schema with
 // no properties is a successfully compiled reader with no public arguments.
 type PreviewInputContract struct {
 	ReportID       string          `json:"reportId"`

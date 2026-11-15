@@ -504,6 +504,12 @@ test('reader inspection and command methods retain version identity and revision
   assert.equal(calls[0].body, '{"reportId":"vendor-catalog","versionNo":1}');
   await api.inspectVersion('vendor-catalog', 1, { discoverColumns: false });
   assert.equal(calls.at(-1).body, '{"reportId":"vendor-catalog","versionNo":1,"discoverColumns":false}');
+  await api.inspectVersion('vendor-catalog', 2, { discoverColumns: false, includePreviewInput: false, includeEffectiveWarmup: false });
+  assert.deepEqual(JSON.parse(calls.at(-1).body), { reportId: 'vendor-catalog', versionNo: 2, discoverColumns: false, includePreviewInput: false, includeEffectiveWarmup: false });
+  await api.inspectVersion('vendor-catalog', 2, { includePreviewInput: true, includeEffectiveWarmup: false });
+  assert.deepEqual(JSON.parse(calls.at(-1).body), { reportId: 'vendor-catalog', versionNo: 2, includePreviewInput: true, includeEffectiveWarmup: false });
+  await api.inspectVersion('vendor-catalog', 2, { includePreviewInput: false, includeEffectiveWarmup: true });
+  assert.deepEqual(JSON.parse(calls.at(-1).body), { reportId: 'vendor-catalog', versionNo: 2, includePreviewInput: false, includeEffectiveWarmup: true });
   assert.equal(calls[1].url, 'http://127.0.0.1:8080/v1/studio/sdk/versions.validate');
   assert.equal(calls[1].body, '{"reportId":"vendor-catalog","versionNo":1,"expectedSourceRevision":2}');
   assert.equal(calls[2].url, 'http://127.0.0.1:8080/v1/studio/sdk/publications.publish');

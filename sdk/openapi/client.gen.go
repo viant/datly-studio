@@ -5964,9 +5964,11 @@ type POSTv1studiosdkversionsGetParams struct {
 
 // POSTv1studiosdkversionsInspectJSONBody defines parameters for POSTv1studiosdkversionsInspect.
 type POSTv1studiosdkversionsInspectJSONBody struct {
-	DiscoverColumns *bool  `json:"discoverColumns,omitempty"`
-	ReportId        string `json:"reportId"`
-	VersionNo       int64  `json:"versionNo"`
+	DiscoverColumns        *bool  `json:"discoverColumns,omitempty"`
+	IncludeEffectiveWarmup *bool  `json:"includeEffectiveWarmup,omitempty"`
+	IncludePreviewInput    *bool  `json:"includePreviewInput,omitempty"`
+	ReportId               string `json:"reportId"`
+	VersionNo              int64  `json:"versionNo"`
 }
 
 // POSTv1studiosdkversionsInspectParams defines parameters for POSTv1studiosdkversionsInspect.

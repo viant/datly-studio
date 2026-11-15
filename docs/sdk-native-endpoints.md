@@ -383,11 +383,27 @@ its base64 archive request and selected entry fields.
 `versions.inspect` is a native linked-handler workflow over the exact
 authorized version, active connector catalog and Datly Reader Builder. The
 generic and native paths share an inspection projector.
-`discoverColumns: false` requests a fast DQL-only graph inspection; the default
-still resolves source columns. The fast option is suitable only when the
-dynamic shape is already complete: this Forecasting draft still uses `*`, and
-without discovery it exposes only its three declared columns instead of all
-61. Published dynamic readers use their registered runtime types for requests;
+`discoverColumns: false` skips column discovery. To request a graph without
+execution-metadata compilation, also pass `includePreviewInput: false` and
+`includeEffectiveWarmup: false`. Omitted selectors preserve existing behavior:
+each authorized metadata projection is requested. Fetch preview metadata with
+`includePreviewInput: true, includeEffectiveWarmup: false`, or warmup metadata
+with the inverse selection, against the same exact component version.
+
+Unrequested fields are omitted without unavailable diagnostics. Requested
+metadata retains its existing authorization, redaction, source-revision checks,
+and unavailable diagnostics. A resolved empty warmup list or empty public input
+schema is successful metadata, not an initialization failure. When both
+projections are requested, the native path shares a source snapshot, compiled
+contract, artifact, and connector lifetime; a warmup initialization failure does
+not discard valid preview input metadata. Compilation may access connectors,
+and warmup inspection may initialize cache services, but neither executes a
+business reader or prepares warmup entries. Host policies reflect current host
+configuration, not a historical snapshot.
+
+Skipping column discovery is suitable only when the dynamic shape is already
+complete: a reader using `*` may show fewer columns before discovery. Published
+dynamic readers use their registered runtime types for requests;
 the current generation reload still performs source-column discovery during
 compilation and must be removed once the dynamic contract is self-contained.
 

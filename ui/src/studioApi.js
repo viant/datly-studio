@@ -250,7 +250,7 @@ export class StudioAPI {
   loadDQL(reportId, input) { return this.nativeRequest(postV1StudioSdkVersionsLoadDql, 'versions.load_dql', { reportId, input }); }
   loadArchive(reportId, input) { return this.nativeRequest(postV1StudioSdkVersionsLoadArchive, 'versions.load_archive', { reportId, input }); }
   downloadComponent(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsDownload, 'versions.download', { reportId, versionNo }); }
-  inspectVersion(reportId, versionNo, { discoverColumns } = {}) { return this.nativeRequest(postV1StudioSdkVersionsInspect, 'versions.inspect', discoverColumns === undefined ? { reportId, versionNo } : { reportId, versionNo, discoverColumns }); }
+  inspectVersion(reportId, versionNo, { discoverColumns, includePreviewInput, includeEffectiveWarmup } = {}) { return this.nativeRequest(postV1StudioSdkVersionsInspect, 'versions.inspect', { reportId, versionNo, discoverColumns, includePreviewInput, includeEffectiveWarmup }); }
   validateVersion(reportId, versionNo, expectedSourceRevision) { return this.nativeRequest(postV1StudioSdkVersionsValidate, 'versions.validate', { reportId, versionNo, expectedSourceRevision }); }
   publishReader(reportId, versionNo, expectedSourceRevision, reason = '') { return this.nativeRequest(postV1StudioSdkPublicationsPublish, 'publications.publish', { reportId, versionNo, input: { expectedSourceRevision, reason } }); }
   getPublication(reportId) { return this.nativeRequest(postV1StudioSdkPublicationsGet, 'publications.get', { reportId }); }

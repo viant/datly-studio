@@ -15,6 +15,7 @@ import (
 	"github.com/viant/datly-studio/internal/settingstore"
 	resourcecheckstore "github.com/viant/datly-studio/studio/report_versions/store_resource_check"
 	"github.com/viant/datly-studio/studio/settings"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -153,6 +154,12 @@ type PreviewInputInspector interface {
 
 type EffectiveWarmupInspector interface {
 	InspectEffectiveWarmup(context.Context, string, int) (*sdk.EffectiveWarmupInspection, error)
+}
+
+// ExecutionMetadataInspector resolves requested projections through one native
+// contract and connector lifetime. Each projection retains its own error.
+type ExecutionMetadataInspector interface {
+	InspectExecutionMetadata(context.Context, string, int, bool, bool) (*sdk.PreviewInputContract, *sdk.EffectiveWarmupInspection, error, error)
 }
 
 type CandidateContractInspector interface {
@@ -1513,7 +1520,12 @@ func (t *Transport) versionDescriptor(ctx context.Context, input, output any) er
 }
 
 func (t *Transport) inspectVersion(ctx context.Context, input, output any) error {
-	var in versionIdentityRequest
+	var in struct {
+		versionIdentityRequest
+		DiscoverColumns        *bool `json:"discoverColumns,omitempty"`
+		IncludePreviewInput    *bool `json:"includePreviewInput,omitempty"`
+		IncludeEffectiveWarmup *bool `json:"includeEffectiveWarmup,omitempty"`
+	}
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
@@ -1529,7 +1541,7 @@ func (t *Transport) inspectVersion(ctx context.Context, input, output any) error
 	if err != nil {
 		return err
 	}
-	if capabilities.CanUseDQL && t.ContractInspector != nil && response.Structure != nil && response.Structure.Component != nil {
+	if (in.DiscoverColumns == nil || *in.DiscoverColumns) && capabilities.CanUseDQL && t.ContractInspector != nil && response.Structure != nil && response.Structure.Component != nil {
 		resolved, inspectErr := t.ContractInspector.InspectContract(ctx, in.ReportID, in.VersionNo)
 		if inspectErr == nil && resolved != nil {
 			readerinspection.HydrateColumns(response.Structure.Component.RootView, resolved.RootView)
@@ -1539,31 +1551,50 @@ func (t *Transport) inspectVersion(ctx context.Context, input, output any) error
 		}
 	}
 	projected := readerInspection(version, response, capabilities)
-	if capabilities.CanRun {
-		var metadata *sdk.PreviewInputContract
-		if err := t.authorize(ctx, sdk.OperationPreviewExecute, in); err == nil {
-			if inspector, ok := t.Preview.(PreviewInputInspector); ok {
-				previewCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
-				metadata, err = inspector.InspectPreviewInput(previewCtx, in.ReportID, in.VersionNo)
+	wantInput := (in.IncludePreviewInput == nil || *in.IncludePreviewInput) && capabilities.CanRun
+	wantWarmup := (in.IncludeEffectiveWarmup == nil || *in.IncludeEffectiveWarmup) && t.authorize(ctx, sdk.OperationVersionWarmup, in) == nil
+	inputAuthorized := wantInput && t.authorize(ctx, sdk.OperationPreviewExecute, in) == nil
+	var inputMetadata *sdk.PreviewInputContract
+	var warmupMetadata *sdk.EffectiveWarmupInspection
+	if inputAuthorized || wantWarmup {
+		// Share only an identical configured executor. Separate custom preview
+		// and warmup implementations retain their original ownership.
+		if inspector, ok := t.Preview.(ExecutionMetadataInspector); ok && reflect.TypeOf(t.Preview).Comparable() && any(t.Preview) == any(t.Warmup) {
+			metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+			var inputErr, warmupErr error
+			inputMetadata, warmupMetadata, inputErr, warmupErr = inspector.InspectExecutionMetadata(metadataCtx, in.ReportID, in.VersionNo, inputAuthorized, wantWarmup)
+			cancel()
+			if inputErr != nil {
+				inputMetadata = nil
+			}
+			if warmupErr != nil {
+				warmupMetadata = nil
+			}
+		} else {
+			// Preserve hosts supplying the existing projection-specific executors.
+			if inspector, ok := t.Preview.(PreviewInputInspector); inputAuthorized && ok {
+				metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+				inputMetadata, err = inspector.InspectPreviewInput(metadataCtx, in.ReportID, in.VersionNo)
 				cancel()
 				if err != nil {
-					metadata = nil
+					inputMetadata = nil
+				}
+			}
+			if inspector, ok := t.Warmup.(EffectiveWarmupInspector); wantWarmup && ok {
+				metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+				warmupMetadata, err = inspector.InspectEffectiveWarmup(metadataCtx, in.ReportID, in.VersionNo)
+				cancel()
+				if err != nil {
+					warmupMetadata = nil
 				}
 			}
 		}
-		readerinspection.SetPreviewInput(projected, metadata)
 	}
-	if err := t.authorize(ctx, sdk.OperationVersionWarmup, in); err == nil {
-		var metadata *sdk.EffectiveWarmupInspection
-		if inspector, ok := t.Warmup.(EffectiveWarmupInspector); ok {
-			metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
-			metadata, err = inspector.InspectEffectiveWarmup(metadataCtx, in.ReportID, in.VersionNo)
-			cancel()
-			if err != nil {
-				metadata = nil
-			}
-		}
-		readerinspection.SetEffectiveWarmup(projected, metadata)
+	if wantInput {
+		readerinspection.SetPreviewInput(projected, inputMetadata)
+	}
+	if wantWarmup {
+		readerinspection.SetEffectiveWarmup(projected, warmupMetadata)
 	}
 	return assign(output, projected)
 }

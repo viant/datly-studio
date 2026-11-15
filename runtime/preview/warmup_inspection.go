@@ -3,13 +3,11 @@ package preview
 import (
 	"context"
 
-	"github.com/viant/datly-studio/internal/predicatepolicy"
 	"github.com/viant/datly-studio/runtime/codecs"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/bootstrap"
 	dexec "github.com/viant/datly/exec"
 	"github.com/viant/datly/transcribe"
-	"github.com/viant/datly/transcribe/column"
 	"github.com/viant/sqlx/io/read/cache/aerospike"
 )
 
@@ -30,6 +28,10 @@ func (d Dynamic) initializeWarmup(ctx context.Context, sources *sources, contrac
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
 	}
+	return d.initializeWarmupArtifact(sources, artifact)
+}
+
+func (d Dynamic) initializeWarmupArtifact(sources *sources, artifact *bootstrap.Artifact) (*initializedWarmup, error) {
 	pool := &aerospike.Pool{}
 	config := bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: pool}
 	reader, err := artifact.ReaderCompilation().NewExecution(config)
@@ -48,27 +50,11 @@ func (d Dynamic) initializeWarmup(ctx context.Context, sources *sources, contrac
 // registration, credential preparation, business reads, or warmup execution.
 // The caller supplies existing exact-version warmup authorization.
 func (d Dynamic) InspectEffectiveWarmup(ctx context.Context, reportID string, versionNo int) (*sdk.EffectiveWarmupInspection, error) {
-	definition, err := d.definition(ctx, reportID, versionNo)
-	if err != nil {
-		return nil, err
-	}
-	sources, err := openSources(ctx, definition, definition.DQL, d.Const)
-	if err != nil {
-		return nil, err
-	}
-	defer sources.Close()
-	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
-	if err != nil {
-		return nil, err
-	}
-	if err = predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); err != nil {
-		return nil, err
-	}
-	initialized, err := d.initializeWarmup(ctx, sources, contract)
-	if err != nil {
-		return nil, err
-	}
-	defer initialized.Close()
+	_, metadata, _, err := d.InspectExecutionMetadata(ctx, reportID, versionNo, false, true)
+	return metadata, err
+}
+
+func inspectEffectiveWarmup(definition *definition, contract *transcribe.RuntimeContract, initialized *initializedWarmup) *sdk.EffectiveWarmupInspection {
 	targets := make([]sdk.EffectiveWarmupTarget, 0, len(initialized.targets))
 	for _, target := range initialized.targets {
 		evidence := warmupTargetEvidence(contract.Component.RootView.Name, []dexec.ReaderWarmupTarget{target})
@@ -98,5 +84,5 @@ func (d Dynamic) InspectEffectiveWarmup(ctx context.Context, reportID string, ve
 		}
 		targets = append(targets, projected)
 	}
-	return &sdk.EffectiveWarmupInspection{Status: "resolved", ReportID: reportID, VersionNo: versionNo, SourceRevision: definition.SourceRevision, Targets: &targets}, nil
+	return &sdk.EffectiveWarmupInspection{Status: "resolved", ReportID: definition.ReportID, VersionNo: definition.VersionNo, SourceRevision: definition.SourceRevision, Targets: &targets}
 }

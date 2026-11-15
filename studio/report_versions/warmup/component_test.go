@@ -26,6 +26,7 @@ import (
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly-studio/studio/host"
+	"github.com/viant/datly-studio/studio/sourcevalidation"
 	"github.com/viant/datly/bootstrap"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/datly/runtime/handler/custom"
@@ -192,7 +193,15 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 	}()
 	var cleaned atomic.Int32
 	var previewing atomic.Bool
-	authoring, err := host.NewAuthoring(host.AuthoringConfig{ModulePath: "example.com/fixture", ReaderCaches: readerCaches, Dependencies: func(ctx context.Context, component *spec.Component) (*preview.DependencyRuntime, error) {
+	var metadataLoads atomic.Int32
+	authoring, err := host.NewAuthoring(host.AuthoringConfig{ModulePath: "example.com/fixture", ReaderCaches: readerCaches, SourceValidator: func(ctx context.Context, input sourcevalidation.Input) error {
+		metadataLoads.Add(1)
+		credential, ok := sdk.VerifiedCredentialFromContext(ctx)
+		if !ok || credential.Bearer == "" {
+			return fmt.Errorf("source validation lost the verified credential")
+		}
+		return nil
+	}, Dependencies: func(ctx context.Context, component *spec.Component) (*preview.DependencyRuntime, error) {
 		selected, ok := sdk.NamespaceSelectionFromContext(ctx)
 		if !ok || selected != namespace {
 			return nil, fmt.Errorf("authorized namespace lost")
@@ -365,6 +374,67 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 			}
 		}
 	}
+	t.Run("metadata selection", func(t *testing.T) {
+		for _, tc := range []struct {
+			name          string
+			input, warmup bool
+		}{{"graph", false, false}, {"preview", true, false}, {"warmup", false, true}, {"both", true, true}} {
+			for _, surface := range []string{"mcp", "http"} {
+				t.Run(tc.name+"/"+surface, func(t *testing.T) {
+					before := metadataLoads.Load()
+					request := map[string]any{"namespaceId": namespace, "reportId": "named-root", "versionNo": 1, "discoverColumns": false, "includePreviewInput": tc.input, "includeEffectiveWarmup": tc.warmup}
+					var raw json.RawMessage
+					ok := false
+					if surface == "mcp" {
+						raw, ok = callRaw(ctx, "studio.sdk.versions.inspect", bearer, request)
+					} else {
+						delete(request, "namespaceId")
+						body, err := json.Marshal(request)
+						if err != nil {
+							t.Fatal(err)
+						}
+						req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+addresses[0]+"/v1/studio/sdk/versions.inspect", bytes.NewReader(body))
+						if err != nil {
+							t.Fatal(err)
+						}
+						req.Header.Set("Content-Type", "application/json")
+						req.Header.Set("Authorization", bearer)
+						req.Header.Set("X-Studio-Namespace", namespace)
+						response, err := http.DefaultClient.Do(req)
+						if err != nil {
+							t.Fatal(err)
+						}
+						raw, err = io.ReadAll(response.Body)
+						response.Body.Close()
+						if err != nil {
+							t.Fatal(err)
+						}
+						ok = response.StatusCode == 200
+					}
+					var got sdk.ReaderInspection
+					if !ok || json.Unmarshal(raw, &got) != nil {
+						t.Fatalf("inspect: %s", raw)
+					}
+					if (got.PreviewInput != nil) != tc.input || (got.EffectiveWarmup != nil) != tc.warmup {
+						t.Fatalf("selection: %s", raw)
+					}
+					for _, diagnostic := range got.Diagnostics {
+						if diagnostic.Code == "preview_input_unavailable" || diagnostic.Code == "warmup_inspection_unavailable" {
+							t.Fatalf("unrequested/unavailable diagnostic: %s", raw)
+						}
+					}
+					// The warmup definition hook runs once for the shared request.
+					wantLoads := int32(0)
+					if tc.warmup {
+						wantLoads = 1
+					}
+					if actual := metadataLoads.Load() - before; actual != wantLoads {
+						t.Fatalf("definition loads=%d want=%d", actual, wantLoads)
+					}
+				})
+			}
+		}
+	})
 	for _, id := range ids {
 		t.Run(id, func(t *testing.T) {
 			// Inspection resolves the same saved native policies without creating
@@ -376,6 +446,9 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 				t.Fatalf("native warmup inspection: %s", inspectedRaw)
 			}
 			metadata := inspected.EffectiveWarmup
+			if inspected.PreviewInput == nil {
+				t.Fatalf("warmup failure discarded preview metadata: %s", inspectedRaw)
+			}
 			if metadata.ReportID != id || metadata.VersionNo != 1 || metadata.SourceRevision != 1 {
 				t.Fatalf("wrong metadata snapshot: %+v", metadata)
 			}

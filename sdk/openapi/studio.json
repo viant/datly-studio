@@ -16367,6 +16367,14 @@
                     "type": "boolean",
                     "nullable": true
                   },
+                  "includeEffectiveWarmup": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "includePreviewInput": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
                   "reportId": {
                     "type": "string"
                   },

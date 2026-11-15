@@ -5515,6 +5515,8 @@ export type PostV1StudioSdkVersionsGetResponse = PostV1StudioSdkVersionsGetRespo
 export type PostV1StudioSdkVersionsInspectData = {
     body: {
         discoverColumns?: boolean | null;
+        includeEffectiveWarmup?: boolean | null;
+        includePreviewInput?: boolean | null;
         reportId: string;
         versionNo: number;
     };
