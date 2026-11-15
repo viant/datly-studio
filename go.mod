@@ -13,10 +13,10 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
 	github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d
-	github.com/viant/datly v1.1.1-0.20261114183436-b383e1eb7dfa
+	github.com/viant/datly v1.1.1-0.20261115185528-327e7fc72d78
 	github.com/viant/jsonrpc v0.25.2-0.20261109161826-0c7edf60cfc5
 	github.com/viant/mcp v0.24.2-0.20261109162451-9f02fda34b44
-	github.com/viant/mcp-protocol v0.19.2-0.20261113180806-de65252f3921
+	github.com/viant/mcp-protocol v0.19.2-0.20261114220942-9489f5fccb2b
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261113035407-72a9f0c3efba
 	github.com/viant/x v0.6.1-0.20261106041415-0487ec66884b
@@ -124,7 +124,7 @@ require (
 	github.com/viant/sqlparser v0.13.2-0.20261030130653-1d6f5c59d3f8
 	github.com/viant/structology v0.10.2-0.20261113180916-935b893ed193 // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
-	github.com/viant/tagly v0.4.2-0.20261113182338-188615d27a98
+	github.com/viant/tagly v0.4.2-0.20261114220424-b7354b0404e2
 	github.com/viant/toolbox v0.39.0 // indirect
 	github.com/viant/velty v0.4.1-0.20260915052314-fca47c0595f8 // indirect
 	github.com/viant/xlsy v0.3.2-0.20261113010534-151b55bf6abc // indirect
