@@ -52,7 +52,8 @@ test('retained catalog refreshes after deleting the inspected last version throu
   if(operation==='components.list')return {items:[{...component,currentDraftVersion:deleted?0:7}]};
   if(operation==='namespaces.list'||operation==='connectors.list')return {items:[]};
   if(operation==='versions.inspect')return {version:{versionNo:7,sourceRevision:14,state:'draft'},dql:'SELECT 1',structure:{component:{views:[]}},capabilities:{}};
-  if(operation==='versions.list')return {items:[]};
+  if(operation==='versions.list')return {items:deleted?[]:[{versionNo:7,sourceRevision:14,state:'draft'}]};
+  if(operation==='publications.get')return {status:'unpublished'};
   if(operation==='versions.delete'){deleted=true;return {componentId:input.reportId,versionNo:input.versionNo,deletedVersions:1};}
   if(operation==='runtime.status')return {};
   throw new Error('Unexpected operation '+operation);
@@ -68,11 +69,13 @@ test('retained catalog refreshes after deleting the inspected last version throu
   await screen.findByRole('button',{name:'Open Reader Builder',exact:true});
   await waitFor(()=>expect(api.invoke.mock.calls.filter(([operation])=>operation==='components.list').length).toBeGreaterThan(1));
   expect(api.invoke.mock.calls.filter(([operation])=>operation==='versions.inspect')).toHaveLength(1);
-  expect(api.invoke.mock.calls.filter(([operation])=>operation==='versions.list')).toHaveLength(0);
+  // The version selector lists on entry and refreshes after deletion, without
+  // inspecting or automatically selecting another version.
+  expect(api.invoke.mock.calls.filter(([operation])=>operation==='versions.list')).toHaveLength(2);
   expect(screen.getByText('Synthetic reader')).toBeTruthy();
   await user.click(screen.getByRole('button',{name:'Open Reader Builder',exact:true}));
   await screen.findByRole('heading',{name:'Root SQL',exact:true});
   expect(screen.queryByRole('button',{name:'Delete version v7',exact:true})).toBeNull();
-  expect(api.invoke.mock.calls.filter(([operation])=>operation==='versions.list')).toHaveLength(1);
+  expect(api.invoke.mock.calls.filter(([operation])=>operation==='versions.list')).toHaveLength(4);
  }finally{window.history.replaceState({},'','/');}
 });
