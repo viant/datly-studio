@@ -4562,6 +4562,21 @@
           }
         }
       },
+      "Wire_09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07": {
+        "type": "object",
+        "properties": {
+          "excludeDefault": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "valueCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Wire_0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f": {
         "type": "object",
         "properties": {
@@ -5337,6 +5352,32 @@
             "type": "integer",
             "format": "int64",
             "nullable": true
+          }
+        }
+      },
+      "Wire_22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8": {
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "string"
+          },
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_bdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c"
+            },
+            "nullable": true
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -7150,6 +7191,21 @@
           }
         }
       },
+      "Wire_50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c": {
+        "type": "object",
+        "properties": {
+          "excludeDefault": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "valueCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Wire_517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de": {
         "type": "object",
         "properties": {
@@ -7262,6 +7318,18 @@
           "versionNo": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "Wire_5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9": {
+        "type": "object",
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c"
+            },
+            "nullable": true
           }
         }
       },
@@ -7396,6 +7464,32 @@
           },
           "version": {
             "type": "string"
+          }
+        }
+      },
+      "Wire_600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa": {
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "string"
+          },
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_ae7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db"
+            },
+            "nullable": true
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -7838,6 +7932,32 @@
           }
         }
       },
+      "Wire_6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          }
+        }
+      },
       "Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad": {
         "type": "object",
         "properties": {
@@ -7853,6 +7973,20 @@
           },
           "dql": {
             "type": "string"
+          },
+          "effectiveWarmup": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "previewInput": {
             "anyOf": [
@@ -8498,6 +8632,32 @@
           "duration": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "Wire_837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
           }
         }
       },
@@ -9531,6 +9691,59 @@
           }
         }
       },
+      "Wire_ae7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9"
+            },
+            "nullable": true
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "maxCases": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "rowLimit": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3": {
         "type": "object",
         "properties": {
@@ -9563,6 +9776,20 @@
           },
           "dql": {
             "type": "string"
+          },
+          "effectiveWarmup": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "previewInput": {
             "anyOf": [
@@ -9936,6 +10163,59 @@
                   ]
                 }
               ]
+            },
+            "nullable": true
+          }
+        }
+      },
+      "Wire_bdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_fc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a"
+            },
+            "nullable": true
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "maxCases": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "rowLimit": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff"
             },
             "nullable": true
           }
@@ -11925,6 +12205,18 @@
           },
           "view": {
             "type": "string"
+          }
+        }
+      },
+      "Wire_fc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a": {
+        "type": "object",
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07"
+            },
+            "nullable": true
           }
         }
       },

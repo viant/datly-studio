@@ -151,6 +151,10 @@ type PreviewInputInspector interface {
 	InspectPreviewInput(context.Context, string, int) (*sdk.PreviewInputContract, error)
 }
 
+type EffectiveWarmupInspector interface {
+	InspectEffectiveWarmup(context.Context, string, int) (*sdk.EffectiveWarmupInspection, error)
+}
+
 type CandidateContractInspector interface {
 	InspectCandidateContract(context.Context, string, int, string) (*spec.Component, error)
 }
@@ -1548,6 +1552,18 @@ func (t *Transport) inspectVersion(ctx context.Context, input, output any) error
 			}
 		}
 		readerinspection.SetPreviewInput(projected, metadata)
+	}
+	if err := t.authorize(ctx, sdk.OperationVersionWarmup, in); err == nil {
+		var metadata *sdk.EffectiveWarmupInspection
+		if inspector, ok := t.Warmup.(EffectiveWarmupInspector); ok {
+			metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+			metadata, err = inspector.InspectEffectiveWarmup(metadataCtx, in.ReportID, in.VersionNo)
+			cancel()
+			if err != nil {
+				metadata = nil
+			}
+		}
+		readerinspection.SetEffectiveWarmup(projected, metadata)
 	}
 	return assign(output, projected)
 }

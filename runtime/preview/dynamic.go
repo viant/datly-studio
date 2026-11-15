@@ -526,8 +526,6 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, err
 	}
 	defer sources.Close()
-	caches := &aerospike.Pool{}
-	defer caches.Close()
 	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
@@ -543,21 +541,13 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, err
 	}
 	defer dependencies.close()
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
+	initialized, err := d.initializeWarmup(ctx, sources, contract)
 	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
+		return nil, err
 	}
-	readerConfig := bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}
-	reader, err := artifact.ReaderCompilation().NewExecution(readerConfig)
-	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
-	}
-	// Native initialization has resolved host cache profiles and per-view
-	// warmup policies. Only these effective targets may add warmup-only sources.
-	var warmupTargets []dexec.ReaderWarmupTarget
-	if targeter, ok := reader.(dexec.ReaderWarmupTargeter); ok {
-		warmupTargets = targeter.WarmupTargets()
-	}
+	defer initialized.Close()
+	artifact, reader, readerConfig := initialized.artifact, initialized.reader, initialized.config
+	warmupTargets := initialized.targets
 	if len(warmupTargets) == 0 {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no effective cache warmup policy"}
 	}

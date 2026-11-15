@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -95,7 +96,7 @@ func TestMCPWarmupRetainsAuthorizedContextAfterClientDisconnect(t *testing.T) {
 	); err != nil {
 		t.Fatal(err)
 	}
-	ids := []string{"accepted", "rejected", "missing", "named-root", "named-child", "named-multiple", "named-plural", "named-rejected", "no-policy", "unresolved"}
+	ids := []string{"accepted", "rejected", "missing", "named-root", "named-child", "named-multiple", "named-plural", "named-shared", "named-indexmeta", "named-rejected", "no-policy", "unresolved", "cache-unavailable"}
 	readerCaches := map[string]*spec.CacheSettings{}
 	for _, id := range ids {
 		scope := "example.com/fixture/" + strings.ReplaceAll(id, "-", "_")
@@ -124,11 +125,23 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 			readerCaches[rootPolicy] = &spec.CacheSettings{Warmup: &spec.CacheWarmupSettings{Name: rootPolicy, IndexColumn: "ID", Connector: "batch", MaxCases: &one, Limit: &zero}}
 			readerCaches[childPolicy] = &spec.CacheSettings{Warmup: &spec.CacheWarmupSettings{Name: childPolicy, IndexColumn: "ID", Connector: "batch", MaxCases: &one, Limit: &zero}}
 			projection := "SELECT records.*, type(records,'Record')"
-			if id == "named-root" || id == "named-rejected" || id == "named-multiple" || id == "named-plural" || id == "unresolved" {
+			if id == "named-root" || id == "named-rejected" || id == "named-multiple" || id == "named-plural" || id == "named-shared" || id == "named-indexmeta" || id == "unresolved" || id == "cache-unavailable" {
 				if id == "unresolved" {
 					rootPolicy = "undefined-policy"
 				}
 				projection += fmt.Sprintf(", use_cache(records,'%s'), cache_warmup(records,'%s')", rootCache, rootPolicy)
+			}
+			if id == "cache-unavailable" {
+				listener, err := net.Listen("tcp", "127.0.0.1:0")
+				if err != nil {
+					t.Fatal(err)
+				}
+				address := listener.Addr().String()
+				if err = listener.Close(); err != nil {
+					t.Fatal(err)
+				}
+				readerCaches[rootCache].Provider = "aerospike://" + address + "/test"
+				readerCaches[rootCache].Location = "fixture"
 			}
 			if id == "named-plural" {
 				settings := readerCaches[rootPolicy]
@@ -136,7 +149,17 @@ SELECT records.*, type(records,'Record') FROM (SELECT ID, NAME FROM RECORDS ${pr
 				settings.Warmup = nil
 			}
 			dql = strings.Replace(dql, "SELECT records.*, type(records,'Record')", projection, 1)
-			if id == "named-child" || id == "named-multiple" {
+			if id == "named-indexmeta" {
+				two := 2
+				readerCaches[rootPolicy].Warmup.IndexMeta = true
+				readerCaches[rootPolicy].Warmup.MaxCases = &two
+				summary := fmt.Sprintf("#define($_ = $Summary<?>(output/summary) /* SELECT COUNT(*) AS ID, use_cache(parent,'%s') FROM ($View.NonWindowSQL) parent */)\n", childCache)
+				dql = strings.Replace(dql, "#define($_ = $Records", summary+"#define($_ = $Records", 1)
+			}
+			if id == "named-child" || id == "named-multiple" || id == "named-shared" {
+				if id == "named-shared" {
+					childPolicy = rootPolicy
+				}
 				dql = strings.Replace(dql, projection, projection+fmt.Sprintf(", child.*, type(child,'Child'), use_cache(child,'%s'), cache_warmup(child,'%s')", childCache, childPolicy), 1)
 				dql += `
 LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predicate.FilterGroup(0,"AND")).Build("WHERE")}) child ON child.ID=records.ID`
@@ -314,8 +337,109 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 	if jobs != 0 {
 		t.Fatal("rejection created a job")
 	}
+	// Delegated component grants also require visibility of the namespace.
+	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility='public' WHERE namespace_id=?", namespace); err != nil {
+		t.Fatal(err)
+	}
+	for _, subject := range []string{"publisher", "viewer"} {
+		canPublish := subject == "publisher"
+		if _, err = db.ExecContext(ctx, "INSERT INTO component_acl(namespace_id,report_id,subject_type,subject_id,can_view,can_publish) VALUES(?,?,'user',?,1,?)", namespace, "named-root", subject, canPublish); err != nil {
+			t.Fatal(err)
+		}
+		token := jwtFixture.BearerWithClaims(t, jwtv5.MapClaims{"sub": subject, "iss": "warmup-test", "aud": "studio", "tenant": "tenant", "exp": time.Now().Add(time.Hour).Unix()})
+		raw, ok := callRaw(ctx, "studio.sdk.versions.inspect", token, map[string]any{"namespaceId": namespace, "reportId": "named-root", "versionNo": 1, "discoverColumns": false})
+		var inspected sdk.ReaderInspection
+		if !ok || json.Unmarshal(raw, &inspected) != nil {
+			t.Fatalf("delegated inspection: %s", raw)
+		}
+		if inspected.DQL != "" || inspected.Capabilities.CanUseDQL {
+			t.Fatalf("DQL grant leaked: %s", raw)
+		}
+		if canPublish {
+			if inspected.EffectiveWarmup == nil || inspected.EffectiveWarmup.Status != "resolved" {
+				t.Fatalf("publisher without DQL cannot inspect warmup: %s", raw)
+			}
+		} else {
+			if inspected.EffectiveWarmup != nil {
+				t.Fatalf("viewer acquired warmup metadata: %s", raw)
+			}
+		}
+	}
 	for _, id := range ids {
 		t.Run(id, func(t *testing.T) {
+			// Inspection resolves the same saved native policies without creating
+			// a job, preparing cache entries, or invoking runtime dependencies.
+			cleanedBefore := cleaned.Load()
+			inspectedRaw, inspectedOK := callRaw(ctx, "studio.sdk.versions.inspect", bearer, map[string]any{"namespaceId": namespace, "reportId": id, "versionNo": 1, "discoverColumns": false})
+			var inspected sdk.ReaderInspection
+			if !inspectedOK || json.Unmarshal(inspectedRaw, &inspected) != nil || inspected.EffectiveWarmup == nil {
+				t.Fatalf("native warmup inspection: %s", inspectedRaw)
+			}
+			metadata := inspected.EffectiveWarmup
+			if metadata.ReportID != id || metadata.VersionNo != 1 || metadata.SourceRevision != 1 {
+				t.Fatalf("wrong metadata snapshot: %+v", metadata)
+			}
+			if id == "unresolved" || id == "cache-unavailable" {
+				if metadata.Status != "unavailable" || metadata.Targets != nil {
+					t.Fatalf("failed resolution became empty: %+v", metadata)
+				}
+			} else {
+				if metadata.Status != "resolved" || metadata.Targets == nil {
+					t.Fatalf("unavailable native metadata: %s", inspectedRaw)
+				}
+				expectedTargets := 1
+				if id == "named-multiple" || id == "named-plural" || id == "named-shared" {
+					expectedTargets = 2
+				}
+				if id == "no-policy" {
+					expectedTargets = 0
+				}
+				if len(*metadata.Targets) != expectedTargets {
+					t.Fatalf("native target count: %+v", metadata)
+				}
+			}
+			if id == "named-root" || id == "no-policy" || id == "unresolved" {
+				body, _ := json.Marshal(map[string]any{"reportId": id, "versionNo": 1, "discoverColumns": false})
+				req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+addresses[0]+"/v1/studio/sdk/versions.inspect", bytes.NewReader(body))
+				if err != nil {
+					t.Fatal(err)
+				}
+				req.Header.Set("Content-Type", "application/json")
+				req.Header.Set("Authorization", bearer)
+				req.Header.Set("X-Studio-Namespace", namespace)
+				response, err := http.DefaultClient.Do(req)
+				if err != nil {
+					t.Fatal(err)
+				}
+				data, err := io.ReadAll(response.Body)
+				response.Body.Close()
+				if err != nil {
+					t.Fatal(err)
+				}
+				var inspectedHTTP sdk.ReaderInspection
+				if response.StatusCode != 200 || json.Unmarshal(data, &inspectedHTTP) != nil || !reflect.DeepEqual(metadata, inspectedHTTP.EffectiveWarmup) {
+					t.Fatalf("HTTP/MCP inspection differs: %d %s", response.StatusCode, data)
+				}
+			}
+			if cleaned.Load() != cleanedBefore {
+				t.Fatal("inspection invoked runtime dependencies")
+			}
+			inspectionFiles := 0
+			inspectErr := filepath.WalkDir(filepath.Join(directory, id, "cache"), func(_ string, e fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				if !e.IsDir() {
+					inspectionFiles++
+				}
+				return nil
+			})
+			if inspectErr != nil && !os.IsNotExist(inspectErr) {
+				t.Fatal(inspectErr)
+			}
+			if inspectionFiles != 0 {
+				t.Fatalf("inspection wrote cache: %d files", inspectionFiles)
+			}
 			clientCtx, disconnect := context.WithCancel(ctx)
 			accepted, ok := call(clientCtx, "studio.sdk.versions.warmup", bearer, args(id, namespace))
 			if !ok || accepted.Status != "accepted" {
@@ -348,7 +472,7 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 				time.Sleep(20 * time.Millisecond)
 			}
 			expected := "completed"
-			successful := id == "accepted" || id == "named-root" || id == "named-child" || id == "named-multiple" || id == "named-plural"
+			successful := id == "accepted" || id == "named-root" || id == "named-child" || id == "named-multiple" || id == "named-plural" || id == "named-shared" || id == "named-indexmeta"
 			if !successful {
 				expected = "failed"
 			}
@@ -369,13 +493,22 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 			}
 			if strings.HasPrefix(id, "named-") && successful {
 				count := 1
-				if id == "named-multiple" || id == "named-plural" {
+				if id == "named-multiple" || id == "named-plural" || id == "named-shared" {
 					count = 2
 				}
-				if run.PlannedCases != count || run.CompletedCases != count || run.Entries != 2*count || len(run.Target.ScheduledTargets) != count {
+				expectedEntries := 2 * count
+				expectedBudget := 1
+				if id == "named-indexmeta" {
+					expectedEntries = 3
+					expectedBudget = 2
+					if len(run.Target.ScheduledTargets[0].Work) != 2 {
+						t.Fatalf("IndexMeta population: %+v", run)
+					}
+				}
+				if run.PlannedCases != count || run.CompletedCases != count || run.Entries != expectedEntries || len(run.Target.ScheduledTargets) != count {
 					t.Fatalf("named execution counts/evidence: %+v", run)
 				}
-				if count == 1 && (run.MaxCases == nil || *run.MaxCases != 1 || run.RowLimit == nil || *run.RowLimit != 0) {
+				if count == 1 && (run.MaxCases == nil || *run.MaxCases != expectedBudget || run.RowLimit == nil || *run.RowLimit != 0) {
 					t.Fatalf("singular native limits: %+v", run)
 				}
 				if count > 1 && (run.MaxCases != nil || run.RowLimit != nil) {
@@ -395,6 +528,17 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 			}
 			if id == "accepted" && (run.MaxCases != nil || run.RowLimit == nil || *run.RowLimit != 0) {
 				t.Fatalf("inline native limits changed: %+v", run)
+			}
+			if successful {
+				if len(*metadata.Targets) != len(run.Target.ScheduledTargets) {
+					t.Fatalf("inspection/execution target mismatch: %+v %+v", metadata, run.Target)
+				}
+				for i, target := range *metadata.Targets {
+					actual := run.Target.ScheduledTargets[i]
+					if target.View != actual.View || target.CacheName != actual.CacheName || target.CacheProvider != actual.CacheProvider || target.ConnectorName != actual.ConnectorName || target.IndexColumn != actual.IndexColumn || !reflect.DeepEqual(target.Work, actual.Work) {
+						t.Fatalf("inspection/execution metadata mismatch: %+v %+v", target, actual)
+					}
+				}
 			}
 			if successful {
 				if id == "accepted" && (run.Target.CacheProvider != "afs" || len(run.Target.ScheduledTargets) != 1 || len(run.Target.ScheduledTargets[0].Work) != 1 || run.Target.ScheduledTargets[0].Work[0].CacheProvider != "afs") {

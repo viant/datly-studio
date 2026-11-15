@@ -1922,6 +1922,13 @@ type Wire08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5 struct
 	Version *string `json:"version,omitempty"`
 }
 
+// Wire09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07 defines model for Wire_09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07.
+type Wire09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07 struct {
+	ExcludeDefault *bool   `json:"excludeDefault,omitempty"`
+	Name           *string `json:"name,omitempty"`
+	ValueCount     *int64  `json:"valueCount,omitempty"`
+}
+
 // Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f defines model for Wire_0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f.
 type Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f struct {
 	Entity      *[]Wire18d26fa6031fa0c216a09dd53df26cf2cfff9f4f59cf5d1c903cdd34e49a155d `json:"entity,omitempty"`
@@ -2240,6 +2247,15 @@ type Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 struct
 	Status         *string    `json:"status,omitempty"`
 	VersionDeleted *bool      `json:"versionDeleted,omitempty"`
 	VersionNo      *int64     `json:"versionNo,omitempty"`
+}
+
+// Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 defines model for Wire_22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8.
+type Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 struct {
+	ReportId       *string                                                                 `json:"reportId,omitempty"`
+	SourceRevision *int64                                                                  `json:"sourceRevision,omitempty"`
+	Status         *string                                                                 `json:"status,omitempty"`
+	Targets        *[]WireBdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c `json:"targets,omitempty"`
+	VersionNo      *int64                                                                  `json:"versionNo,omitempty"`
 }
 
 // Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 defines model for Wire_22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46.
@@ -3038,6 +3054,13 @@ type Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 struct
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
+// Wire50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c defines model for Wire_50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c.
+type Wire50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c struct {
+	ExcludeDefault *bool   `json:"excludeDefault,omitempty"`
+	Name           *string `json:"name,omitempty"`
+	ValueCount     *int64  `json:"valueCount,omitempty"`
+}
+
 // Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de defines model for Wire_517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de.
 type Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de struct {
 	Id   *string `json:"id,omitempty"`
@@ -3082,6 +3105,11 @@ type Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe struct
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
 	VersionNo            *int64      `json:"versionNo,omitempty"`
+}
+
+// Wire5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9 defines model for Wire_5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9.
+type Wire5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9 struct {
+	Dimensions *[]Wire50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c `json:"dimensions,omitempty"`
 }
 
 // Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 defines model for Wire_59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75.
@@ -3137,6 +3165,15 @@ type Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 struct
 	Kind    *string `json:"kind,omitempty"`
 	Tenant  *string `json:"tenant,omitempty"`
 	Version *string `json:"version,omitempty"`
+}
+
+// Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa defines model for Wire_600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa.
+type Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa struct {
+	ReportId       *string                                                                 `json:"reportId,omitempty"`
+	SourceRevision *int64                                                                  `json:"sourceRevision,omitempty"`
+	Status         *string                                                                 `json:"status,omitempty"`
+	Targets        *[]WireAe7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db `json:"targets,omitempty"`
+	VersionNo      *int64                                                                  `json:"versionNo,omitempty"`
 }
 
 // Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b defines model for Wire_60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b.
@@ -3319,14 +3356,34 @@ type Wire6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea struct
 	Version *string `json:"version,omitempty"`
 }
 
+// Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff defines model for Wire_6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff.
+type Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	View           *string `json:"view,omitempty"`
+}
+
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad defines model for Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.
 type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad struct {
-	Capabilities *WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c              `json:"capabilities,omitempty"`
-	Diagnostics  *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9            `json:"diagnostics,omitempty"`
-	Dql          *string                                                                            `json:"dql,omitempty"`
-	PreviewInput *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput `json:"previewInput,omitempty"`
-	Structure    interface{}                                                                        `json:"structure,omitempty"`
-	Version      *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version      `json:"version,omitempty"`
+	Capabilities    *WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c                 `json:"capabilities,omitempty"`
+	Diagnostics     *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9               `json:"diagnostics,omitempty"`
+	Dql             *string                                                                               `json:"dql,omitempty"`
+	EffectiveWarmup *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup `json:"effectiveWarmup,omitempty"`
+	PreviewInput    *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput    `json:"previewInput,omitempty"`
+	Structure       interface{}                                                                           `json:"structure,omitempty"`
+	Version         *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version         `json:"version,omitempty"`
+}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.EffectiveWarmup.1.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 = map[string]interface{}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.EffectiveWarmup.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup struct {
+	union json.RawMessage
 }
 
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.PreviewInput.1.
@@ -3594,6 +3651,17 @@ type Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b struct
 	Data        interface{}                                                             `json:"data,omitempty"`
 	Diagnostics *[]WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b `json:"diagnostics,omitempty"`
 	Duration    *int64                                                                  `json:"duration,omitempty"`
+}
+
+// Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db defines model for Wire_837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db.
+type Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	View           *string `json:"view,omitempty"`
 }
 
 // Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 defines model for Wire_840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86.
@@ -4062,6 +4130,22 @@ type WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a struct
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
+// WireAe7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db defines model for Wire_ae7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db.
+type WireAe7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db struct {
+	CacheName      *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                 `json:"cacheProvider,omitempty"`
+	Cases          *[]Wire5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9 `json:"cases,omitempty"`
+	ConnectorName  *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                 `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
+	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
+	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
+	View           *string                                                                 `json:"view,omitempty"`
+	Work           *[]Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db `json:"work,omitempty"`
+}
+
 // WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 defines model for Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3.
 type WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 struct {
 	Id      *string `json:"id,omitempty"`
@@ -4072,12 +4156,21 @@ type WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 struct
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 defines model for Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.
 type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 struct {
-	Capabilities *Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244              `json:"capabilities,omitempty"`
-	Diagnostics  *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e            `json:"diagnostics,omitempty"`
-	Dql          *string                                                                            `json:"dql,omitempty"`
-	PreviewInput *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput `json:"previewInput,omitempty"`
-	Structure    interface{}                                                                        `json:"structure,omitempty"`
-	Version      *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version      `json:"version,omitempty"`
+	Capabilities    *Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244                 `json:"capabilities,omitempty"`
+	Diagnostics     *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e               `json:"diagnostics,omitempty"`
+	Dql             *string                                                                               `json:"dql,omitempty"`
+	EffectiveWarmup *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup `json:"effectiveWarmup,omitempty"`
+	PreviewInput    *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput    `json:"previewInput,omitempty"`
+	Structure       interface{}                                                                           `json:"structure,omitempty"`
+	Version         *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version         `json:"version,omitempty"`
+}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.EffectiveWarmup.1.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 = map[string]interface{}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.EffectiveWarmup.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup struct {
+	union json.RawMessage
 }
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.PreviewInput.1.
@@ -4244,6 +4337,22 @@ type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 
 // WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item defines model for Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.items.Item.
 type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item struct {
 	union json.RawMessage
+}
+
+// WireBdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c defines model for Wire_bdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c.
+type WireBdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c struct {
+	CacheName      *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                 `json:"cacheProvider,omitempty"`
+	Cases          *[]WireFc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a `json:"cases,omitempty"`
+	ConnectorName  *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                 `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
+	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
+	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
+	View           *string                                                                 `json:"view,omitempty"`
+	Work           *[]Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff `json:"work,omitempty"`
 }
 
 // WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 defines model for Wire_be64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0.
@@ -5077,6 +5186,11 @@ type WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 struct
 	IndexParameter *string `json:"indexParameter,omitempty"`
 	PolicyName     *string `json:"policyName,omitempty"`
 	View           *string `json:"view,omitempty"`
+}
+
+// WireFc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a defines model for Wire_fc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a.
+type WireFc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a struct {
+	Dimensions *[]Wire09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07 `json:"dimensions,omitempty"`
 }
 
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.
@@ -11016,6 +11130,68 @@ func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Ru
 	return err
 }
 
+// AsWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as a Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) AsWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8() (Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8, error) {
+	var body Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as the provided Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) FromWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8(v Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup, using the provided Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) MergeWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8(v Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as a Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1() (Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1, error) {
+	var body Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup, using the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput as a WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
 func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) AsWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca() (WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca, error) {
 	var body WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
@@ -12686,6 +12862,68 @@ func (t WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Ver
 }
 
 func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as a Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) AsWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa() (Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa, error) {
+	var body Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as the provided Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) FromWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa(v Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup, using the provided Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) MergeWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa(v Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as a WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1() (WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1, error) {
+	var body WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup, using the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }

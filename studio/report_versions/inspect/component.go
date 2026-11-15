@@ -10,7 +10,9 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/versionprojection"
 	"github.com/viant/datly-studio/internal/versionrun"
@@ -23,6 +25,7 @@ import (
 	versions "github.com/viant/datly-studio/studio/report_versions/get"
 	catalog "github.com/viant/datly-studio/studio/report_versions/store_catalog"
 	reports "github.com/viant/datly-studio/studio/reports/get"
+	publishguard "github.com/viant/datly-studio/studio/reports/publish_guard"
 	capabilities "github.com/viant/datly-studio/studio/reports/store_capabilities"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/exec"
@@ -47,12 +50,13 @@ type Input struct {
 }
 
 type Output struct {
-	PreviewInput *sdk.PreviewInputContract `parameter:"PreviewInput,kind=output,in=body,dataType=*sdk.PreviewInputContract" json:"previewInput,omitempty"`
-	Version      *sdk.ReportVersion        `parameter:"Version,kind=output,in=body,dataType=*sdk.ReportVersion" json:"version"`
-	DQL          string                    `parameter:"DQL,kind=output,in=body,dataType=string" json:"dql,omitempty"`
-	Structure    json.RawMessage           `parameter:"Structure,kind=output,in=body,dataType=json.RawMessage" json:"structure,omitempty"`
-	Diagnostics  []sdk.Diagnostic          `parameter:"Diagnostics,kind=output,in=body,dataType=[]sdk.Diagnostic" json:"diagnostics,omitempty"`
-	Capabilities sdk.ReportCapabilities    `parameter:"Capabilities,kind=output,in=body,dataType=sdk.ReportCapabilities" json:"capabilities"`
+	EffectiveWarmup *sdk.EffectiveWarmupInspection `parameter:"EffectiveWarmup,kind=output,in=body,dataType=*sdk.EffectiveWarmupInspection" json:"effectiveWarmup,omitempty"`
+	PreviewInput    *sdk.PreviewInputContract      `parameter:"PreviewInput,kind=output,in=body,dataType=*sdk.PreviewInputContract" json:"previewInput,omitempty"`
+	Version         *sdk.ReportVersion             `parameter:"Version,kind=output,in=body,dataType=*sdk.ReportVersion" json:"version"`
+	DQL             string                         `parameter:"DQL,kind=output,in=body,dataType=string" json:"dql,omitempty"`
+	Structure       json.RawMessage                `parameter:"Structure,kind=output,in=body,dataType=json.RawMessage" json:"structure,omitempty"`
+	Diagnostics     []sdk.Diagnostic               `parameter:"Diagnostics,kind=output,in=body,dataType=[]sdk.Diagnostic" json:"diagnostics,omitempty"`
+	Capabilities    sdk.ReportCapabilities         `parameter:"Capabilities,kind=output,in=body,dataType=sdk.ReportCapabilities" json:"capabilities"`
 }
 
 type Component struct {
@@ -215,7 +219,31 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		}
 		readerinspection.SetPreviewInput(projected, metadata)
 	}
-	*output = Output{Version: projected.Version, DQL: projected.DQL,
+	warmupAccess := &publishguard.Input{}
+	warmupAccess.SetJwt(input.Jwt)
+	warmupAccess.SetAuth(input.Auth)
+	warmupAccess.SetReportId(input.ReportId)
+	allowed, accessErr := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[publishguard.ReportComponent](), "report", "POST", "/_studio/reports/publish-guard"), Input: warmupAccess})
+	if granted, ok := allowed.(*publishguard.Output); accessErr == nil && ok && granted != nil && granted.Item != nil && granted.Item.Id == input.ReportId {
+		var header struct {
+			Authorization string `bind:"kind=header,in=Authorization"`
+		}
+		var metadata *sdk.EffectiveWarmupInspection
+		if bindErr := session.Binder().Bind(ctx, &header); bindErr == nil {
+			metadataCtx := sdk.WithPrincipal(ctx, sdk.Principal{Subject: input.Jwt.Subject})
+			metadataCtx = sdk.WithNamespaceSelection(metadataCtx, namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
+			metadataCtx = sdk.WithVerifiedCredential(metadataCtx, sdk.VerifiedCredential{Bearer: strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer ")), Claims: input.Jwt})
+			metadataCtx, cancel := context.WithTimeout(metadataCtx, 30*time.Second)
+			engine := preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}
+			metadata, err = engine.InspectEffectiveWarmup(metadataCtx, input.ReportId, input.VersionNo)
+			cancel()
+			if err != nil {
+				metadata = nil
+			}
+		}
+		readerinspection.SetEffectiveWarmup(projected, metadata)
+	}
+	*output = Output{Version: projected.Version, DQL: projected.DQL, EffectiveWarmup: projected.EffectiveWarmup,
 		Structure: projected.Structure, Diagnostics: projected.Diagnostics, Capabilities: projected.Capabilities, PreviewInput: projected.PreviewInput}
 	return nil
 }

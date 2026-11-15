@@ -131,12 +131,44 @@ type DQLExport struct {
 // reader builder. Structure and Operation use JSON because their nested DQL
 // shape evolves with Datly; versioning and authorization stay in Studio.
 type ReaderInspection struct {
-	PreviewInput *PreviewInputContract `json:"previewInput,omitempty"`
-	Version      *ReportVersion        `json:"version"`
-	DQL          string                `json:"dql,omitempty"`
-	Structure    json.RawMessage       `json:"structure,omitempty"`
-	Diagnostics  []Diagnostic          `json:"diagnostics,omitempty"`
-	Capabilities ReportCapabilities    `json:"capabilities"`
+	EffectiveWarmup *EffectiveWarmupInspection `json:"effectiveWarmup,omitempty"`
+	PreviewInput    *PreviewInputContract      `json:"previewInput,omitempty"`
+	Version         *ReportVersion             `json:"version"`
+	DQL             string                     `json:"dql,omitempty"`
+	Structure       json.RawMessage            `json:"structure,omitempty"`
+	Diagnostics     []Diagnostic               `json:"diagnostics,omitempty"`
+	Capabilities    ReportCapabilities         `json:"capabilities"`
+}
+
+// EffectiveWarmupInspection is resolved against current host configuration,
+// not a historical configuration snapshot. Targets is nil when unavailable;
+// a resolved empty policy list is an explicit empty array.
+type EffectiveWarmupInspection struct {
+	Status         string                   `json:"status"`
+	ReportID       string                   `json:"reportId"`
+	VersionNo      int                      `json:"versionNo"`
+	SourceRevision int64                    `json:"sourceRevision"`
+	Targets        *[]EffectiveWarmupTarget `json:"targets,omitempty"`
+}
+
+// EffectiveWarmupTarget projects native settings without storage details or
+// case values. ConnectorName is an explicit policy override; omission means
+// native default selection. Work entries describe population, not more calls.
+type EffectiveWarmupTarget struct {
+	WarmupScheduledTarget
+	MaxCases *int                  `json:"maxCases,omitempty"`
+	RowLimit *int                  `json:"rowLimit,omitempty"`
+	Cases    []EffectiveWarmupCase `json:"cases,omitempty"`
+}
+
+type EffectiveWarmupCase struct {
+	Dimensions []EffectiveWarmupDimension `json:"dimensions"`
+}
+
+type EffectiveWarmupDimension struct {
+	Name           string `json:"name"`
+	ValueCount     int    `json:"valueCount"`
+	ExcludeDefault bool   `json:"excludeDefault"`
 }
 
 // PreviewInputContract describes the advertised full-reader preview arguments.
