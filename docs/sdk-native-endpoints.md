@@ -198,7 +198,8 @@ identical baseline; the latter leaves the winner untouched and executes its own
 fresh contract. Neither action edits source revisions or numbered versions.
 The metadata DSN, selected-view tests, and cube preview remain unchanged.
 The shared Workbench binding accepts `{refreshSchema: true}` as the seventh
-`previewReader` argument; a Forge action consuming it is a separate UI change.
+`previewReader` argument. Forge exposes this through **Refresh schema and run preview**
+for ordinary readers.
 
 These handlers currently project `linked` against Studio's default static
 predicate catalog. An embedding application that adds

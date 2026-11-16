@@ -14,8 +14,8 @@ require (
 	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
 	github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d
 	github.com/viant/datly v1.1.1-0.20261115190735-666734056181
-	github.com/viant/jsonrpc v0.25.2-0.20261109161826-0c7edf60cfc5
-	github.com/viant/mcp v0.24.2-0.20261109162451-9f02fda34b44
+	github.com/viant/jsonrpc v0.25.2-0.20261113180529-6b4100cf455d
+	github.com/viant/mcp v0.24.2-0.20261116165220-428f5da35f09
 	github.com/viant/mcp-protocol v0.19.2-0.20261114220942-9489f5fccb2b
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261113035407-72a9f0c3efba
@@ -34,6 +34,7 @@ require (
 	github.com/dolthub/swiss v0.2.1 // indirect
 	github.com/mhmtszr/concurrent-swiss-map v1.0.8 // indirect
 	github.com/nxadm/tail v1.4.11 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/viant/bintly v0.2.0 // indirect
 	github.com/viant/embedius v0.5.8-0.20261108015858-2dbb2e0a515a // indirect
 	github.com/viant/scache v0.5.1-0.20241014222741-4367658dff4f // indirect
@@ -115,7 +116,7 @@ require (
 	github.com/viant/afsc v1.18.0 // indirect
 	github.com/viant/authz v0.1.2-0.20261112184253-02e92dcfc66b
 	github.com/viant/authz/component v0.0.0-20261022171511-cc9325165338
-	github.com/viant/forge v0.3.47-0.20261116030125-d36a52224e75
+	github.com/viant/forge v0.3.47-0.20261116230202-3092cda5ba57
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
