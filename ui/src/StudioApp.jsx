@@ -6,7 +6,6 @@ import { WorkspaceRuntimeSurface, PersistentWindowContent } from 'forge/componen
 import { ManagementWindow } from './ManagementWindow.jsx';
 import { managementSection } from './managementNavigation.js';
 import { useNamespaceWorkspace } from './useNamespaceWorkspace.js';
-import {managementWindowDestination} from 'forge/host-window/navigation';
 
 
 const noExtensions = [];
@@ -16,6 +15,8 @@ function WorkspaceContent({active,render}) {
   return <><div ref={setHost} className="studio-workspace-content"/><PersistentWindowContent host={active?host:null}>{render()}</PersistentWindowContent></>;
 }
 const nativeSections = ['audit', 'connectors', 'namespaces', 'overview', 'runtime', 'components', 'schema', 'skills', 'security', 'builder', 'releases'];
+// Shell sections select host-owned windows; they are not window-originated aliases.
+const nativeWindowNames = {components:'component-catalog', builder:'reader-workbench'};
 
 // StudioApp is intentionally only a Forge composition. Its data boundary is
 // StudioAPI, which maps one-for-one to the public Studio SDK operation names.
@@ -89,7 +90,7 @@ export function StudioApp({ api, mode, subject, brand = 'Data Studio', extension
           if(target==='releases')return releaseAvailable&&currentNamespaceName?<main className="studio-management-host"><Suspense fallback={<div role="status"><Spinner size={20}/> Opening releases…</div>}><ReleaseWorkspace api={api} namespace={currentNamespaceName}/></Suspense></main>:null;
           return <div className={target==='builder'?'studio-reader-host':'studio-management-host'} role={target==='builder'?undefined:'main'}>
             <ManagementWindow key={target==='builder'?`${builderReport?.id||''}:${builderReport?.versionNo||''}:${builderReport?.sourceRevision??''}`:target} api={api} disabled={namespaceWorkspace.enabled&&!namespaceWorkspace.ready}
-              uri={`window://datastudio/${managementWindowDestination(target)?.name || target}`}
+              uri={`window://datastudio/${nativeWindowNames[target] || target}`}
               parameters={{subject,currentNamespace:namespaceWorkspace.current,report:builderReport,hasNamespaceSkillsRenderer:Boolean(renderNamespaceSkills)}}
               renderSlots={renderNamespaceSkills?{'namespace-skills':props=>renderNamespaceSkills({api,namespace:namespaceWorkspace.current,subject,onDirtyChange:props.onDirtyChange})}:undefined}
               onDirtyChange={value=>{if(target===section)setSkillEditing(value);}}

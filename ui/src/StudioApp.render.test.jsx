@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {managementResourceFixture} from './managementWindowFixture.js';
 import { StudioApp } from './StudioApp.jsx';
@@ -37,6 +37,38 @@ function catalogAPI() {
 }
 
 describe('Studio connector catalog', () => {
+  test('opens the component catalog, inspects its saved reader, and returns to the catalog', async () => {
+    const user = userEvent.setup();
+    const api = catalogAPI();
+    const report = {id:'records',title:'Records reader',slug:'records',currentDraftVersion:2,status:'draft'};
+    const version = {reportId:report.id,versionNo:2,sourceRevision:2,state:'draft',compileStatus:'valid'};
+    api.listComponents.mockResolvedValue({items:[report]});
+    api.listVersions = vi.fn(async () => ({items:[version]}));
+    const invoke = api.invoke;
+    api.invoke = vi.fn((operation,input) => {
+      if (operation === 'versions.inspect') return Promise.resolve({
+        version, capabilities:{canEdit:false,canRun:false,canPublish:false,canUseDql:false}, diagnostics:[],
+        structure:{component:{rootView:{name:'records',source:{table:'records'},columns:[{name:'id',type:{name:'int'}}]},routes:[{path:'/records'}]}},
+      });
+      return invoke(operation,input);
+    });
+    render(<StudioApp api={api} mode="development" subject="owner"/>);
+    await user.click(screen.getByRole('button',{name:'Components',exact:true}));
+    await screen.findByText('Records reader');
+    expect(api.readManagementResource).toHaveBeenCalledWith('window://datastudio/component-catalog');
+    expect(api.readManagementResource).not.toHaveBeenCalledWith('window://datastudio/components');
+    await user.click(screen.getByRole('button',{name:'Open Reader Builder'}));
+    await screen.findByRole('main',{name:'Component editor'});
+    await screen.findByRole('heading',{name:'Component graph'});
+    expect(api.readManagementResource).toHaveBeenCalledWith('window://datastudio/reader-workbench');
+    expect(api.invoke).toHaveBeenCalledWith('versions.inspect',expect.objectContaining({reportId:report.id,versionNo:2}));
+    const back = () => within(screen.getByRole('main',{name:'Component editor'})).getByRole('button',{name:'Components',exact:true});
+    await waitFor(() => expect(back().disabled).toBe(false));
+    await user.click(back());
+    await screen.findByRole('button',{name:'Open Reader Builder'});
+    expect(screen.getByText('Records reader')).toBeTruthy();
+    expect(api.readManagementResource).not.toHaveBeenCalledWith('window://datastudio/builder');
+  });
   test('shows Releases only after all release tools are advertised for the selected namespace',async()=>{
     localStorage.clear();
     const api=catalogAPI();
