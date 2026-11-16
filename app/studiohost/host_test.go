@@ -82,6 +82,7 @@ func TestOneProcessHost(t *testing.T) {
 	// deliberately absent file is unrelated to the browser's login client.
 	document["Audit"] = map[string]any{"ViewerRole": "E2E_AUDIT_VIEWER"}
 	document["WarmupOperationTimeout"] = "15m"
+	document["Logging"] = map[string]any{"EnableAudit": true, "EnableTracing": true, "IncludeSQL": false}
 	document["NamespaceConnectionExport"] = map[string]any{"Provider": "synthetic", "ClientConfigURL": "file:///unreadable-synthetic-namespace-client.enc|blowfish://env/UNSET_SYNTHETIC_NAMESPACE_KEY", "Scopes": []string{"openid"}}
 	document["NamespaceOAuthProviders"] = map[string]any{"synthetic": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "CertURL": "file://" + publicPath}}
 	raw, err := json.Marshal(document)
@@ -200,6 +201,9 @@ func TestOneProcessHost(t *testing.T) {
 				}
 				return nil
 			}, ConfigureBrowser: func(browser *studioapi.Options, _ studiohost.Endpoints, _ *runtimehost.NamespaceGroup) error {
+				if browser.HostConfig.Observability == nil {
+					return fmt.Errorf("native execution logging owner was not forwarded to the browser")
+				}
 				// The browser inherits the same native authoring configuration.
 				if browser.HostConfig.WarmupOperationTimeout == nil || *browser.HostConfig.WarmupOperationTimeout != "15m" {
 					return fmt.Errorf("deployment warmup timeout was not forwarded to the browser")

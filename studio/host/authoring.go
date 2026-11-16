@@ -8,6 +8,7 @@ import (
 	"github.com/viant/datly-studio/sdk/connectivity"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
 	"github.com/viant/datly/constant"
+	druntime "github.com/viant/datly/runtime"
 	"net/http"
 	"strings"
 	"time"
@@ -35,6 +36,7 @@ type AuthoringConfig struct {
 
 // Authoring is a detached immutable per-host compilation snapshot.
 type Authoring struct {
+	observability   *druntime.Observability
 	warmupTimeout   time.Duration
 	schemaSearch    *connectivity.SchemaSearch
 	sourceValidator sourcevalidation.Validator
@@ -68,8 +70,10 @@ func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Authoring{warmupTimeout: timeout, schemaSearch: connectivity.NewSchemaSearch(connectivity.SQLCatalog{Const: config.Const}, config.SchemaSearch), sourceValidator: config.SourceValidator, codecs: codecs, constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
+	return &Authoring{observability: config.Config.Observability, warmupTimeout: timeout, schemaSearch: connectivity.NewSchemaSearch(connectivity.SQLCatalog{Const: config.Const}, config.SchemaSearch), sourceValidator: config.SourceValidator, codecs: codecs, constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
 }
+
+func (a *Authoring) Observability() *druntime.Observability { return a.observability }
 
 func (a *Authoring) ModulePath() string                          { return a.module }
 func (a *Authoring) WarmupTimeout() time.Duration                { return a.warmupTimeout }

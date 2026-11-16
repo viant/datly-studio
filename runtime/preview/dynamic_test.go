@@ -86,6 +86,7 @@ JOIN (SELECT ID, VENDOR_ID, STATUS FROM PRODUCT) products ON products.VENDOR_ID=
 	if _, err = studio.ExecContext(ctx, `INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES ('vendors',1,'vendors-doc','docs','docs/vendors.md',?,?, 'hash',FALSE,?)`, "Vendor API documentation", len("Vendor API documentation"), now); err != nil {
 		t.Fatal(err)
 	}
+	t.Run("native execution logging", func(t *testing.T) { checkNativeExecutionLogging(t, studio, root) })
 	t.Run("optional main source policy rejects validation and execution", func(t *testing.T) {
 		rejection := errors.New("policy rejection fixture")
 		calls := 0

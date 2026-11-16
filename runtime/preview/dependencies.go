@@ -25,6 +25,9 @@ func (d Dynamic) prepareContexts(ctx context.Context, definition *definition, co
 		return nil, err
 	}
 	result := &DependencyRuntime{Components: contexts}
+	if d.Observability != nil {
+		result.Options = append(result.Options, druntime.WithManagedObservability(d.Observability))
+	}
 	if d.Dependencies == nil {
 		return result, nil
 	}
@@ -36,7 +39,7 @@ func (d Dynamic) prepareContexts(ctx context.Context, definition *definition, co
 		return result, nil
 	}
 	result.Components = append(result.Components, extra.Components...)
-	result.Options = extra.Options
+	result.Options = append(result.Options, extra.Options...)
 	result.Shutdown = extra.Shutdown
 	return result, nil
 }

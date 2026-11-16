@@ -53,6 +53,8 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
+	// Observability is a borrowed native host owner, never request-owned.
+	Observability   *druntime.Observability
 	Predicates      *predicatecatalog.Catalog
 	SourceValidator sourcevalidation.Validator
 	Const           *constant.Values

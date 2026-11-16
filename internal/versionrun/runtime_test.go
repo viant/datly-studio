@@ -11,6 +11,7 @@ import (
 	"github.com/viant/bindly"
 	"github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/constant"
+	druntime "github.com/viant/datly/runtime"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -78,7 +79,12 @@ func TestAuthorizedRetainsNativeBearerAndServerAuthority(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	authoring, err := host.NewAuthoring(host.AuthoringConfig{Const: values, ModulePath: "example.com/embedding-app"})
+	observation, err := druntime.NewObservability(druntime.ObservabilityConfig{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer observation.Shutdown(t.Context())
+	authoring, err := host.NewAuthoring(host.AuthoringConfig{Config: host.Config{Observability: observation}, Const: values, ModulePath: "example.com/embedding-app"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,6 +95,9 @@ func TestAuthorizedRetainsNativeBearerAndServerAuthority(t *testing.T) {
 		t.Fatal(err)
 	}
 	cancel()
+	if engine.Observability != observation {
+		t.Fatal("authorized execution lost the native host observability owner")
+	}
 	if value, ok := engine.Const.Lookup("DataProject"); !ok || value != "example-e2e" {
 		t.Fatal("authenticated execution lost host constants")
 	}

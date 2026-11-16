@@ -386,7 +386,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio preview connector reader close: %v", err)
 		}
 	}()
-	dynamicPreview := &preview.Dynamic{SourceValidator: options.SourceValidator, Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
+	dynamicPreview := &preview.Dynamic{Observability: options.HostConfig.Observability, SourceValidator: options.SourceValidator, Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
 	predicates, types, err := options.HostConfig.RuntimeCatalogs()
 	if err != nil {
 		return err

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/warmupoperation"
+	druntime "github.com/viant/datly/runtime"
 
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/studio/authorization"
@@ -25,6 +26,9 @@ const studioAuthorizationPath = "github.com/viant/datly-studio/studio/authorizat
 // into the executable by the embedding application and become selectable in
 // Studio's governed authorization-predicate catalog.
 type Config struct {
+	// Observability is borrowed by dynamic execution runtimes. The supplying
+	// host owns its lifetime; authoring snapshots never shut it down.
+	Observability *druntime.Observability
 	// WarmupOperationTimeout is a trusted duration string, for example "10m".
 	// Nil retains the historical five-minute budget; invalid values fail startup.
 	WarmupOperationTimeout *string

@@ -221,7 +221,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	go func() {
 		defer releaseServerGuard()
 		defer cancel()
-		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}}
+		worker := &sqltransport.Transport{DB: db, Warmup: preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), Observability: authoring.Observability(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}}
 		visibleUntil := time.Now().Add(5 * time.Second)
 		for time.Now().Before(visibleUntil) && jobCtx.Err() == nil {
 			committed, readErr := worker.ReadAcceptedWarmupRun(jobCtx, reportID, runID)

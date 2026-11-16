@@ -3,6 +3,33 @@
 Dynamic warmup is implemented in `runtime/preview/dynamic.go` and the native
 `studio.sdk.versions.warmup` handler.
 
+## Native execution logging
+
+Shared host configuration forwards Datly's existing logging profile to full-reader
+preview, selected-view testing, and warmup execution:
+
+```yaml
+Logging:
+  EnableAudit: true
+  EnableTracing: true
+  IncludeSQL: false
+```
+
+The host owns one native observability owner for these dynamic runtimes; each
+runtime borrows it through `WithManagedObservability`. Dependency runtime options
+and cleanup remain in effect. Omitting `Logging` retains native defaults.
+Embedding hosts can supply an existing native owner through
+`studio/host.Config.Observability` and remain responsible for its lifetime.
+
+Native logging writes to stdout. Cache-read diagnostics distinguish warmup hits,
+lazy hits, and misses using `found_warmup`, `found_lazy`, and `source`. With
+`IncludeSQL: false`, SQL text is excluded by Datly's native policy.
+
+The direct native warmup operation emits per-view completion diagnostics while
+filling the cache. It does not emit the gateway endpoint's warmup start/completion
+messages. Studio's durable job acceptance and terminal persistence diagnostics
+are separate; this wiring adds no job lifecycle events or gateway callbacks.
+
 ## Host-owned operation deadline
 
 Shared deployment configuration (`datastudio.yaml`) accepts:
