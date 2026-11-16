@@ -735,6 +735,10 @@ test('authenticated preview executes the exact draft version through the SDK', a
   assert.equal(request.headers.get('Authorization'), null);
   assert.equal(await request.text(), '{"reportId":"vendor-spend","versionNo":1,"input":{"input":{},"limit":50,"cube":false}}');
   assert.deepEqual(result.data, { Summaries: [] });
+  await api.previewReader('vendor-spend', 1, { enabled: false, limit: 0 }, 50, undefined, false, { refreshSchema: true });
+  assert.deepEqual(JSON.parse(await request.text()), { reportId: 'vendor-spend', versionNo: 1, input: { input: { enabled: false, limit: 0 }, limit: 50, cube: false, refreshSchema: true } });
+  await api.previewReader('vendor-spend', 1, {}, 50, undefined, false, { refreshSchema: false });
+  assert.equal(JSON.parse(await request.text()).input.refreshSchema, false);
 });
 
 test('default browser fetch is invoked with its Window receiver', async () => {

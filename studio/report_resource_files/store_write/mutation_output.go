@@ -1,3 +1,13 @@
 package store_write
 
-// Generated mutation_output support is executed by Datly's universal mutation writer.
+import (
+	"context"
+	"github.com/viant/datly-studio/sdk/executionguard"
+	xhandler "github.com/viant/xdatly/handler"
+)
+
+// BeforeCommit retains embedding-server guards at native transaction
+// completion for both direct writes and writes joining an existing owner.
+func (o *Output) BeforeCommit(ctx context.Context, _ xhandler.ComponentInvoker) error {
+	return executionguard.Check(ctx)
+}

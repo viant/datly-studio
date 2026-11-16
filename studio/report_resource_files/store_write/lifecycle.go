@@ -14,7 +14,9 @@ import (
 )
 
 // FileStoreRules customizes role Input.Files.
-type FileStoreRules struct{}
+type FileStoreRules struct {
+	Input *Input `bind:"kind=input,required"`
+}
 
 func FileStoreRulesDatlyType() reflect.Type {
 	return reflect.TypeOf((*FileStoreRules)(nil)).Elem()
@@ -42,6 +44,26 @@ func (hooks *FileStoreRules) Init(ctx context.Context, entity *StoredFile, state
 	if err := namespaceaccess.ValidateResourceOwnership(entity.NamespaceId, previousNamespace); err != nil {
 		return err
 	}
+	conditionalReplacement := false
+	if hooks.Input != nil && hooks.Input.ExpectedArtifactAbsent != nil {
+		if entity.Namespace != resourceartifact.Namespace || !resourceartifact.TrustedWrite(ctx) || entity.ShouldDelete {
+			return fmt.Errorf("conditional artifact write requires host authority")
+		}
+		conflict := func() error {
+			return &xhandler.Conflict{Entity: "compiled_artifact", Field: "content_sha256", Reason: "expected artifact state does not match"}
+		}
+		if *hooks.Input.ExpectedArtifactAbsent {
+			if hooks.Input.ExpectedArtifactDigest != nil || state.Previous != nil {
+				return conflict()
+			}
+		} else {
+			expected := hooks.Input.ExpectedArtifactDigest
+			if expected == nil || len(*expected) != 64 || state.Previous == nil || state.Previous.ContentSha256 != *expected {
+				return conflict()
+			}
+			conditionalReplacement = true
+		}
+	}
 	if entity.Namespace == resourceartifact.Namespace || state.Previous != nil && state.Previous.Namespace == resourceartifact.Namespace {
 		if !resourceartifact.TrustedWrite(ctx) {
 			return fmt.Errorf("compiled resource namespace is host-owned")
@@ -55,7 +77,7 @@ func (hooks *FileStoreRules) Init(ctx context.Context, entity *StoredFile, state
 			previousHash := hex.EncodeToString(previousDigest[:])
 			corrupt := previous.ContentSize != int64(len(previous.Content)) || previous.ContentSha256 != previousHash
 			if previous.Namespace != entity.Namespace || previous.ResourcePath != entity.ResourcePath ||
-				(corrupt || previous.ContentSha256 != entity.ContentSha256 || string(previous.Content) != string(entity.Content)) && resourceartifact.RepairDigest(ctx) != previousHash {
+				(corrupt || previous.ContentSha256 != entity.ContentSha256 || string(previous.Content) != string(entity.Content)) && resourceartifact.RepairDigest(ctx) != previousHash && !conditionalReplacement {
 				return &xhandler.Conflict{Entity: "compiled_artifact", Field: "resource_id", Reason: "published bytes cannot change"}
 			}
 		}

@@ -657,11 +657,12 @@ func (d Dynamic) executeObserved(ctx context.Context, definition *definition, dq
 	defer sources.Close()
 	caches := &aerospike.Pool{}
 	defer caches.Close()
-	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types,
-		Scope: definition.Scope, Name: definition.Name, Text: dql, Connector: definition.Connector,
-		Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections),
-	})
+	contract, err := d.previewContract(ctx, definition, sources, dql, request.RefreshSchema, observe == nil && dql == definition.DQL)
 	if err != nil {
+		var public *sdk.Error
+		if errors.As(err, &public) {
+			return nil, err
+		}
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
 	// Paging is owned by this transient SQL execution, independent of any
@@ -1112,6 +1113,7 @@ type definition struct {
 	Secrets                                             connectorsecret.Resolver
 	Options                                             json.RawMessage
 	Connectors                                          []connectorDefinition
+	ResourceHash                                        string
 	Resources                                           *bindresource.Store
 	ResourceStore                                       *bindresource.Store
 	ResourceFolders                                     []mcpresource.Folder
@@ -1177,11 +1179,7 @@ func (d Dynamic) loadDefinition(ctx context.Context, reportID string, versionNo 
 			return nil, runtimevalidation.Wrap("source_policy", hookErr)
 		}
 	}
-	result.DSN, err = connectorsecret.Resolve(ctx, d.Secrets, result.DSN, result.SecretRef, d.Const)
-	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "resolve reader connector secret", Cause: err}
-	}
-	if strings.TrimSpace(result.DSN) == "" {
+	if strings.TrimSpace(result.DSN) == "" && strings.TrimSpace(result.SecretRef) == "" {
 		return nil, &sdk.Error{Code: sdk.ErrorUnavailable, Message: "reader connector has no DSN"}
 	}
 	loaded, loadErr := studiors.Load(ctx, d.StudioDB, []studiors.Version{{ReportID: reportID, VersionNo: versionNo}})
@@ -1189,6 +1187,7 @@ func (d Dynamic) loadDefinition(ctx context.Context, reportID string, versionNo 
 		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "load reader resources", Cause: loadErr}
 	}
 	result.Resources = loaded.ByVersion[studiors.Version{ReportID: reportID, VersionNo: versionNo}]
+	result.ResourceHash = loaded.Fingerprints[studiors.Version{ReportID: reportID, VersionNo: versionNo}]
 	result.ResourceStore, result.ResourceFolders = loaded.Store, loaded.Folders
 	result.Connectors, err = d.activeConnectors(ctx)
 	if err != nil {
@@ -1225,6 +1224,7 @@ type sources struct {
 	Connections column.Connections
 	opened      []*sql.DB
 	definitions map[string]connectorDefinition
+	captured    map[string]connectorDefinition
 }
 
 func (s *sources) Close() {
@@ -1239,17 +1239,18 @@ func (s *sources) Close() {
 func openSources(ctx context.Context, definition *definition, dql string, constants ...*constant.Values) (*sources, error) {
 	available := map[string]connectorDefinition{}
 	for _, item := range definition.Connectors {
+		item.Options = append(json.RawMessage(nil), item.Options...)
 		available[item.Name] = item
 	}
-	if _, ok := available[definition.Connector]; !ok && strings.TrimSpace(definition.DSN) != "" {
-		available[definition.Connector] = connectorDefinition{Name: definition.Connector, Driver: definition.Driver, DSN: definition.DSN, SecretRef: definition.SecretRef, Options: definition.Options}
+	if _, ok := available[definition.Connector]; !ok && (strings.TrimSpace(definition.DSN) != "" || strings.TrimSpace(definition.SecretRef) != "") {
+		available[definition.Connector] = connectorDefinition{Name: definition.Connector, Driver: definition.Driver, DSN: definition.DSN, SecretRef: definition.SecretRef, Options: append(json.RawMessage(nil), definition.Options...)}
 	}
 	names := make([]string, 0, len(available))
 	for name := range available {
 		names = append(names, name)
 	}
 	required := requiredConnectors(ctx, definition, dql, names, constants...)
-	result := &sources{Connections: column.Connections{}, definitions: available}
+	result := &sources{Connections: column.Connections{}, definitions: available, captured: map[string]connectorDefinition{}}
 	if err := result.require(ctx, definition, required, constants...); err != nil {
 		result.Close()
 		return nil, err
@@ -1261,6 +1262,9 @@ func openSources(ctx context.Context, definition *definition, dql string, consta
 // initialization path for ordinary reads and native-discovered warmup targets.
 // Its owner closes every acquired connection, including after partial failure.
 func (s *sources) require(ctx context.Context, definition *definition, names []string, constants ...*constant.Values) error {
+	if s.captured == nil {
+		s.captured = map[string]connectorDefinition{}
+	}
 	var acquired []string
 	for _, name := range names {
 		if _, exists := s.Connections[name]; exists {
@@ -1277,7 +1281,9 @@ func (s *sources) require(ctx context.Context, definition *definition, names []s
 		if strings.TrimSpace(resolvedDSN) == "" {
 			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("Studio connector %q has no DSN", name)}
 		}
-		db, err := sql.Open(normalizeDriver(item.Driver), resolvedDSN)
+		item.DSN = resolvedDSN
+		item.Options = append(json.RawMessage(nil), item.Options...)
+		db, err := sql.Open(normalizeDriver(item.Driver), item.DSN)
 		if err != nil {
 			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("open Studio connector %q", name), Cause: err}
 		}
@@ -1285,6 +1291,7 @@ func (s *sources) require(ctx context.Context, definition *definition, names []s
 			_ = db.Close()
 			return &sdk.Error{Code: sdk.ErrorUnavailable, Message: fmt.Sprintf("configure Studio connector %q", name), Cause: err}
 		}
+		s.captured[name] = item
 		s.opened = append(s.opened, db)
 		s.Connections[name] = db
 		acquired = append(acquired, name)

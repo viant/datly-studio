@@ -20,6 +20,7 @@ import (
 const maxExecution = 30 * time.Second
 
 type Input struct {
+	cancel      context.CancelFunc
 	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
 	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	Auth        *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
@@ -36,7 +37,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"preview,path=/v1/studio/sdk/preview.execute,method=POST,connector=studio,handler=NewExecute" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.preview.execute\",\"description\":\"Run bounded exact-version reader or single-cube preview with verified access; set input.cube=true for dimensions, measures and filters\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"preview,path=/v1/studio/sdk/preview.execute,method=POST,connector=studio,handler=NewExecute" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.preview.execute\",\"description\":\"Run bounded exact-version reader or single-cube preview with verified access; set input.cube=true for dimensions, measures and filters\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 
 var Datly = new(Component)
@@ -61,7 +62,8 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil {
 		return err
 	}
-	defer cancel()
+	// Native completion still owns artifact writes after Exec returns.
+	input.cancel = cancel
 	result, err := engine.Execute(executionCtx, input.ReportID, input.VersionNo, input.Input)
 	if err != nil {
 		return versionrun.ExecutionError(executionCtx, err, "reader preview", input.ReportID, input.VersionNo)
@@ -71,5 +73,16 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	}
 	output.Data = append(output.Data[:0], result.Data...)
 	output.Diagnostics, output.Duration, output.Evidence = result.Diagnostics, result.Duration, result.Evidence
+	return nil
+}
+
+// FinalizeOutcome releases the preview deadline after native commit/rollback,
+// including error and panic paths. Ending it in Exec would cancel child writes
+// before the existing root owner can complete them.
+func (*handler) FinalizeOutcome(ctx context.Context, invocation rhandler.Invocation, _ any, _ xhandler.Outcome) error {
+	if input, ok := invocation.Input.(*Input); ok && input != nil && input.cancel != nil {
+		input.cancel()
+		input.cancel = nil
+	}
 	return nil
 }

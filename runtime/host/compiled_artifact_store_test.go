@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/viant/datly-studio/internal/compiledartifact"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/resourceartifact"
 	"github.com/viant/datly-studio/schema"
@@ -31,7 +32,7 @@ func TestCompiledArtifactUsesGenericResourceStoreAndRepairsCorruptBytes(t *testi
 	require.NoError(t, err)
 	_, err = db.Exec(`INSERT INTO component_versions(namespace_id,report_id,version_no,state,authoring_mode,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,'report',1,'published','dql','{}','studio.v1','hash','{}','valid','v1','studio',1,'owner',?)`, namespaceID, now)
 	require.NoError(t, err)
-	store, err := newCompiledArtifactStore(db)
+	store, err := compiledartifact.NewStore(db)
 	require.NoError(t, err)
 	artifact, err := resourceartifact.New("component://"+namespaceID+"/report@1", strings.Repeat("a", 64))
 	require.NoError(t, err)
@@ -43,11 +44,11 @@ func TestCompiledArtifactUsesGenericResourceStoreAndRepairsCorruptBytes(t *testi
 	require.NoError(t, err)
 	require.Equal(t, payload, read)
 	require.NoError(t, store.Put(ctx, namespaceID, "report", 1, artifact, payload), "same bytes should be idempotent")
-	require.ErrorIs(t, store.Put(ctx, namespaceID, "report", 1, artifact, []byte(`{"different":true}`)), errCompiledArtifactConflict)
+	require.ErrorIs(t, store.Put(ctx, namespaceID, "report", 1, artifact, []byte(`{"different":true}`)), compiledartifact.ErrConflict)
 	_, err = db.Exec(`UPDATE component_resource_files SET content=? WHERE report_id='report' AND version_no=1 AND resource_id=?`, []byte("damaged"), artifact.Key)
 	require.NoError(t, err)
 	corruptBytes, err := store.Get(ctx, "report", 1, artifact)
-	require.ErrorIs(t, err, errCompiledArtifactCorrupt)
+	require.ErrorIs(t, err, compiledartifact.ErrCorrupt)
 	corruptDigest := sha256.Sum256(corruptBytes)
 	require.NoError(t, store.Repair(ctx, namespaceID, "report", 1, artifact, payload, hex.EncodeToString(corruptDigest[:])))
 	read, err = store.Get(ctx, "report", 1, artifact)
@@ -60,7 +61,7 @@ func TestCompiledArtifactUsesGenericResourceStoreAndRepairsCorruptBytes(t *testi
 	prior, err := store.Get(ctx, "report", 1, artifact)
 	require.NoError(t, err, "checksum-valid but malformed JSON is detected by compiler hydration")
 	require.Equal(t, malformed, prior)
-	require.ErrorIs(t, store.Put(ctx, namespaceID, "report", 1, artifact, payload), errCompiledArtifactConflict)
+	require.ErrorIs(t, store.Put(ctx, namespaceID, "report", 1, artifact, payload), compiledartifact.ErrConflict)
 	require.NoError(t, store.Repair(ctx, namespaceID, "report", 1, artifact, payload, hex.EncodeToString(malformedDigest[:])))
 	read, err = store.Get(ctx, "report", 1, artifact)
 	require.NoError(t, err)

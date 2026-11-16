@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/compiledartifact"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/namespacepolicy"
 	"github.com/viant/datly-studio/internal/predicatepolicy"
@@ -80,7 +81,7 @@ type Service struct {
 	studio                 *sql.DB
 	connectorStore         *activeConnectorStore
 	definitionStore        *publishedDefinitionStore
-	compiledArtifacts      *compiledArtifactStore
+	compiledArtifacts      *compiledartifact.Store
 	compileRuntimeContract func(context.Context, *transcribe.Source) (*transcribe.RuntimeContract, error)
 	runAccessStore         *runAccessStore
 	manager                *application.Manager
@@ -138,7 +139,7 @@ func New(ctx context.Context, config Config) (*Service, error) {
 		_ = studio.Close()
 		return nil, fmt.Errorf("runtime run access store: %w", err)
 	}
-	compiledArtifacts, err := newCompiledArtifactStore(studio)
+	compiledArtifacts, err := compiledartifact.NewStore(studio)
 	if err != nil {
 		_ = runAccessStore.Close(context.Background())
 		_ = definitionStore.Close(context.Background())
@@ -369,7 +370,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 				available = append(available, name)
 			}
 			sort.Strings(available)
-			selected := map[string]connectorDefinition{}
+			selected := map[string]compiledartifact.Connector{}
 			names, inspectErr := referencedRuntimeConnectors(compileCtx, definition, available, contractResources, catalog, s.config.Const)
 			if inspectErr != nil {
 				return contractResult{}, inspectErr
@@ -381,13 +382,13 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 					bypassReason = "connector-unavailable"
 					break
 				}
-				selected[name] = item
+				selected[name] = compiledartifact.Connector{Driver: item.driver, DSN: item.dsn, SecretRef: item.secretRef, Options: item.options, Etag: item.etag}
 			}
 			if cacheable {
 				var identityErr error
 				identityStarted := time.Now()
-				cacheIdentity, cacheOwner, identityErr = compilerInputIdentity(s.config.NamespaceID, s.config.ModulePath, s.config.RootDir,
-					definition, loadedResources.Fingerprints[version], s.config.Const.Identity(), selected, catalog)
+				cacheIdentity, cacheOwner, identityErr = compiledartifact.Identity(s.config.NamespaceID, s.config.ModulePath, s.config.RootDir,
+					compiledartifact.Source{ReportID: definition.reportID, VersionNo: definition.versionNo, DQL: definition.dql, Scope: definition.scope, Name: definition.name, Connector: definition.connector, Driver: definition.driver}, loadedResources.Fingerprints[version], s.config.Const.Identity(), selected, catalog)
 				compiledArtifactTiming(compileCtx, "artifact.identity", time.Since(identityStarted), 0)
 				if identityErr != nil {
 					cacheable = false
@@ -423,14 +424,14 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 				}
 				prior := sha256.Sum256(stored)
 				repairDigest = hex.EncodeToString(prior[:])
-			} else if errors.Is(lookupErr, errCompiledArtifactCorrupt) {
+			} else if errors.Is(lookupErr, compiledartifact.ErrCorrupt) {
 				missReason = "checksum-invalid"
 				if len(stored) > 0 {
 					prior := sha256.Sum256(stored)
 					repairDigest = hex.EncodeToString(prior[:])
 				}
 			}
-			if lookupErr != nil && !errors.Is(lookupErr, sql.ErrNoRows) && !errors.Is(lookupErr, errCompiledArtifactCorrupt) {
+			if lookupErr != nil && !errors.Is(lookupErr, sql.ErrNoRows) && !errors.Is(lookupErr, compiledartifact.ErrCorrupt) {
 				return contractResult{}, fmt.Errorf("read compiled artifact: %w", lookupErr)
 			}
 			compiledArtifactTimingReason(compileCtx, "artifact.miss", missReason, time.Since(lookupStarted), 0)
@@ -480,10 +481,10 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 					putErr = s.compiledArtifacts.Put(compileCtx, cacheOwner, definition.reportID, definition.versionNo, cacheIdentity, encoded)
 				}
 				compiledArtifactTiming(compileCtx, "artifact.store", time.Since(storeStarted), len(encoded))
-				if putErr != nil && !errors.Is(putErr, errCompiledArtifactTooLarge) {
+				if putErr != nil && !errors.Is(putErr, compiledartifact.ErrTooLarge) {
 					return contractResult{}, fmt.Errorf("publish compiled artifact: %w", putErr)
 				}
-				if errors.Is(putErr, errCompiledArtifactTooLarge) {
+				if errors.Is(putErr, compiledartifact.ErrTooLarge) {
 					compiledArtifactTiming(compileCtx, "artifact.oversize", 0, len(encoded))
 				}
 			} else {

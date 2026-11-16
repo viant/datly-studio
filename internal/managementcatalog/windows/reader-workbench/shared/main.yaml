@@ -308,6 +308,9 @@ window:
               input.cube:
                 arg: 5
                 default: false
+              input.refreshSchema:
+                arg: 6
+                selector: refreshSchema
           listConnectors:
             dataSourceRef: workbench_list_connectors
             parameters: {}

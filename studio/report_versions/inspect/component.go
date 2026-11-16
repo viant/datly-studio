@@ -41,6 +41,7 @@ import (
 )
 
 type Input struct {
+	cancel                 context.CancelFunc
 	NamespaceId            *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
 	Jwt                    *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
 	Auth                   *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
@@ -62,7 +63,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.inspect,method=POST,connector=studio,handler=NewVersionInspect" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.inspect\",\"description\":\"Inspect an authorized exact Datly Studio reader version\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.inspect,method=POST,connector=studio,handler=NewVersionInspect" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.inspect\",\"description\":\"Inspect an authorized exact Datly Studio reader version\"}]" componentCallPolicy:"imperative" caseFormat:"lc"`
 }
 
 var VersionDatly = new(Component)
@@ -217,7 +218,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 	if wantInput {
 		previewCtx, previewEngine, cancel, authorizeErr := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportId, input.VersionNo, 0)
 		if authorizeErr == nil {
-			defer cancel()
+			input.cancel = cancel
 			metadataCtx, engine, inputAuthorized = previewCtx, previewEngine, true
 		}
 	}
@@ -302,4 +303,14 @@ func target(holder reflect.Type, name, method, path string) exec.ComponentTarget
 
 func publicError(code int, message string) error {
 	return &xresponse.Error{Code: code, Cause: errors.New(message), Payload: map[string]string{"message": message}}
+}
+
+// FinalizeOutcome keeps metadata's deadline alive until its native artifact
+// writes have completed, and releases it on success, failure, or panic.
+func (*inspectHandler) FinalizeOutcome(ctx context.Context, invocation rhandler.Invocation, _ any, _ xhandler.Outcome) error {
+	if input, ok := invocation.Input.(*Input); ok && input != nil && input.cancel != nil {
+		input.cancel()
+		input.cancel = nil
+	}
+	return nil
 }

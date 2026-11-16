@@ -833,6 +833,9 @@ type InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa struc
 	Cube  *bool       `json:"cube,omitempty"`
 	Input interface{} `json:"input,omitempty"`
 	Limit *int64      `json:"limit,omitempty"`
+
+	// RefreshSchema Refresh full-reader schema through live discovery before execution.
+	RefreshSchema *bool `json:"refreshSchema,omitempty"`
 }
 
 // InputF063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9 defines model for Input_f063ff05b2157fb8f6176bbd7a336f91805d5c30366f9c24c986423e7cda8aa9.

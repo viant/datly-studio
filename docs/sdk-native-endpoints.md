@@ -160,6 +160,46 @@ missing version and private-child isolation. An opt-in Docker test returns
 two complete 60-column rows through HTTP and MCP. Secret-reference-only
 connectors are now accepted by the preview connector reader instead of
 blocking unrelated reader previews.
+
+Full-reader preview and preview-input inspection reuse native frozen contracts
+stored in the existing private resource-file infrastructure. Preview artifacts
+are separate from published snapshots. Identity covers the captured source,
+resources, constants, linked/compiler authority, and the resolved connector
+configuration actually opened. Authorization, predicate enforcement, runtime
+services, and execution guards remain fresh on every request. Directory-based
+or nonportable contracts retain live compilation. Ordinary preview also retains
+live execution when a new artifact exceeds the existing private store limit;
+explicit refresh continues to report persistence failures.
+
+External database schema changes require explicit discovery. Set
+`input.refreshSchema: true` on the existing `preview.execute` request, separately
+from reader parameters:
+
+```json
+{
+  "reportId": "records",
+  "versionNo": 2,
+  "input": {
+    "refreshSchema": true,
+    "input": {"limit": 10},
+    "limit": 50
+  }
+}
+```
+
+Refresh compiles against live schema and executes that fresh contract. A verified
+byte-identical artifact needs no write. Different bytes use a native database
+digest predicate; competing insertion uses the existing primary key. Native
+predicate and duplicate-key conflicts return through the existing conflict
+category (HTTP 409); Studio does not retry or overwrite a competing result. Read, corruption, discovery, and replacement
+failures remain errors rather than executing the old artifact. A concurrent
+refresh may replace the stored artifact while another request compiles an
+identical baseline; the latter leaves the winner untouched and executes its own
+fresh contract. Neither action edits source revisions or numbered versions.
+The metadata DSN, selected-view tests, and cube preview remain unchanged.
+The shared Workbench binding accepts `{refreshSchema: true}` as the seventh
+`previewReader` argument; a Forge action consuming it is a separate UI change.
+
 These handlers currently project `linked` against Studio's default static
 predicate catalog. An embedding application that adds
 `host.Config.PredicatePackages` still needs that catalog injected into its

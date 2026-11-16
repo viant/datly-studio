@@ -624,6 +624,10 @@ export type InputEa8Cf0B60E82E17C8F2E6Bc2Ad35Fe0985Cc717838Bb65D7F9B56C81Bd0718A
     cube?: boolean;
     input?: unknown;
     limit?: number;
+    /**
+     * Refresh full-reader schema through live discovery before execution.
+     */
+    refreshSchema?: boolean;
 };
 
 export type InputF063Ff05B2157Fb8F6176Bbd7A336F91805D5C30366F9C24C986423E7Cda8Aa9 = {

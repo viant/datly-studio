@@ -1,4 +1,4 @@
-package host
+package compiledartifact
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
 	"github.com/viant/datly-studio/internal/resourceartifact"
+	"github.com/viant/datly-studio/sdk/executionguard"
 	stored "github.com/viant/datly-studio/studio/report_resource_files/store_snapshot"
 	write "github.com/viant/datly-studio/studio/report_resource_files/store_write"
 	"github.com/viant/datly/bootstrap"
@@ -30,22 +31,22 @@ import (
 )
 
 var (
-	errCompiledArtifactCorrupt  = errors.New("compiled artifact bytes are invalid")
-	errCompiledArtifactConflict = errors.New("compiled artifact identity already contains different bytes")
-	errCompiledArtifactTooLarge = errors.New("compiled artifact exceeds resource store's 1 MiB text limit")
+	ErrCorrupt  = errors.New("compiled artifact bytes are invalid")
+	ErrConflict = errors.New("compiled artifact identity already contains different bytes")
+	ErrTooLarge = errors.New("compiled artifact exceeds resource store's 1 MiB text limit")
 )
 
-// compiledArtifactStore uses the existing component_resource_files table and
+// Store uses the existing component_resource_files table and
 // its generated internal reader/writer. It never changes a component source
 // revision and never registers an HTTP/MCP route.
-type compiledArtifactStore struct {
+type Store struct {
 	mu      sync.RWMutex
 	runtime *druntime.Runtime
 	read    dexec.ComponentTarget
 	write   dexec.ComponentTarget
 }
 
-func newCompiledArtifactStore(db *sql.DB) (*compiledArtifactStore, error) {
+func NewStore(db *sql.DB) (*Store, error) {
 	if db == nil {
 		return nil, fmt.Errorf("Studio resource database is required")
 	}
@@ -73,7 +74,7 @@ func newCompiledArtifactStore(db *sql.DB) (*compiledArtifactStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &compiledArtifactStore{runtime: runtime, read: readTarget, write: writeTarget}, nil
+	return &Store{runtime: runtime, read: readTarget, write: writeTarget}, nil
 }
 
 func compiledFileWriter(db *sql.DB, connector *dsql.SQLComponent, resources *resource.Store) (*registry.RegisteredComponent, dexec.ComponentTarget, error) {
@@ -120,14 +121,14 @@ func compiledFileWriter(db *sql.DB, connector *dsql.SQLComponent, resources *res
 	return registration, target, nil
 }
 
-func (s *compiledArtifactStore) Close(ctx context.Context) error {
+func (s *Store) Close(ctx context.Context) error {
 	if s == nil || s.runtime == nil {
 		return nil
 	}
 	return s.runtime.Shutdown(ctx)
 }
 
-func (s *compiledArtifactStore) Get(ctx context.Context, reportID string, versionNo int, identity resourceartifact.Identity) ([]byte, error) {
+func (s *Store) Get(ctx context.Context, reportID string, versionNo int, identity resourceartifact.Identity) ([]byte, error) {
 	if s == nil {
 		return nil, fmt.Errorf("compiled artifact store is unavailable")
 	}
@@ -136,7 +137,7 @@ func (s *compiledArtifactStore) Get(ctx context.Context, reportID string, versio
 	return s.get(ctx, reportID, versionNo, identity)
 }
 
-func (s *compiledArtifactStore) get(ctx context.Context, reportID string, versionNo int, identity resourceartifact.Identity) ([]byte, error) {
+func (s *Store) get(ctx context.Context, reportID string, versionNo int, identity resourceartifact.Identity) ([]byte, error) {
 	if s == nil || s.runtime == nil || reportID == "" || versionNo <= 0 || identity.Key == "" {
 		return nil, fmt.Errorf("compiled artifact store identity is required")
 	}
@@ -148,7 +149,7 @@ func (s *compiledArtifactStore) get(ctx context.Context, reportID string, versio
 	}
 	output, ok := value.(*stored.Output)
 	if !ok || output == nil || len(output.Files) > 1 {
-		return nil, errCompiledArtifactCorrupt
+		return nil, ErrCorrupt
 	}
 	if len(output.Files) == 0 {
 		return nil, sql.ErrNoRows
@@ -156,37 +157,37 @@ func (s *compiledArtifactStore) get(ctx context.Context, reportID string, versio
 	file := output.Files[0]
 	if file == nil || file.ReportId != reportID || file.VersionNo != versionNo || file.ResourceId != identity.Key ||
 		file.Namespace != resourceartifact.Namespace || file.ResourcePath != identity.Path || file.IsBinary {
-		return nil, errCompiledArtifactCorrupt
+		return nil, ErrCorrupt
 	}
 	if file.MediaType == nil || *file.MediaType != resourceartifact.MediaType {
-		return nil, errCompiledArtifactCorrupt
+		return nil, ErrCorrupt
 	}
 	hash := sha256.Sum256(file.Content)
 	if file.ContentSha256 != hex.EncodeToString(hash[:]) || file.ContentSize != int64(len(file.Content)) {
-		return append([]byte(nil), file.Content...), errCompiledArtifactCorrupt
+		return append([]byte(nil), file.Content...), ErrCorrupt
 	}
 	return append([]byte(nil), file.Content...), nil
 }
 
-func (s *compiledArtifactStore) Put(ctx context.Context, namespaceID, reportID string, versionNo int, identity resourceartifact.Identity, payload []byte) error {
+func (s *Store) Put(ctx context.Context, namespaceID, reportID string, versionNo int, identity resourceartifact.Identity, payload []byte) error {
 	return s.put(ctx, namespaceID, reportID, versionNo, identity, payload, "")
 }
 
-func (s *compiledArtifactStore) Repair(ctx context.Context, namespaceID, reportID string, versionNo int, identity resourceartifact.Identity, payload []byte, expectedPreviousSHA string) error {
+func (s *Store) Repair(ctx context.Context, namespaceID, reportID string, versionNo int, identity resourceartifact.Identity, payload []byte, expectedPreviousSHA string) error {
 	if len(expectedPreviousSHA) != 64 {
-		return errCompiledArtifactConflict
+		return ErrConflict
 	}
 	return s.put(ctx, namespaceID, reportID, versionNo, identity, payload, expectedPreviousSHA)
 }
 
-func (s *compiledArtifactStore) put(ctx context.Context, namespaceID, reportID string, versionNo int, identity resourceartifact.Identity, payload []byte, expectedPreviousSHA string) error {
+func (s *Store) put(ctx context.Context, namespaceID, reportID string, versionNo int, identity resourceartifact.Identity, payload []byte, expectedPreviousSHA string) error {
 	if s == nil {
 		return fmt.Errorf("compiled artifact store is unavailable")
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if len(payload) > 1<<20 {
-		return errCompiledArtifactTooLarge
+		return ErrTooLarge
 	}
 	if s == nil || s.runtime == nil || namespaceID == "" || reportID == "" || versionNo <= 0 || identity.Key == "" {
 		return fmt.Errorf("compiled artifact store identity is required")
@@ -197,19 +198,19 @@ func (s *compiledArtifactStore) put(ctx context.Context, namespaceID, reportID s
 			return nil
 		}
 		if expectedPreviousSHA == "" {
-			return errCompiledArtifactConflict
+			return ErrConflict
 		}
 	}
-	if !errors.Is(err, sql.ErrNoRows) && !errors.Is(err, errCompiledArtifactCorrupt) && err != nil {
+	if !errors.Is(err, sql.ErrNoRows) && !errors.Is(err, ErrCorrupt) && err != nil {
 		return err
 	}
 	if expectedPreviousSHA != "" && errors.Is(err, sql.ErrNoRows) {
-		return errCompiledArtifactConflict
+		return ErrConflict
 	}
 	if len(prior) > 0 {
 		previous := sha256.Sum256(prior)
 		if expectedPreviousSHA != hex.EncodeToString(previous[:]) {
-			return errCompiledArtifactConflict
+			return ErrConflict
 		}
 	}
 	digest := sha256.Sum256(payload)
@@ -236,7 +237,41 @@ func (s *compiledArtifactStore) put(ctx context.Context, namespaceID, reportID s
 		return nil
 	}
 	if readErr == nil {
-		return errCompiledArtifactConflict
+		return ErrConflict
 	}
+	return err
+}
+
+// CompareAndSwap writes only against the captured prior digest (nil means absent).
+// It deliberately does not reread/accept a competing writer's identical bytes.
+// The caller skips replacement of an already verified identical artifact.
+func (s *Store) CompareAndSwap(ctx context.Context, namespaceID, reportID string, versionNo int, id resourceartifact.Identity, payload []byte, expected *string) error {
+	if s == nil || s.runtime == nil || namespaceID == "" || reportID == "" || versionNo <= 0 || id.Key == "" {
+		return fmt.Errorf("compiled artifact store identity is required")
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if len(payload) > 1<<20 {
+		return ErrTooLarge
+	}
+	if expected != nil && len(*expected) != 64 {
+		return ErrConflict
+	}
+	if err := executionguard.Check(ctx); err != nil {
+		return err
+	}
+	hash := sha256.Sum256(payload)
+	media := resourceartifact.MediaType
+	row := &write.StoredFile{NamespaceId: namespaceID, ReportId: reportID, VersionNo: versionNo, ResourceId: id.Key, Namespace: resourceartifact.Namespace, ResourcePath: id.Path, MediaType: &media, Content: append([]byte(nil), payload...), ContentSize: int64(len(payload)), ContentSha256: hex.EncodeToString(hash[:]), CreatedAt: time.Now().UTC(), Has: &write.StoredFileHas{NamespaceId: true, ReportId: true, VersionNo: true, ResourceId: true, Namespace: true, ResourcePath: true, MediaType: true, Content: true, ContentSize: true, ContentSha256: true, IsBinary: true, CreatedAt: true, ShouldDelete: true}}
+	input := &write.Input{}
+	input.SetFiles([]*write.StoredFile{row})
+	absent := expected == nil
+	input.SetExpectedArtifactAbsent(&absent)
+	if expected != nil {
+		input.SetExpectedArtifactDigest(expected)
+	}
+	// The native owner commits here for standalone calls, or joins an inherited
+	// unit. Output.BeforeCommit supplies the same server guard in both cases.
+	_, err := s.runtime.InvokeComponent(resourceartifact.WithTrustedWrite(ctx), dexec.ComponentRequest{Target: s.write, Input: input})
 	return err
 }

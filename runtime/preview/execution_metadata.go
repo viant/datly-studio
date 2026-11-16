@@ -7,8 +7,6 @@ import (
 	"github.com/viant/datly-studio/runtime/codecs"
 	"github.com/viant/datly-studio/sdk"
 	"github.com/viant/datly/bootstrap"
-	"github.com/viant/datly/transcribe"
-	"github.com/viant/datly/transcribe/column"
 )
 
 // InspectExecutionMetadata shares one exact source snapshot, contract, artifact,
@@ -36,7 +34,7 @@ func (d Dynamic) InspectExecutionMetadata(ctx context.Context, reportID string, 
 		return fail(err)
 	}
 	defer sources.Close()
-	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
+	contract, err := d.previewContract(ctx, definition, sources, definition.DQL, false, includePreviewInput)
 	if err != nil {
 		return fail(err)
 	}

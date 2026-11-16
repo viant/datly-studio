@@ -17,6 +17,8 @@ const (
 )
 
 type PreviewInput struct {
+	// RefreshSchema forces live discovery for full-reader preview without changing source.
+	RefreshSchema bool `json:"refreshSchema,omitempty" description:"Refresh full-reader schema through live discovery before execution."`
 	// Cube invokes the derived typed cube instead of the ordinary reader.
 	Cube  bool            `json:"cube,omitempty" description:"Preview the derived single cube. Put dimensions, measures, filters and limit inside input; this does not invoke multi-cube composition."`
 	Input json.RawMessage `json:"input,omitempty"`

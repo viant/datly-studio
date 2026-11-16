@@ -8,6 +8,9 @@
 #setting($_ = $connector('studio'))
 #setting($_ = $sql_dest('file', 'sql/read.sql'))
 
+#define($_ = $ExpectedArtifactDigest<*string>(query/expectedArtifactDigest).Optional().WithPredicate(7,'equal','component_resource_files','content_sha256'))
+#define($_ = $ExpectedArtifactAbsent<*bool>(query/expectedArtifactAbsent).Optional())
+
 #define($_ = $Files<[]*StoredFile>(body/data))
 
 SELECT file.*, type(file, 'StoredFile'),
@@ -28,5 +31,5 @@ SELECT file.*, type(file, 'StoredFile'),
        tag(file.version_no, 'sqlx:"version_no,primaryKey"'),
        tag(file.resource_id, 'sqlx:"resource_id,primaryKey"'),
        lifecycle_type(file, 'FileStoreRules'),
-       delete_marker(file.should_delete)
+       delete_marker(file.should_delete), mutation_predicate(file, 7)
 FROM (${embed:sql/read.sql}) file

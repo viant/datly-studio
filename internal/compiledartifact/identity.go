@@ -1,4 +1,4 @@
-package host
+package compiledartifact
 
 import (
 	"crypto/sha256"
@@ -22,22 +22,25 @@ import (
 // are included separately below; local devel builds use executable SHA-256.
 const studioReaderCompilerIdentity = "studio.dynamic-reader-compiler/2026-10-v1"
 
-// compilerInputIdentity is calculated entirely from already admitted Studio
-// publication/configuration rows and in-memory linked types. It never probes a
-// business database. Changes to external schema require a new published
-// source/connector revision; cached published versions do not auto-discover it.
-func compilerInputIdentity(namespaceID, modulePath, rootDir string, definition definition, resourceHash, constantsHash string,
-	connectors map[string]connectorDefinition, catalog *typecatalog.Catalog) (resourceartifact.Identity, string, error) {
-	if definition.reportID == "" || definition.versionNo <= 0 || resourceHash == "" {
-		return resourceartifact.Identity{}, "", fmt.Errorf("complete published reader identity is required")
+// Identity uses captured source, resources, constants, connector configuration,
+// and linked authority. It never probes a business database. Preview callers
+// supply resolved connector values and refresh explicitly after schema changes.
+func Identity(namespaceID, modulePath, rootDir string, definition Source, resourceHash, constantsHash string,
+	connectors map[string]Connector, catalog *typecatalog.Catalog) (resourceartifact.Identity, string, error) {
+	if definition.ReportID == "" || definition.VersionNo <= 0 || resourceHash == "" {
+		return resourceartifact.Identity{}, "", fmt.Errorf("complete reader identity is required")
 	}
 	owner := namespaceID
 	if owner == "" {
 		// Legacy unpartitioned Studio databases still need a deterministic
 		// internal writer namespace. report_id remains globally unique there.
-		owner = namespaceaccess.ID("studio-legacy-compiler", definition.reportID)
+		owner = namespaceaccess.ID("studio-legacy-compiler", definition.ReportID)
 	}
-	sourceURI := fmt.Sprintf("component://%s/%s@%d", owner, definition.reportID, definition.versionNo)
+	purpose := "component"
+	if definition.Preview {
+		purpose = "preview"
+	}
+	sourceURI := fmt.Sprintf("%s://%s/%s@%d", purpose, owner, definition.ReportID, definition.VersionNo)
 	catalogHash, err := linkedCatalogIdentity(catalog)
 	if err != nil {
 		return resourceartifact.Identity{}, "", err
@@ -54,11 +57,14 @@ func compilerInputIdentity(namespaceID, modulePath, rootDir string, definition d
 	items := make([]connectorIdentity, 0, len(names))
 	for _, name := range names {
 		item := connectors[name]
-		items = append(items, connectorIdentity{Name: name, Driver: item.driver,
-			DSNHash: privateSHA(item.dsn), SecretRefHash: privateSHA(item.secretRef),
-			OptionsHash: privateSHA(string(item.options)), Etag: item.etag})
+		items = append(items, connectorIdentity{Name: name, Driver: item.Driver,
+			DSNHash: privateSHA(item.DSN), SecretRefHash: privateSHA(item.SecretRef),
+			OptionsHash: privateSHA(string(item.Options)), Etag: item.Etag})
 	}
 	buildIdentity, err := datlyCompilerBuildIdentity()
+	if definition.Preview {
+		buildIdentity, err = localExecutableIdentity()
+	}
 	if err != nil {
 		return resourceartifact.Identity{}, "", err
 	}
@@ -66,7 +72,7 @@ func compilerInputIdentity(namespaceID, modulePath, rootDir string, definition d
 		ArtifactVersion, Compiler, Build, ModulePath, RootDirHash, SourceURI, DQL, Scope, Name, Connector, Driver, ResourceHash, ConstantsHash, CatalogHash string
 		Connectors                                                                                                                                          []connectorIdentity
 	}{transcribe.RuntimeContractArtifactVersion, studioReaderCompilerIdentity, buildIdentity, modulePath, privateSHA(rootDir), sourceURI,
-		definition.dql, definition.scope, definition.name, definition.connector, definition.driver,
+		definition.DQL, definition.Scope, definition.Name, definition.Connector, definition.Driver,
 		resourceHash, constantsHash, catalogHash, items})
 	if err != nil {
 		return resourceartifact.Identity{}, "", err
@@ -162,4 +168,18 @@ func linkedCatalogIdentity(catalog *typecatalog.Catalog) (string, error) {
 		}
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// Source is a captured compiler source, independent of its publication/preview consumer.
+type Source struct {
+	ReportID, DQL, Scope, Name, Connector, Driver string
+	VersionNo                                     int
+	Preview                                       bool
+}
+
+// Connector contains the configuration actually used to open this generation.
+type Connector struct {
+	Driver, DSN, SecretRef string
+	Options                []byte
+	Etag                   int64
 }
