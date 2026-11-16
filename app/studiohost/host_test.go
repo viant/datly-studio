@@ -81,6 +81,7 @@ func TestOneProcessHost(t *testing.T) {
 	// Connection export must never decrypt or read its SCY reference. This
 	// deliberately absent file is unrelated to the browser's login client.
 	document["Audit"] = map[string]any{"ViewerRole": "E2E_AUDIT_VIEWER"}
+	document["WarmupOperationTimeout"] = "15m"
 	document["NamespaceConnectionExport"] = map[string]any{"Provider": "synthetic", "ClientConfigURL": "file:///unreadable-synthetic-namespace-client.enc|blowfish://env/UNSET_SYNTHETIC_NAMESPACE_KEY", "Scopes": []string{"openid"}}
 	document["NamespaceOAuthProviders"] = map[string]any{"synthetic": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "CertURL": "file://" + publicPath}}
 	raw, err := json.Marshal(document)
@@ -196,6 +197,15 @@ func TestOneProcessHost(t *testing.T) {
 				}
 				if _, err := codec.Value(ctx, bearer+"x"); err == nil {
 					return fmt.Errorf("reader accepted invalid JWT signature")
+				}
+				return nil
+			}, ConfigureBrowser: func(browser *studioapi.Options, _ studiohost.Endpoints, _ *runtimehost.NamespaceGroup) error {
+				// The browser inherits the same native authoring configuration.
+				if browser.HostConfig.WarmupOperationTimeout == nil || *browser.HostConfig.WarmupOperationTimeout != "15m" {
+					return fmt.Errorf("deployment warmup timeout was not forwarded to the browser")
+				}
+				if timeout, err := browser.HostConfig.WarmupTimeout(); err != nil || timeout != 15*time.Minute {
+					return fmt.Errorf("inherited warmup timeout=%v err=%v", timeout, err)
 				}
 				return nil
 			}, Ready: func(e studiohost.Endpoints) { ready <- e }})

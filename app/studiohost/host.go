@@ -170,6 +170,9 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		options.Native.Authoring = &authoring.AuthoringConfig{}
 	}
 	authoringConfig := *options.Native.Authoring
+	if config.WarmupOperationTimeout != nil {
+		authoringConfig.Config.WarmupOperationTimeout = config.WarmupOperationTimeout
+	}
 	authoringConfig.Const = config.Const
 	if authoringConfig.ModulePath == "" {
 		authoringConfig.ModulePath = authoring.DefaultAuthoringModule

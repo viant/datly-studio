@@ -5,6 +5,16 @@ Dynamic warmup is implemented in `runtime/preview/dynamic.go` and the native
 
 ## Host-owned operation deadline
 
+Shared deployment configuration (`datastudio.yaml`) accepts:
+
+```yaml
+WarmupOperationTimeout: 15m
+```
+
+The shared host forwards this setting to native authoring and the browser
+runtime. Omission preserves a trusted embedding override when supplied;
+otherwise the native default is five minutes. Invalid durations fail loading.
+
 The existing trusted `studio/host.Config` accepts an optional
 `WarmupOperationTimeout` duration string. For example, an embedding host can use:
 
