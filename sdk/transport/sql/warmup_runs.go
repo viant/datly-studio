@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/viant/datly-studio/internal/warmupoperation"
 	"github.com/viant/datly-studio/sdk/executionguard"
+	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -156,7 +157,7 @@ func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string
 	}
 	targetJSON, _ := json.Marshal(result.Target)
 	diagnosticsJSON, _ := json.Marshal(diagnostics)
-	_ = t.writeWarmupRun(context.WithoutCancel(ctx), &storedwriter.StoredWarmupRun{
+	if err := t.writeWarmupRun(context.WithoutCancel(ctx), &storedwriter.StoredWarmupRun{
 		RunId: runID, Status: status, UpdatedAt: startedRun.UpdatedAt, UpdatedBy: &actor,
 		CacheName: warmupOptionalString(result.Target.CacheName), CacheProvider: warmupOptionalString(result.Target.CacheProvider),
 		ConnectorName: warmupOptionalString(result.Target.ConnectorName), IndexColumn: warmupOptionalString(result.Target.IndexColumn),
@@ -167,7 +168,11 @@ func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string
 			UpdatedAt: true, UpdatedBy: true,
 			CacheName: true, CacheProvider: true, ConnectorName: true, IndexColumn: true,
 			PlannedCases: true, CompletedCases: true, MaxCases: true, RowLimit: true,
-			Entries: true, DurationNs: true, TargetJson: true, DiagnosticsJson: true, CompletedAt: true}})
+			Entries: true, DurationNs: true, TargetJson: true, DiagnosticsJson: true, CompletedAt: true}}); err != nil {
+		// Use the existing server log, not the run store that just failed.
+		// Storage error text can contain SQL, connection details or credentials.
+		log.Printf("Studio warmup terminal persistence failed: run_id=%q report_id=%q version_no=%d intended_status=%q error_type=%T", runID, reportID, versionNo, status, err)
+	}
 }
 
 // ExecuteAcceptedWarmupRun advances one previously accepted run using the
