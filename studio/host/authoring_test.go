@@ -33,7 +33,7 @@ func TestAuthoringSnapshotContextAndMutationIsolation(t *testing.T) {
 		}
 	})).ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil))
 	legacy, err := host.AuthoringFromContext(context.Background())
-	if err != nil || legacy.ModulePath() != host.DefaultAuthoringModule {
+	if err != nil || legacy.ModulePath() != host.DefaultAuthoringModule || legacy.Observability() != nil {
 		t.Fatalf("legacy=%v err=%v", legacy, err)
 	}
 	for _, invalid := range []string{"../escape", "example.com/../escape", "https://example.com/owned", "example.com/owned/"} {

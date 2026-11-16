@@ -56,11 +56,12 @@ func legacyPrimaryFixture(t *testing.T) (*scopedHost, context.Context) {
 	return fixture, ctx
 }
 
-// Filled from actual SDK 676e35c with its original Datly dependency. This is not
-// calculated with the new family implementation inside the compatibility test.
+// Captured from SDK 676e35c with its original Datly dependency. That native
+// output schema required "data"; current discovery honors its optional authored
+// declaration. Keep the historical pin unchanged to verify schema-drift denial.
 const preFamilyPrimaryPinJSON = `{"kind":"dynamic","id":"records","revision":"1","contentFingerprint":"a3edaf4c6fb590191a3cf79e73637843f4e80160e8e7136378e485c9fb94920d","schemaFingerprint":"7e173c0f0219f49a770c93178626290a49e99910962590c2b66e70e5bade50d4"}`
 
-func TestLegacyPrimaryJSONPinDoesNotGrantNativeFamily(t *testing.T) {
+func TestHistoricalPrimaryJSONPinRejectsNativeSchemaDrift(t *testing.T) {
 	fixture, ctx := legacyPrimaryFixture(t)
 	ref := ComponentReference{Kind: "dynamic", ID: "records", Revision: "1", Method: http.MethodGet, Route: "/records"}
 	var legacy windowprotocol.ComponentBinding
@@ -68,8 +69,40 @@ func TestLegacyPrimaryJSONPinDoesNotGrantNativeFamily(t *testing.T) {
 		t.Fatal(err)
 	}
 	observed, err := fixture.service.ResolveComponentBinding(ctx, ref)
-	if err != nil || observed != legacy {
-		t.Fatalf("legacy primary identity changed: %+v %v", observed, err)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if observed.Kind != legacy.Kind || observed.ID != legacy.ID || observed.Revision != legacy.Revision || observed.ContentFingerprint != legacy.ContentFingerprint {
+		t.Fatalf("historical executable source changed: %+v", observed)
+	}
+	if observed.SchemaFingerprint == legacy.SchemaFingerprint {
+		t.Fatal("changed native output contract retained the historical schema identity")
+	}
+	if raw, err := fixture.service.ExecuteComponentJSON(ctx, ref, legacy, nil); err == nil || len(raw) != 0 {
+		t.Fatalf("historical schema pin executed: %s %v", raw, err)
+	}
+	if raw, err := fixture.service.ExecuteComponentJSON(ctx, ref, observed, nil); err != nil || !strings.Contains(string(raw), "101") {
+		t.Fatalf("current schema pin failed: %s %v", raw, err)
+	}
+}
+
+func TestLegacyPrimaryJSONPinDoesNotGrantNativeFamily(t *testing.T) {
+	fixture, ctx := legacyPrimaryFixture(t)
+	ref := ComponentReference{Kind: "dynamic", ID: "records", Revision: "1", Method: http.MethodGet, Route: "/records"}
+	// Persist the existing primary-only JSON format against the current native
+	// contract. Family-only changes must preserve this pin; primary schema changes
+	// must invalidate it, as the historical-pin regression above demonstrates.
+	primary, err := fixture.service.ResolveComponentBinding(ctx, ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	saved, err := json.Marshal(primary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var legacy windowprotocol.ComponentBinding
+	if err := json.Unmarshal(saved, &legacy); err != nil {
+		t.Fatal(err)
 	}
 	raw, err := fixture.service.ExecuteComponentJSON(ctx, ref, legacy, nil)
 	if err != nil || !strings.Contains(string(raw), "101") || !strings.Contains(string(raw), "102") {

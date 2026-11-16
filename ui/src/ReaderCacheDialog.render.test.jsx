@@ -32,7 +32,7 @@ describe('ReaderCacheDialog',()=>{
     const onWarmup=vi.fn().mockRejectedValue(new Error('warmup worker unavailable'));
     render(<ReaderCacheDialog api={api} report={report} version={version} canWarmup isOpen structure={structure} onClose={vi.fn()} onApply={vi.fn()} onWarmup={onWarmup}/>);
     await screen.findByText('run-1');
-    await user.click(screen.getByRole('button',{name:'Run again'}));
+    await user.click(screen.getByRole('button',{name:'Run all effective plans'}));
     expect((await screen.findByRole('alert')).textContent).toContain('warmup worker unavailable');
     expect(screen.getByText('run-1')).toBeTruthy();
   });

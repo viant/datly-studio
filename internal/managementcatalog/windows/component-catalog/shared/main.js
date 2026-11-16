@@ -1,4 +1,5 @@
 (() => {
+ let unsubscribeOperations;
  const ds=id=>context.Context(id).handlers.dataSource;
  const get=id=>ds(id).getFormData()||{};
  const set=(id,values)=>ds(id).setFormData({values:{...get(id),...values}});
@@ -12,13 +13,18 @@
  const open=report=>context.services.hostWindow.navigate('builder',{report});
  const refresh=async offset=>{
   const filter=get('catalog_filter');const result=await ds('catalog_list').fetchRecords({parameters:{query:(filter.query||'').trim(),namespace:filter.namespace||'',status:filter.status||'',limit:26,offset}});
-  const rows=list(result);ds('catalog_rows').setCollection(rows.slice(0,25));set('catalog_state',{offset,hasNext:rows.length>25,outcome:''});
+  const rows=list(result);ds('catalog_rows').setCollection(rows.slice(0,25).map(row=>({...row,canDelete:Boolean(params().subject)&&row.ownerId===params().subject})));set('catalog_state',{offset,hasNext:rows.length>25,outcome:''});
  };
  return {
+  dispose:()=>{unsubscribeOperations?.();unsubscribeOperations=null;},
   openAudit:props=>run('catalog_state',async()=>{const row=props.row||ds('catalog_rows').peekSelection()?.selected;if(!row)return;const setting=await call('catalog_audit_status',{componentId:row.id});set('catalog_audit',{...setting,title:row.title,outcome:setting.effective?'Auditing is active.':'Auditing is disabled for this component or namespace.'});popup('component-audit');}),
   saveAudit:()=>run('catalog_audit',async()=>{const form=get('catalog_audit');const setting=await call('catalog_audit_configure',{componentId:form.componentId,enabled:Boolean(form.enabled)});set('catalog_audit',{...setting,outcome:setting.effective?'Auditing enabled.':'Auditing disabled for this component or namespace.'});await refresh(get('catalog_state').offset||0);}),
   cancel:()=>{context.services.hostWindow.setDirty?.(false);return true;},
   initialize:()=>run('catalog_state',async()=>{
+   unsubscribeOperations?.();
+   unsubscribeOperations=context.services.hostWindow.subscribeOperations?.(operation=>{
+    if(operation==='versions.delete'||operation==='components.delete')void refresh(get('catalog_state').offset||0).catch(error=>set('catalog_state',{outcome:error.message}));
+   });
    set('catalog_state',{namespaceUnlocked:!params().currentNamespace,offset:0,hasNext:false});
    set('catalog_filter',{query:'',status:'',namespace:params().currentNamespace?.name||''});
    const [namespaces]=await Promise.all([ds('catalog_namespace_list').fetchRecords({parameters:{status:'active',limit:500}}),refresh(0)]);
@@ -40,6 +46,17 @@
    if(!form.title?.trim()||!/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/.test(form.namespace||'')||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug||'')||!form.defaultConnectorName)throw new Error('Enter a title, namespace, lowercase dash-separated slug, and active connector.');
    if(params().currentNamespace&&form.namespace!==params().currentNamespace.name)throw new Error('Create the component in the selected namespace.');
    const report=await call('catalog_create',{title:form.title.trim(),namespace:form.namespace,slug:form.slug,defaultConnectorName:form.defaultConnectorName,description:(form.description||'').trim()});open(report);
+  }),
+  confirmDelete:props=>{
+   const row=props.row||ds('catalog_rows').peekSelection()?.selected;if(!row)return;
+   ds('catalog_delete').setFormData({values:{id:row.id,title:row.title,etag:row.etag,saving:false,deleted:false,impact:'Source, resources, and completed warmup evidence for all versions will be permanently removed. Retained publication and audit history survives.',outcome:''}});popup('catalog-delete');
+  },
+  deleteComponent:()=>run('catalog_delete',async()=>{
+   const target=get('catalog_delete');if(target.deleted)return;
+   await call('catalog_delete_component',{id:target.id,input:{etag:target.etag}});
+   set('catalog_delete',{deleted:true,outcome:'Component permanently deleted.'});
+   try {await refresh(get('catalog_state').offset||0);context.handlers.window.closeDialog({dialogId:'catalog-delete'});}
+   catch(error){set('catalog_delete',{outcome:'Component deleted. Catalog refresh failed: '+error.message});}
   }),
   openComponent:props=>{const row=props.row||ds('catalog_rows').peekSelection()?.selected;if(row)open(row);},
   download:props=>run('catalog_state',async()=>{

@@ -1,0 +1,1 @@
+SELECT b.scope_id,b.bundle_hash,b.bindings_json FROM artifact_release_bundle_bindings b

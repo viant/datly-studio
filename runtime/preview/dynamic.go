@@ -53,6 +53,8 @@ import (
 // Dynamic executes dynamic reader versions using Datly's runtime-contract
 // materialization. It is an SDK preview executor, not a SQL escape hatch.
 type Dynamic struct {
+	// Observability is a borrowed native host owner, never request-owned.
+	Observability   *druntime.Observability
 	Predicates      *predicatecatalog.Catalog
 	SourceValidator sourcevalidation.Validator
 	Const           *constant.Values
@@ -526,14 +528,12 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, err
 	}
 	defer sources.Close()
-	caches := &aerospike.Pool{}
-	defer caches.Close()
 	contract, err := d.runtimeContracts(ctx, &transcribe.Source{Types: definition.Types, Scope: definition.Scope, Name: definition.Name, Text: definition.DQL, Connector: definition.Connector, Resources: definition.Resources, ColumnRefiner: column.New(sources.Connections)})
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "compile dynamic reader: " + err.Error(), Cause: err}
 	}
-	if contract.Component == nil || contract.Component.RootView == nil || contract.Component.CacheWarmup() == nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no authored cache warmup policy"}
+	if contract.Component == nil || contract.Component.RootView == nil {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no warmup reader"}
 	}
 	if policyErr := predicatepolicy.ValidateInternalComponents(contract.Component, definition.Policy); policyErr != nil {
 		return nil, policyErr
@@ -543,27 +543,24 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 		return nil, err
 	}
 	defer dependencies.close()
-	artifact, err := bootstrap.BuildArtifact(bootstrap.ArtifactInput{Const: d.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: studiocodecs.FromContext(ctx)})
+	initialized, err := d.initializeWarmup(ctx, sources, contract)
 	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "build dynamic reader artifact", Cause: err}
+		return nil, err
 	}
-	readerConfig := bootstrap.ReaderRuntimeConfig{SQL: sources.SQL, CacheSettings: d.ReaderCaches, Aerospike: caches}
-	reader, err := artifact.ReaderCompilation().NewExecution(readerConfig)
-	if err != nil {
-		return nil, &sdk.Error{Code: sdk.ErrorInternal, Message: "initialize dynamic reader", Cause: err}
+	defer initialized.Close()
+	artifact, reader, readerConfig := initialized.artifact, initialized.reader, initialized.config
+	warmupTargets := initialized.targets
+	if len(warmupTargets) == 0 {
+		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "reader version has no effective cache warmup policy"}
 	}
-	// Native initialization has resolved host cache profiles and per-view
-	// warmup policies. Only these effective targets may add warmup-only sources.
-	if targeter, ok := reader.(dexec.ReaderWarmupTargeter); ok {
-		var connectors []string
-		for _, target := range targeter.WarmupTargets() {
-			if target.Settings != nil && target.Settings.Connector != "" {
-				connectors = append(connectors, target.Settings.Connector)
-			}
+	var connectors []string
+	for _, target := range warmupTargets {
+		if target.Settings != nil && target.Settings.Connector != "" {
+			connectors = append(connectors, target.Settings.Connector)
 		}
-		if err := sources.require(ctx, definition, connectors, d.Const); err != nil {
-			return nil, err
-		}
+	}
+	if err := sources.require(ctx, definition, connectors, d.Const); err != nil {
+		return nil, err
 	}
 	providers, err := artifact.ReaderCompilation().NewProviders(readerConfig)
 	if err != nil {
@@ -615,20 +612,19 @@ func (d Dynamic) Warmup(ctx context.Context, reportID string, versionNo int) (*s
 	if err != nil {
 		return nil, &sdk.Error{Code: sdk.ErrorInvalidArgument, Message: "prepare dynamic cache warmup: " + err.Error(), Cause: err}
 	}
-	settings := contract.Component.CacheWarmup()
-	cache := contract.Component.Settings.Cache
-	provider := cache.Provider
-	if strings.TrimSpace(provider) == "" {
-		provider = "afs"
-	}
-	result := &sdk.WarmupResult{Status: "running", PlannedCases: planned, Target: sdk.WarmupTarget{View: contract.Component.RootView.Name, CacheName: cache.Name, CacheProvider: provider, ConnectorName: settings.Connector, IndexColumn: settings.IndexColumn, IndexParameter: settings.IndexParameter}}
-	if settings.MaxCases != nil {
-		value := *settings.MaxCases
-		result.MaxCases = &value
-	}
-	if settings.Limit != nil {
-		value := *settings.Limit
-		result.RowLimit = &value
+	result := &sdk.WarmupResult{Status: "running", PlannedCases: planned, Target: warmupTargetEvidence(contract.Component.RootView.Name, warmupTargets)}
+	// Singular limits describe one scheduled policy, independently of any
+	// descriptive Work expansion (for example IndexMeta).
+	if len(warmupTargets) == 1 && warmupTargets[0].Settings != nil {
+		settings := warmupTargets[0].Settings
+		if settings.MaxCases != nil {
+			value := *settings.MaxCases
+			result.MaxCases = &value
+		}
+		if settings.Limit != nil {
+			value := *settings.Limit
+			result.RowLimit = &value
+		}
 	}
 	started := time.Now()
 	entries, err := operation.Run(ctx)

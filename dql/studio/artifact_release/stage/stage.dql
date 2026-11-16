@@ -18,14 +18,21 @@
 #define($_ = $BindingsHash<string>(query/bindingsHash).Required())
 #define($_ = $ExpectedRevision<int64>(query/expectedRevision).Required().WithPredicate(7,'equal','artifact_release_channels','revision'))
 #define($_ = $NoPending<bool>(query/noPending).Required().WithPredicate(7,'is_null','artifact_release_channels','pending_operation_id'))
+#define($_ = $ComponentIds<[]string>(query/componentIds).WithTag('json:"-" internal:"true"'))
+#define($_ = $ComponentLocks<?>(view/ComponentLocks).Cardinality('Many').WithTypeName('LockedComponent').WithConnector('studio').WithLimit(0).WithColumnType('id','string') /*
+${embed:sql/components.sql}
+*/)
+#define($_ = $BoundVersions<?>(view/BoundVersions).Cardinality('Many').WithTypeName('BoundVersion').WithConnector('studio').WithLimit(0).WithColumnType('report_id','string').WithColumnType('version_no','int') /*
+${embed:sql/bound_versions.sql}
+*/)
 #define($_ = $ChannelSnapshot<[]*ChannelSnapshot>(view/ChannelSnapshot).WithConnector('studio').WithLimit(1).WithColumnType('revision','int64') /*
 ${embed:sql/snapshot.sql}
 */)
 #define($_ = $Data<[]*StageChannel>(output/body))
 
 SELECT channel.*, operation.*, binding.*, bundle.*,
-       type(channel,'StageChannel'), type(operation,'StageOperation'),
-       type(binding,'BundleBinding'), type(bundle,'StoredBundle'),
+       type(channel,'StageChannel'), tag(channel.scope_id,'sqlx:"scope_id,primaryKey"'), tag(channel.name,'sqlx:"name,primaryKey"'), type(operation,'StageOperation'), tag(operation.operation_id,'sqlx:"operation_id,primaryKey"'),
+       type(binding,'BundleBinding'), tag(binding.scope_id,'sqlx:"scope_id,primaryKey"'), tag(binding.bundle_hash,'sqlx:"bundle_hash,primaryKey"'), type(bundle,'StoredBundle'), tag(bundle.scope_id,'sqlx:"scope_id,primaryKey"'), tag(bundle.bundle_hash,'sqlx:"bundle_hash,primaryKey"'),
        lifecycle_type(channel,'StageRules'), lifecycle_type(binding,'BindingRules'),
        CAST(channel.revision AS int64), concurrency_token(channel.revision),
        CAST(operation.expected_revision AS int64), CAST(operation.target_revision AS int64),

@@ -36,6 +36,13 @@ window:
               input:
                 arg: 1
             mutation: true
+          deleteVersion:
+            dataSourceRef: workbench_delete_version
+            mutation: true
+            parameters:
+              reportId: {arg: 0}
+              versionNo: {arg: 1}
+              expectedSourceRevision: {arg: 2}
           listVersions:
             dataSourceRef: workbench_list_versions
             parameters:
@@ -90,6 +97,12 @@ window:
               discoverColumns:
                 arg: 2
                 selector: discoverColumns
+              includePreviewInput:
+                arg: 2
+                selector: includePreviewInput
+              includeEffectiveWarmup:
+                arg: 2
+                selector: includeEffectiveWarmup
           validateVersion:
             dataSourceRef: workbench_validate_version
             parameters:
@@ -678,3 +691,8 @@ dataSources:
       method: studio.sdk.authorization_predicates.types
     cache:
       enabled: false
+  workbench_delete_version:
+    id: workbench_delete_version
+    cardinality: object
+    backend: {kind: mcp_tool, method: studio.sdk.versions.delete}
+    cache: {enabled: false}

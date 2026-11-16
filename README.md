@@ -145,6 +145,9 @@ The host creates the canonical Studio tables when its configured store is empty.
 An existing store is checked without running upgrade steps. Development sample
 data is optional and is not part of application startup.
 
+To upgrade an existing store, follow the [database migration runbook](docs/database-migrations.md)
+for script order, backup, MySQL/SQLite commands, verification, and failure recovery.
+
 Build the UI and the single application binary:
 
 ```sh

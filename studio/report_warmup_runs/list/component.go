@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viant/datly-studio/internal/warmupoperation"
 	"github.com/viant/datly-studio/internal/warmupprojection"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
@@ -25,8 +26,6 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 	xresponse "github.com/viant/xdatly/response"
 )
-
-const warmupRunTimeout = 5 * time.Minute
 
 type Options struct {
 	Limit  int `json:"limit,omitempty"`
@@ -49,7 +48,7 @@ type Output struct {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"warmup_run,path=/v1/studio/sdk/versions.warmup_list,method=POST,connector=studio,handler=NewWarmupList" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.warmup_list\",\"description\":\"List authorized Datly Studio warmup runs after recovering expired runs\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"warmup_run,path=/v1/studio/sdk/versions.warmup_list,method=POST,connector=studio,handler=NewWarmupList" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.warmup_list\",\"description\":\"List authorized Datly Studio warmup runs after recovering expired runs\"}]" caseFormat:"lc" componentCallPolicy:"imperative"`
 }
 
 var WarmupListDatly = new(Component)
@@ -143,7 +142,8 @@ func recoverExpired(ctx context.Context, invoker exec.ComponentInvoker, now time
 	actor := sdk.SystemPrincipal().Subject
 	for {
 		request := &expired.Input{}
-		request.SetBefore(now.Add(-warmupRunTimeout))
+		request.SetBefore(now.Add(-warmupoperation.DefaultTimeout))
+		request.SetNow(now)
 		request.SetPageLimit(100)
 		value, err := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[expired.WarmupRunComponent](), "warmup_run", "GET", "/_studio/report-warmup-run-store/expired"), Input: request})
 		if err != nil {

@@ -122,7 +122,7 @@ func Verify(ctx context.Context, db *sql.DB, driver string) error {
 			return fmt.Errorf("Studio store is missing canonical index %s", index[1])
 		}
 	}
-	return nil
+	return verifyRemovalConstraints(ctx, db, driver)
 }
 
 var canonicalIndexes = regexp.MustCompile(`(?i)CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?([A-Za-z_][A-Za-z0-9_]*)`)

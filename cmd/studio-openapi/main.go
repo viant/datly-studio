@@ -10,6 +10,8 @@ import (
 	"encoding/pem"
 	"flag"
 	"fmt"
+	versiondelete "github.com/viant/datly-studio/studio/report_versions/delete"
+	componentdelete "github.com/viant/datly-studio/studio/reports/delete"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -175,7 +177,7 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
-	for _, value := range []any{sdk.WarmupRun{}, sdk.WarmupTarget{}, sdk.Diagnostic{}, sdk.ReportVersion{}, sdk.ReportCapabilities{}, sdk.AuthorizationPredicateType{}, sdk.AuthorizationPredicate{}, sdk.SchemaCatalogInput{}, sdk.DatabaseSchema{}, sdk.TableCatalogInput{}, sdk.TableDetailInput{}, sdk.DatabaseTable{}, sdk.DatabaseColumn{}, sdk.SQLTestInput{}, sdk.PreviewInput{}, sdk.ExecutionEvidence{}, sdk.ViewTestInput{}, sdk.RelationKeyEvidence{}, sdk.CubeComposeTestInput{}} {
+	for _, value := range []any{sdk.DeletionResult{}, sdk.DeleteComponentInput{}, sdk.WarmupRun{}, sdk.WarmupTarget{}, sdk.Diagnostic{}, sdk.ReportVersion{}, sdk.ReportCapabilities{}, sdk.AuthorizationPredicateType{}, sdk.AuthorizationPredicate{}, sdk.SchemaCatalogInput{}, sdk.DatabaseSchema{}, sdk.TableCatalogInput{}, sdk.TableDetailInput{}, sdk.DatabaseTable{}, sdk.DatabaseColumn{}, sdk.SQLTestInput{}, sdk.PreviewInput{}, sdk.ExecutionEvidence{}, sdk.ViewTestInput{}, sdk.RelationKeyEvidence{}, sdk.CubeComposeTestInput{}} {
 		if err := types.Register(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeOf(value))); err != nil {
 			return err
 		}
@@ -886,10 +888,29 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	componentDeleteHandler, err := (componentdelete.Component{}).DatlyHandler("NewDelete")()
+	if err != nil {
+		return err
+	}
+	componentDelete, err := compile(reflect.TypeFor[componentdelete.Component](), reflect.TypeFor[componentdelete.Input](), reflect.TypeFor[componentdelete.Output](), resources, types, codec, componentDeleteHandler)
+	if err != nil {
+		return err
+	}
+	versionDeleteHandler, err := (versiondelete.Component{}).DatlyHandler("NewDelete")()
+	if err != nil {
+		return err
+	}
+	versionDelete, err := compile(reflect.TypeFor[versiondelete.Component](), reflect.TypeFor[versiondelete.Input](), reflect.TypeFor[versiondelete.Output](), resources, types, codec, versionDeleteHandler)
+	if err != nil {
+		return err
+	}
+
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{auditexportComponent, auditstatusComponent, auditconfigureComponent, auditlistComponent, auth, namedPolicy, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, codecTypes, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorDiscover, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSettingsGet, namespaceSettingsUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{componentDelete, versionDelete, auditexportComponent, auditstatusComponent, auditconfigureComponent, auditlistComponent, auth, namedPolicy, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, codecTypes, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorDiscover, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSettingsGet, namespaceSettingsUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
+			{Method: "POST", Path: "/v1/studio/sdk/components.delete"},
+			{Method: "POST", Path: "/v1/studio/sdk/versions.delete"},
 			{Method: "POST", Path: "/v1/studio/sdk/codecs.types"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.publish"},
 			{Method: "POST", Path: "/v1/studio/sdk/namespace_skills.unpublish"},

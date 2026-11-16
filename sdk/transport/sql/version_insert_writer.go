@@ -2,6 +2,7 @@ package sqltransport
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"reflect"
 
@@ -20,8 +21,8 @@ import (
 	dtag "github.com/viant/datly/tag"
 )
 
-func (t *Transport) writeVersionInsert(ctx context.Context, row *stored.StoredVersion) error {
-	namespaceID, err := t.resourceWorkspaceID(ctx, nil, row.ReportId)
+func (t *Transport) writeVersionInsert(ctx context.Context, tx *sql.Tx, row *stored.StoredVersion) error {
+	namespaceID, err := t.resourceWorkspaceID(ctx, tx, row.ReportId)
 	if err != nil {
 		return err
 	}
@@ -30,7 +31,7 @@ func (t *Transport) writeVersionInsert(ctx context.Context, row *stored.StoredVe
 	if err := resources.Register(stored.VersionDatlyResourceNamespace, stored.VersionDatlyResources); err != nil {
 		return err
 	}
-	connector := &dsql.SQLComponent{DB: t.DB}
+	connector := &dsql.SQLComponent{DB: t.DB, Tx: tx}
 	if err := connector.RegisterConnector("studio", t.DB); err != nil {
 		return err
 	}
@@ -65,13 +66,13 @@ func (t *Transport) writeVersionInsert(ctx context.Context, row *stored.StoredVe
 		}
 		providers = append(providers, views)
 	}
-	handler, err := writerhandler.New(component, reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), "post")
+	handler, err := writerhandler.New(component, reflect.TypeOf(stored.Input{}), reflect.TypeOf(stored.Output{}), "patch")
 	if err != nil {
 		return err
 	}
 	registration := &registry.RegisteredComponent{Component: artifact.Component, Input: artifact.Input,
 		Output: artifact.Output, OutputType: reflect.TypeOf(stored.Output{}), Handler: handler,
-		Providers: providers, DataSource: dml.Source{DB: t.DB}}
+		Providers: providers, DataSource: dml.Source{DB: t.DB, Tx: tx}}
 	registration.Capabilities.Connector = connector
 	runtime, err := druntime.NewRuntime([]*registry.RegisteredComponent{registration}, druntime.WithResources(resources))
 	if err != nil {
@@ -83,7 +84,8 @@ func (t *Transport) writeVersionInsert(ctx context.Context, row *stored.StoredVe
 		target.Route = spec.RouteRef{Method: component.Routes[0].Method, Path: component.Routes[0].Path}
 	}
 	input := &stored.Input{}
-	input.SetVersions([]*stored.StoredVersion{row})
+	previous := row.VersionNo - 1
+	input.SetAllocations([]*stored.VersionAllocation{{Id: row.ReportId, NamespaceId: row.NamespaceId, LastVersionNo: &previous, Draft: []*stored.StoredVersion{row}, Has: &stored.VersionAllocationHas{Id: true, NamespaceId: true, LastVersionNo: true, Draft: true}}})
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target, Input: input})
 	if err != nil {
 		return err

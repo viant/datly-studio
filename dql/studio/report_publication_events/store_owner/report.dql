@@ -8,6 +8,7 @@
 #setting($_ = $sql_dest('report', 'sql/read.sql'))
 
 #define($_ = $ReportId<string>(query/reportId).Required())
+#define($_ = $NamespaceId<string>(query/namespaceId).Optional())
 #define($_ = $Reports<[]*StoredReport>(output/view))
 
 SELECT report.*, type(report, 'StoredReport'),

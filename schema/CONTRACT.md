@@ -1,5 +1,8 @@
 # Studio and Authz schema ownership
 
+For operator commands, upgrade order, backups, verification, and failure recovery,
+see the [database migration runbook](../docs/database-migrations.md).
+
 `schema.ddl` owns Studio catalog tables. It does not duplicate Authz policy
 head or revision DDL. Fresh SQLite initialization appends
 `authz/component/schema.PolicyDDL("sqlite")`; `MySQLDDL` composes the same
@@ -46,3 +49,24 @@ Version 27 adds namespace settings and the component-version resource-check opt-
 Apply `027-namespace-settings` explicitly after version 26; startup remains read-only
 for existing stores. Settings use `(owner_id, namespace, setting_key)` and have no
 cascading namespace delete. Namespace ETags protect atomic settings updates.
+
+Version 28 reserves removed component identities in immutable `component_deletions`
+receipts, retaining the final owner and namespace without foreign keys to removed
+objects. Publication events retain their generation foreign key, rows and indexes;
+only the component and version foreign keys are removed. History belongs to the
+current owner while the component exists and its final owner after removal.
+`components.last_version_no` preserves the allocation high-water mark. Apply
+`028-permanent-removal` explicitly after version 27, with writers stopped and a
+backup; it backfills the maximum existing version. Startup verifies the receipt,
+counter and event constraints without applying migrations.
+
+Version 29 adds nullable `component_warmup_runs.deadline_at`. New warmup jobs
+persist their server-owned deadline atomically with acceptance. Workers and both
+recovery paths use that accepted deadline, independently of later configuration
+changes. Historical rows retain NULL and use `requested_at + 5m`; the migration
+does not rewrite their status, evidence, or timestamps.
+
+Apply `029-warmup-deadline` explicitly after layout 28, with writers stopped and
+a backup. Startup continues to verify existing databases without altering them.
+Upgrade every recovery host before enabling longer warmup budgets: old binaries
+ignore the new deadline. No application database or public reader schema changes.

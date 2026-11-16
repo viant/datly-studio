@@ -38,7 +38,7 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 	legacyBacklog := map[string]struct{}{
 		// Settings currently retain only the last update actor/time, as designed.
 		"namespace_settings": {},
-		"connectors": {}, "namespaces": {}, "authorization_predicates": {},
+		"connectors":         {}, "namespaces": {}, "authorization_predicates": {},
 		"components": {}, "component_versions": {}, "component_views": {},
 		"component_fields": {}, "component_parameters": {}, "component_predicates": {},
 		"component_cube_configs": {}, "component_mcp_exposures": {},
@@ -72,6 +72,13 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 	seenAuditTables := make(map[string]bool, len(requiredAuditTables))
 	for _, table := range tables {
 		// SQLX's allocation ledger is infrastructure, separate from domain audit rows.
+		if table == "component_deletions" {
+			columns, err := canonicalTableColumns(t, db, table)
+			if err != nil || !columns["deleted_at"] || !columns["deleted_by"] || !columns["owner_id"] {
+				t.Fatalf("immutable deletion receipt provenance is missing: %v", err)
+			}
+			continue
+		}
 		if table == "tool_call_audit" {
 			columns, err := canonicalTableColumns(t, db, table)
 			if err != nil || !columns["started_at"] || !columns["jwt_sub"] {

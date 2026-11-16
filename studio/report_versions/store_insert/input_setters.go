@@ -2,13 +2,46 @@
 
 package store_insert
 
-func (input *Input) SetVersions(value []*StoredVersion) {
+func (input *Input) SetAllocations(value []*VersionAllocation) {
 	if input == nil {
 		return
 	}
-	input.Versions = value
+	input.Allocations = value
 	if input.Has == nil {
 		input.Has = &InputHas{}
 	}
-	input.Has.Versions = true
+	input.Has.Allocations = true
+}
+
+func (input *Input) SetVersionKeys(value []VersionKeysRow) {
+	if input == nil {
+		return
+	}
+	input.VersionKeys = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.VersionKeys = true
+}
+
+func (input *Input) SetCurrentVersion(value []*CurrentVersionView) {
+	if input == nil {
+		return
+	}
+	input.CurrentVersion = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.CurrentVersion = true
+}
+
+func (input *Input) SetCurrentDraft(value []*CurrentDraftView) {
+	if input == nil {
+		return
+	}
+	input.CurrentDraft = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.CurrentDraft = true
 }

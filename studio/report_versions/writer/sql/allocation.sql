@@ -1,0 +1,1 @@
+SELECT * FROM (SELECT c.id,c.last_version_no FROM components c) allocation

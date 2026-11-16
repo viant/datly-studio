@@ -127,6 +127,8 @@ var nativeSDKPaths = []string{
 	"/v1/studio/sdk/components.get",
 	"/v1/studio/sdk/components.create",
 	"/v1/studio/sdk/components.update",
+	"/v1/studio/sdk/components.delete",
+	"/v1/studio/sdk/versions.delete",
 	"/v1/studio/sdk/components.list",
 	"/v1/studio/sdk/versions.get",
 	"/v1/studio/sdk/versions.create",
@@ -236,6 +238,11 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 	if options.Listener != nil {
 		defer options.Listener.Close()
 	}
+	warmupTimeout, err := options.HostConfig.WarmupTimeout()
+	if err != nil {
+		return err
+	}
+	warmupTimeoutSetting := warmupTimeout.String()
 	lifecycleCtx, stop := context.WithCancel(lifecycleCtx)
 	defer stop()
 	flags := flag.NewFlagSet("studio", flag.ContinueOnError)
@@ -379,7 +386,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio preview connector reader close: %v", err)
 		}
 	}()
-	dynamicPreview := preview.Dynamic{SourceValidator: options.SourceValidator, Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
+	dynamicPreview := &preview.Dynamic{Observability: options.HostConfig.Observability, SourceValidator: options.SourceValidator, Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
 	predicates, types, err := options.HostConfig.RuntimeCatalogs()
 	if err != nil {
 		return err
@@ -408,7 +415,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{AuthoringModule: options.AuthoringModule, DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, CacheInvalidator: cacheInvalidator, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{WarmupOperationTimeout: &warmupTimeoutSetting, AuthoringModule: options.AuthoringModule, DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, CacheInvalidator: cacheInvalidator, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -500,6 +507,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 		}
 		defer cloneHost.Shutdown(context.Background())
 		sdkTransport = &versionclone.Transport{Next: sdkTransport, Invoker: cloneHost}
+		transport.ComponentInvoker = cloneHost
 		transport.SystemCredentialProvider = func(ctx context.Context) (sdk.VerifiedCredential, error) {
 			return devJWT.Credential(ctx, sdk.SystemPrincipal().Subject)
 		}

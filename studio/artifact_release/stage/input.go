@@ -15,6 +15,9 @@ type Input struct {
 	BindingsHash             string                   `parameter:"BindingsHash,kind=query,in=bindingsHash,dataType=string,required=true"`
 	ExpectedRevision         int64                    `parameter:"ExpectedRevision,kind=query,in=expectedRevision,dataType=int64,required=true" predicate:"equal,group=7,artifact_release_channels,revision"`
 	NoPending                bool                     `parameter:"NoPending,kind=query,in=noPending,dataType=bool,required=true" predicate:"is_null,group=7,artifact_release_channels,pending_operation_id"`
+	ComponentIds             []string                 `internal:"true" json:"-" parameter:"ComponentIds,kind=query,in=componentIds,dataType=[]string,required=false"`
+	ComponentLocks           []*LockedComponent       `parameter:"ComponentLocks,kind=view,in=ComponentLocks,cardinality=many" sql:"uri=studio_artifact_release_stage_stage:sql/component_locks.sql" view:"ComponentLocks,type=LockedComponent,connector=studio,table=components,selectorNoLimit=true"`
+	BoundVersions            []*BoundVersion          `parameter:"BoundVersions,kind=view,in=BoundVersions,cardinality=many" sql:"uri=studio_artifact_release_stage_stage:sql/bound_versions.sql" view:"BoundVersions,type=BoundVersion,connector=studio,table=component_versions,selectorNoLimit=true"`
 	ChannelSnapshot          []*ChannelSnapshot       `parameter:"ChannelSnapshot,kind=view,in=ChannelSnapshot,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/stage.ChannelSnapshot,cardinality=many" sql:"uri=studio_artifact_release_stage_stage:sql/channel_snapshot.sql" view:"ChannelSnapshot,connector=studio,table=artifact_release_channels,limit=1,auxiliary=true"`
 	Stage                    []*StageChannel          `parameter:"Stage,kind=body,in=Data,dataType=[]*github.com/viant/datly-studio/studio/artifact_release/stage.StageChannel,cardinality=Many,required=true" sql:"uri=studio_artifact_release_stage_stage:sql/stage.sql" view:"stage,type=StageChannel,entityHooks=StageRules,table=artifact_release_channels,mutationPredicate=7"`
 	StageKeys                []StageKeysRow           `codec:"structql,'uri=studio_artifact_release_stage_stage:sql/stage_keys.sql'" parameter:"StageKeys,kind=param,in=Stage,cardinality=Many"`
@@ -38,6 +41,9 @@ type InputHas struct {
 	BindingsHash     bool
 	ExpectedRevision bool
 	NoPending        bool
+	ComponentIds     bool
+	ComponentLocks   bool
+	BoundVersions    bool
 	ChannelSnapshot  bool
 	Stage            bool
 	StageKeys        bool

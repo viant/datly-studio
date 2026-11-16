@@ -1,0 +1,1 @@
+SELECT p.report_id, p.active_version_no, p.desired_version_no FROM component_publications p WHERE p.report_id = $ReportId

@@ -15,6 +15,7 @@ import (
 	"github.com/viant/datly-studio/internal/settingstore"
 	resourcecheckstore "github.com/viant/datly-studio/studio/report_versions/store_resource_check"
 	"github.com/viant/datly-studio/studio/settings"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -151,11 +152,25 @@ type PreviewInputInspector interface {
 	InspectPreviewInput(context.Context, string, int) (*sdk.PreviewInputContract, error)
 }
 
+type EffectiveWarmupInspector interface {
+	InspectEffectiveWarmup(context.Context, string, int) (*sdk.EffectiveWarmupInspection, error)
+}
+
+// ExecutionMetadataInspector resolves requested projections through one native
+// contract and connector lifetime. Each projection retains its own error.
+type ExecutionMetadataInspector interface {
+	InspectExecutionMetadata(context.Context, string, int, bool, bool) (*sdk.PreviewInputContract, *sdk.EffectiveWarmupInspection, error, error)
+}
+
 type CandidateContractInspector interface {
 	InspectCandidateContract(context.Context, string, int, string) (*spec.Component, error)
 }
 
 type Transport struct {
+	// WarmupOperationTimeout is trusted host startup configuration, never input.
+	// Nil preserves five minutes; embedding hosts validate through host.Config.
+	WarmupOperationTimeout *string
+
 	// AuthoringModule is trusted host configuration, never request data.
 	AuthoringModule string
 	// ReleaseNamespace is a trusted startup capability. Empty hides native
@@ -266,6 +281,8 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.deleteAuthorizationPredicate(ctx, input)
 	case sdk.OperationAuthorizationPredicateTypes:
 		return t.scopedAuthorizationPredicateTypes(ctx, input, output)
+	case sdk.OperationComponentDelete, sdk.OperationVersionDelete:
+		return t.deleteNative(ctx, operation, input, output)
 	case sdk.OperationComponentCreate:
 		return t.createReport(ctx, input, output)
 	case sdk.OperationComponentGet:
@@ -505,7 +522,7 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	if operation == sdk.OperationComponentCreate {
 		reportID = ""
 	}
-	if _, scoped := selectedNamespace(ctx); scoped && reportID != "" {
+	if _, scoped := selectedNamespace(ctx); scoped && reportID != "" && operation != sdk.OperationPublicationEventsList {
 		rows, err := t.readReportCatalog(ctx, reportCatalogRequest{ID: reportID, Limit: 2, Unscoped: true})
 		if err != nil || len(rows) != 1 {
 			return &sdk.Error{Code: sdk.ErrorForbidden, Message: "Component is outside the selected namespace", Cause: err}
@@ -887,6 +904,10 @@ func (t *Transport) createReport(ctx context.Context, input, output any) error {
 			ComponentScope: true, ComponentName: true, Etag: true, CreatedAt: true, UpdatedAt: true},
 	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Field: "id", Message: "component identity is permanently reserved", Cause: err}
+		}
 		return classify(err, "report", in.ID)
 	}
 	return t.getReport(ctx, struct {
@@ -1029,11 +1050,11 @@ func (t *Transport) updateReport(ctx context.Context, input, output any) error {
 			if connector.Status != "active" {
 				return invalid(errors.New("default connector must be active"))
 			}
-			nextVersion, versionErr := t.nextVersionNo(ctx, in.ID)
+			versions, versionErr := t.readVersionCatalog(ctx, versionCatalogRequest{ReportID: in.ID, Limit: 1})
 			if versionErr != nil {
 				return internal(versionErr)
 			}
-			if nextVersion > 1 {
+			if len(versions) > 0 {
 				return &sdk.Error{Code: sdk.ErrorConflict, Message: "default connector is part of the versioned reader contract; change it through Reader Builder and create a validated version"}
 			}
 			current.DefaultConnectorName = requested
@@ -1165,7 +1186,16 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 	if mode != "sql" && mode != "dql" && mode != "structured" {
 		return invalid(errors.New("authoringMode must be sql, dql, or structured"))
 	}
-	next, err := t.nextVersionNo(ctx, in.ReportID)
+	namespaceID, err := t.resourceWorkspaceID(ctx, nil, in.ReportID)
+	if err != nil {
+		return err
+	}
+	tx, err := t.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return internal(err)
+	}
+	defer tx.Rollback()
+	next, err := t.nextVersionNo(ctx, tx, in.ReportID, namespaceID)
 	if err != nil {
 		return internal(err)
 	}
@@ -1179,7 +1209,7 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 	}
 	specHash := hashVersion(in.ReportID, next, mode, in.Input.AuthoredSQL, in.Input.AuthoredDQL, spec)
 	now := t.now()
-	err = t.writeVersionInsert(ctx, &versioninsert.StoredVersion{
+	err = t.writeVersionInsert(ctx, tx, &versioninsert.StoredVersion{
 		ResourceCheckEnabled: in.Input.ResourceCheckEnabled, ReportId: in.ReportID, VersionNo: next, State: "draft", AuthoringMode: mode,
 		AuthoredSql:       namespaceOptionalDescription(in.Input.AuthoredSQL),
 		AuthoredDql:       namespaceOptionalDescription(in.Input.AuthoredDQL),
@@ -1195,7 +1225,14 @@ func (t *Transport) createVersion(ctx context.Context, input, output any) error 
 			Notes: true, CreatedBy: true, CreatedAt: true},
 	})
 	if err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "Component version changed concurrently", Cause: err}
+		}
 		return classify(err, "report version", fmt.Sprintf("%s/%d", in.ReportID, next))
+	}
+	if err = commitWithServerGuard(ctx, tx); err != nil {
+		return internal(err)
 	}
 	return t.getVersion(ctx, versionIdentityRequest{ReportID: in.ReportID, VersionNo: next}, output)
 }
@@ -1487,7 +1524,12 @@ func (t *Transport) versionDescriptor(ctx context.Context, input, output any) er
 }
 
 func (t *Transport) inspectVersion(ctx context.Context, input, output any) error {
-	var in versionIdentityRequest
+	var in struct {
+		versionIdentityRequest
+		DiscoverColumns        *bool `json:"discoverColumns,omitempty"`
+		IncludePreviewInput    *bool `json:"includePreviewInput,omitempty"`
+		IncludeEffectiveWarmup *bool `json:"includeEffectiveWarmup,omitempty"`
+	}
 	if err := decode(input, &in); err != nil {
 		return invalid(err)
 	}
@@ -1503,7 +1545,7 @@ func (t *Transport) inspectVersion(ctx context.Context, input, output any) error
 	if err != nil {
 		return err
 	}
-	if capabilities.CanUseDQL && t.ContractInspector != nil && response.Structure != nil && response.Structure.Component != nil {
+	if (in.DiscoverColumns == nil || *in.DiscoverColumns) && capabilities.CanUseDQL && t.ContractInspector != nil && response.Structure != nil && response.Structure.Component != nil {
 		resolved, inspectErr := t.ContractInspector.InspectContract(ctx, in.ReportID, in.VersionNo)
 		if inspectErr == nil && resolved != nil {
 			readerinspection.HydrateColumns(response.Structure.Component.RootView, resolved.RootView)
@@ -1513,19 +1555,50 @@ func (t *Transport) inspectVersion(ctx context.Context, input, output any) error
 		}
 	}
 	projected := readerInspection(version, response, capabilities)
-	if capabilities.CanRun {
-		var metadata *sdk.PreviewInputContract
-		if err := t.authorize(ctx, sdk.OperationPreviewExecute, in); err == nil {
-			if inspector, ok := t.Preview.(PreviewInputInspector); ok {
-				previewCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
-				metadata, err = inspector.InspectPreviewInput(previewCtx, in.ReportID, in.VersionNo)
+	wantInput := (in.IncludePreviewInput == nil || *in.IncludePreviewInput) && capabilities.CanRun
+	wantWarmup := (in.IncludeEffectiveWarmup == nil || *in.IncludeEffectiveWarmup) && t.authorize(ctx, sdk.OperationVersionWarmup, in) == nil
+	inputAuthorized := wantInput && t.authorize(ctx, sdk.OperationPreviewExecute, in) == nil
+	var inputMetadata *sdk.PreviewInputContract
+	var warmupMetadata *sdk.EffectiveWarmupInspection
+	if inputAuthorized || wantWarmup {
+		// Share only an identical configured executor. Separate custom preview
+		// and warmup implementations retain their original ownership.
+		if inspector, ok := t.Preview.(ExecutionMetadataInspector); ok && reflect.TypeOf(t.Preview).Comparable() && any(t.Preview) == any(t.Warmup) {
+			metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+			var inputErr, warmupErr error
+			inputMetadata, warmupMetadata, inputErr, warmupErr = inspector.InspectExecutionMetadata(metadataCtx, in.ReportID, in.VersionNo, inputAuthorized, wantWarmup)
+			cancel()
+			if inputErr != nil {
+				inputMetadata = nil
+			}
+			if warmupErr != nil {
+				warmupMetadata = nil
+			}
+		} else {
+			// Preserve hosts supplying the existing projection-specific executors.
+			if inspector, ok := t.Preview.(PreviewInputInspector); inputAuthorized && ok {
+				metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+				inputMetadata, err = inspector.InspectPreviewInput(metadataCtx, in.ReportID, in.VersionNo)
 				cancel()
 				if err != nil {
-					metadata = nil
+					inputMetadata = nil
+				}
+			}
+			if inspector, ok := t.Warmup.(EffectiveWarmupInspector); wantWarmup && ok {
+				metadataCtx, cancel := context.WithTimeout(ctx, previewExecutionTimeout)
+				warmupMetadata, err = inspector.InspectEffectiveWarmup(metadataCtx, in.ReportID, in.VersionNo)
+				cancel()
+				if err != nil {
+					warmupMetadata = nil
 				}
 			}
 		}
-		readerinspection.SetPreviewInput(projected, metadata)
+	}
+	if wantInput {
+		readerinspection.SetPreviewInput(projected, inputMetadata)
+	}
+	if wantWarmup {
+		readerinspection.SetEffectiveWarmup(projected, warmupMetadata)
 	}
 	return assign(output, projected)
 }

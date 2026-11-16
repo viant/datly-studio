@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"fmt"
 	"net/http/httptest"
 	"reflect"
 	"strings"
@@ -23,7 +24,7 @@ import (
 )
 
 func TestReportVersionWriterMinimumContract(t *testing.T) {
-	datatest.AssertFilesAbsent(t, ".", "actions.go", "entities.go", "frames.go", "invariants.go", "layout.go", "links.go", "mutation.go", "output_projection.go", "previous.go", "validation.go", "lifecycle_dispatch.go")
+	datatest.AssertFilesAbsent(t, ".", "actions.go", "frames.go", "invariants.go", "layout.go", "links.go", "mutation.go", "output_projection.go", "previous.go", "validation.go", "lifecycle_dispatch.go")
 	if _, ok := reflect.TypeOf(ReportVersion{}).FieldByName("ShouldDelete"); ok {
 		t.Fatal("immutable report version unexpectedly exposes physical deletion")
 	}
@@ -158,6 +159,57 @@ func TestReportVersionWriterMinimumContract(t *testing.T) {
 			t.Fatalf("setter presence=%+v", value.Has)
 		}
 	})
+	t.Run("caller numbered allocation remains atomic and monotonic", func(t *testing.T) {
+		row := func(number int) string {
+			return fmt.Sprintf(`{"reportId":"r-alpha","versionNo":%d,"state":"published","authoringMode":"dql","authoredDql":"SELECT 7","componentSpecJson":{},"specFormatVersion":"1","specHash":"explicit-%d","typeManifestJson":{},"compileStatus":"valid","datlyVersion":"v1","compilerVersion":"v1","sourceRevision":1,"createdBy":"bob","createdAt":"2026-09-17T11:00:00Z"}`, number, number)
+		}
+		write := func(rows ...string) (*Output, error) { return invoke(`{"data":[` + strings.Join(rows, ",") + `]}`) }
+		high := func(want int) {
+			t.Helper()
+			datatest.AssertRows(ctx, t, db, "SELECT last_version_no FROM components WHERE id='r-alpha'", nil, datatest.Row{"last_version_no": want})
+		}
+		result, err := write(row(7))
+		if err != nil || len(result.Data) != 1 || result.Data[0].VersionNo == nil || *result.Data[0].VersionNo != 7 {
+			t.Fatalf("larger explicit version=%+v err=%v", result, err)
+		}
+		high(7)
+		// Existing versions keep the original source, publication and sparse-update
+		// semantics; a note update must neither allocate nor rewrite authored data.
+		if _, err = invoke(`{"data":[{"reportId":"r-alpha","versionNo":7,"sourceRevision":1,"notes":"published note"}]}`); err != nil {
+			t.Fatal(err)
+		}
+		datatest.AssertRows(ctx, t, db, "SELECT state,authored_dql,source_revision,notes FROM component_versions WHERE report_id='r-alpha' AND version_no=7", nil, datatest.Row{"state": "published", "authored_dql": "SELECT 7", "source_revision": 1, "notes": "published note"})
+		high(7)
+		result, err = write(row(9), row(11))
+		if err != nil || len(result.Data) != 2 {
+			t.Fatalf("same-component batch=%+v err=%v", result, err)
+		}
+		high(11)
+		// Duplicate version identities must roll back the entire graph, including
+		// the one shared counter mutation attached to this two-row batch.
+		if _, err = write(row(13), row(13)); err == nil {
+			t.Fatal("duplicate same-component version identities were accepted")
+		}
+		high(11)
+		datatest.AssertRows(ctx, t, db, "SELECT version_no FROM component_versions WHERE report_id='r-alpha' AND version_no=13", nil)
+		if _, err = db.ExecContext(ctx, "DELETE FROM component_versions WHERE report_id='r-alpha' AND version_no=7"); err != nil {
+			t.Fatal(err)
+		}
+		if _, err = write(row(7)); err == nil || response.ErrorStatusCode(err, 500) != 409 {
+			t.Fatalf("deleted identity reuse=%v", err)
+		}
+		high(11)
+		datatest.AssertRows(ctx, t, db, "SELECT version_no FROM component_versions WHERE report_id='r-alpha' AND version_no=7", nil)
+		if _, err = db.ExecContext(ctx, `CREATE TRIGGER reject_explicit BEFORE INSERT ON component_versions WHEN NEW.version_no=20 BEGIN SELECT RAISE(ABORT,'fixture rejects version'); END`); err != nil {
+			t.Fatal(err)
+		}
+		if _, err = write(row(20)); err == nil {
+			t.Fatal("injected version insert failure was accepted")
+		}
+		high(11)
+		datatest.AssertRows(ctx, t, db, "SELECT version_no FROM component_versions WHERE report_id='r-alpha' AND version_no=20", nil)
+	})
+
 }
 
 const reportVersionWriterDataset = `{"tables":[
@@ -168,7 +220,7 @@ const reportVersionWriterDataset = `{"tables":[
     {"owner_id":"owner-a","name":"general","title":"General","status":"active","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"}
   ]},
   {"name":"components","rows":[
-    {"id":"r-alpha","slug":"alpha","title":"Alpha","owner_id":"owner-a","status":"active","default_connector_name":"main","component_scope":"reports/alpha","component_name":"alpha","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"}
+    {"id":"r-alpha","last_version_no":1,"slug":"alpha","title":"Alpha","owner_id":"owner-a","status":"active","default_connector_name":"main","component_scope":"reports/alpha","component_name":"alpha","created_at":"2026-09-17 09:00:00","updated_at":"2026-09-17 09:00:00"}
   ]},
   {"name":"component_versions","rows":[
     {"report_id":"r-alpha","version_no":1,"state":"draft","authoring_mode":"dql","authored_dql":"SELECT 1","component_spec_json":{},"spec_format_version":"1","spec_hash":"hash-1","type_manifest_json":{},"compile_status":"pending","datly_version":"v1","compiler_version":"v1","source_revision":2,"notes":"before","created_by":"alice","created_at":"2026-09-17 10:00:00"}

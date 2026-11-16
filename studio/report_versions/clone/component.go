@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	head "github.com/viant/datly-studio/studio/report_versions/store_head"
 	"reflect"
 	"strings"
 
@@ -107,6 +108,15 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, in *Input, o
 	}
 	if err = starter.Start(ctx); err != nil {
 		return err
+	}
+	lockInput := &head.Input{ReportId: in.ReportID, NamespaceId: *in.NamespaceId, Has: &head.InputHas{ReportId: true, NamespaceId: true}}
+	value, err = invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: exec.ComponentTarget{Component: spec.Key{Kind: spec.KindComponent, Scope: reflect.TypeFor[head.HeadComponent]().PkgPath(), Name: "head"}, Route: spec.RouteRef{Method: "GET", Path: "/_studio/report-version-store/head"}}, Input: lockInput, ReaderOptions: &exec.ReaderOptions{ForUpdate: []string{exec.RootView}}})
+	if err != nil {
+		return err
+	}
+	locked, ok := value.(*head.Output)
+	if !ok || locked == nil || len(locked.Heads) != 1 || locked.Heads[0] == nil || locked.Heads[0].Id != in.ReportID {
+		return fmt.Errorf("clone component lock is unavailable")
 	}
 	sourceInput := &resources.Input{NamespaceId: in.NamespaceId, Jwt: in.Jwt, Auth: in.Auth, ReportId: in.ReportID, VersionNo: in.VersionNo}
 	value, err = invoke(ctx, invoker, reflect.TypeFor[resources.Component](), "resources", "POST", "/v1/studio/sdk/resources.get", sourceInput)

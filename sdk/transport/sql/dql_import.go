@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/dqlimport"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/sdk"
 	imported "github.com/viant/datly-studio/studio/report_versions/store_import"
 	pointer "github.com/viant/datly-studio/studio/reports/store_draft_pointer"
@@ -81,19 +82,19 @@ func (t *Transport) loadDQL(ctx context.Context, operation string, input, output
 		files = append(files, name)
 	}
 	sort.Strings(files)
-	next, err := t.nextVersionNo(ctx, report.ID)
-	if err != nil {
-		return internal(err)
-	}
 	// The import transaction spans the version, its resource files and the
 	// report draft pointer. Both Datly writers join it and only this method
 	// commits, so a failed file insert or a stale report etag rolls back all.
+	now := t.now()
 	tx, err := t.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return internal(err)
 	}
 	defer tx.Rollback()
-	now := t.now()
+	next, err := t.nextVersionNo(ctx, tx, report.ID, namespaceaccess.ID(report.OwnerID, report.Namespace))
+	if err != nil {
+		return internal(err)
+	}
 	source := string(bundle.Files[entry])
 	version := importedVersionRow(report.ID, next, source, importSpecHash(report.ID, next, source, bundle, files), request.Input.Notes, principal.Subject, now)
 	namespace := importNamespace(report)
@@ -102,6 +103,10 @@ func (t *Transport) loadDQL(ctx context.Context, operation string, input, output
 	}
 	version.Has.File = len(version.File) > 0
 	if err = t.writeImportedVersion(ctx, tx, version); err != nil {
+		var conflict *xhandler.Conflict
+		if errors.As(err, &conflict) {
+			return &sdk.Error{Code: sdk.ErrorConflict, Message: "Component version changed concurrently", Cause: err}
+		}
 		return classify(err, "report version", fmt.Sprintf("%s/%d", report.ID, next))
 	}
 	if err = t.writeDraftPointer(ctx, tx, draftPointerRow(report, next, now)); err != nil {

@@ -4,6 +4,7 @@ import (
 	context "context"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	rhandler "github.com/viant/datly/runtime/handler"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
 	"time"
@@ -87,4 +88,23 @@ func (hooks *WarmupRunRules) AfterQueue(ctx context.Context, entity *StoredWarmu
 }
 func (hooks *WarmupRunRules) Finalize(ctx context.Context, input *Input, output *Output, outcome xhandler.Outcome) error {
 	return nil
+}
+
+// RetryTransaction opts only terminal persistence into native contention recovery.
+// Datly owns confirmed-rollback admission, the single retry, fresh prerequisite
+// reads and CAS enforcement. The business warmup is outside this writer.
+func (hooks *WarmupRunRules) RetryTransaction(ctx context.Context, input *Input, output *Output, outcome rhandler.MutationOutcome) (bool, error) {
+	if !outcome.Mutation.Contention || input == nil || len(input.Runs) != 1 {
+		return false, nil
+	}
+	run := input.Runs[0]
+	if run == nil || run.Has == nil || !run.Has.Status {
+		return false, nil
+	}
+	switch run.Status {
+	case "completed", "partial", "failed":
+		return true, nil
+	default:
+		return false, nil
+	}
 }

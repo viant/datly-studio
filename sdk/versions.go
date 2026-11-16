@@ -8,6 +8,7 @@ import (
 
 const (
 	OperationVersionCreate          = "versions.create"
+	OperationVersionDelete          = "versions.delete"
 	OperationVersionClone           = "versions.clone"
 	OperationVersionGet             = "versions.get"
 	OperationVersionList            = "versions.list"
@@ -68,6 +69,12 @@ type CloneVersionInput struct {
 	VersionNo              int   `json:"versionNo"`
 	ExpectedSourceRevision int64 `json:"expectedSourceRevision"`
 }
+
+// DeleteVersionInput targets the exact saved source of one numbered version.
+// Only the component owner may delete an unused version.
+type DeleteVersionInput struct {
+	ExpectedSourceRevision int64 `json:"expectedSourceRevision"`
+}
 type ListVersionsInput struct {
 	State         string   `json:"state,omitempty"`
 	AuthoringMode string   `json:"authoringMode,omitempty"`
@@ -124,17 +131,49 @@ type DQLExport struct {
 // reader builder. Structure and Operation use JSON because their nested DQL
 // shape evolves with Datly; versioning and authorization stay in Studio.
 type ReaderInspection struct {
-	PreviewInput *PreviewInputContract `json:"previewInput,omitempty"`
-	Version      *ReportVersion        `json:"version"`
-	DQL          string                `json:"dql,omitempty"`
-	Structure    json.RawMessage       `json:"structure,omitempty"`
-	Diagnostics  []Diagnostic          `json:"diagnostics,omitempty"`
-	Capabilities ReportCapabilities    `json:"capabilities"`
+	EffectiveWarmup *EffectiveWarmupInspection `json:"effectiveWarmup,omitempty"`
+	PreviewInput    *PreviewInputContract      `json:"previewInput,omitempty"`
+	Version         *ReportVersion             `json:"version"`
+	DQL             string                     `json:"dql,omitempty"`
+	Structure       json.RawMessage            `json:"structure,omitempty"`
+	Diagnostics     []Diagnostic               `json:"diagnostics,omitempty"`
+	Capabilities    ReportCapabilities         `json:"capabilities"`
+}
+
+// EffectiveWarmupInspection is resolved against current host configuration,
+// not a historical configuration snapshot. Targets is nil when unavailable;
+// a resolved empty policy list is an explicit empty array.
+type EffectiveWarmupInspection struct {
+	Status         string                   `json:"status"`
+	ReportID       string                   `json:"reportId"`
+	VersionNo      int                      `json:"versionNo"`
+	SourceRevision int64                    `json:"sourceRevision"`
+	Targets        *[]EffectiveWarmupTarget `json:"targets,omitempty"`
+}
+
+// EffectiveWarmupTarget projects native settings without storage details or
+// case values. ConnectorName is an explicit policy override; omission means
+// native default selection. Work entries describe population, not more calls.
+type EffectiveWarmupTarget struct {
+	WarmupScheduledTarget
+	MaxCases *int                  `json:"maxCases,omitempty"`
+	RowLimit *int                  `json:"rowLimit,omitempty"`
+	Cases    []EffectiveWarmupCase `json:"cases,omitempty"`
+}
+
+type EffectiveWarmupCase struct {
+	Dimensions []EffectiveWarmupDimension `json:"dimensions"`
+}
+
+type EffectiveWarmupDimension struct {
+	Name           string `json:"name"`
+	ValueCount     int    `json:"valueCount"`
+	ExcludeDefault bool   `json:"excludeDefault"`
 }
 
 // PreviewInputContract describes the advertised full-reader preview arguments.
 // Schema is compiled by the native preview binder, not reconstructed from DQL.
-// A nil PreviewInput means unavailable or not authorized; an object schema with
+// A nil PreviewInput means not requested, unavailable, or not authorized; an object schema with
 // no properties is a successfully compiled reader with no public arguments.
 type PreviewInputContract struct {
 	ReportID       string          `json:"reportId"`
@@ -216,6 +255,43 @@ type WarmupTarget struct {
 	ConnectorName  string `json:"connectorName,omitempty"`
 	IndexColumn    string `json:"indexColumn,omitempty"`
 	IndexParameter string `json:"indexParameter,omitempty"`
+	// ScheduledTargets is resolved native evidence, absent on historical runs.
+	// Legacy cache/connector/index fields describe one target with one work
+	// entry only. View retains the component's root view for existing consumers.
+	ScheduledTargets []WarmupScheduledTarget `json:"scheduledTargets,omitempty"`
+}
+
+// WarmupScheduledTarget describes one scheduled native policy. Work describes
+// its population, including IndexMeta expansion; it does not schedule more calls.
+type WarmupScheduledTarget struct {
+	View       string `json:"view"`
+	PolicyName string `json:"policyName,omitempty"`
+	// Origin and PolicyRef are native provenance, absent on older evidence.
+	// PolicyRef is the logical host configuration key, not storage configuration.
+	Origin         string       `json:"origin,omitempty"`
+	PolicyRef      string       `json:"policyRef,omitempty"`
+	CacheName      string       `json:"cacheName,omitempty"`
+	CacheProvider  string       `json:"cacheProvider,omitempty"`
+	ConnectorName  string       `json:"connectorName,omitempty"`
+	IndexColumn    string       `json:"indexColumn,omitempty"`
+	IndexParameter string       `json:"indexParameter,omitempty"`
+	IndexMeta      bool         `json:"indexMeta,omitempty"`
+	Work           []WarmupWork `json:"work,omitempty"`
+}
+
+// WarmupWork describes native-selected population, not per-work completion.
+// CacheProvider is empty when the native backend is unknown; CacheName can
+// still be known. Storage addresses and native settings are never included.
+type WarmupWork struct {
+	View           string `json:"view"`
+	PolicyName     string `json:"policyName,omitempty"`
+	Origin         string `json:"origin,omitempty"`
+	PolicyRef      string `json:"policyRef,omitempty"`
+	CacheName      string `json:"cacheName,omitempty"`
+	CacheProvider  string `json:"cacheProvider,omitempty"`
+	ConnectorName  string `json:"connectorName,omitempty"`
+	IndexColumn    string `json:"indexColumn,omitempty"`
+	IndexParameter string `json:"indexParameter,omitempty"`
 }
 
 // WarmupRun is durable evidence from one server-owned Datly cache warmup run.
@@ -268,6 +344,7 @@ type WarmupRunPage struct {
 }
 
 type VersionService interface {
+	Delete(context.Context, string, int, DeleteVersionInput) (*DeletionResult, error)
 	Clone(context.Context, string, CloneVersionInput) (*ReportVersion, error)
 	Download(context.Context, string, int) (*ComponentDownload, error)
 	LoadDQL(context.Context, string, LoadDQLInput) (*DQLLoadResult, error)
@@ -392,4 +469,12 @@ func (c versionClient) ListWarmupRuns(ctx context.Context, id string, v int, inp
 		versionIdentity
 		Input ListWarmupRunsInput `json:"input"`
 	}{versionIdentity{id, v}, input})
+}
+
+func (c versionClient) Delete(ctx context.Context, id string, versionNo int, input DeleteVersionInput) (*DeletionResult, error) {
+	return invoke[DeletionResult](ctx, c.transport, OperationVersionDelete, struct {
+		ReportID               string `json:"reportId"`
+		VersionNo              int    `json:"versionNo"`
+		ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
+	}{id, versionNo, input.ExpectedSourceRevision})
 }

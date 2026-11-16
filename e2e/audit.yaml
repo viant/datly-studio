@@ -2,6 +2,7 @@ init:
   appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
 pipeline:
   auditTCP:
+    description: qualify native auditing, schema pins, and namespace authoring-policy contracts
     action: exec:run
     target:
       URL: ssh://localhost/
@@ -10,7 +11,7 @@ pipeline:
     timeoutMs: 300000
     commands:
       - cd ${appPath}
-      - GOWORK=off go test -race ./runtime/host -run '^TestToolCallAuditE2E$' -count=1 -v
+      - GOWORK=off go test -race ./runtime/host -run '^(TestToolCallAuditE2E|TestHistoricalPrimaryJSONPinRejectsNativeSchemaDrift|TestLegacyPrimaryJSONPinDoesNotGrantNativeFamily|TestReleaseBinding.*|TestAuthoringPredicateRequirementDoesNotInvalidatePublishedGeneration)$' -count=1 -v
     extract:
       - key: auditEnabledPassed
         regExpr: '(--- PASS: TestToolCallAuditE2E/enabled)'

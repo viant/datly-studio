@@ -140,7 +140,8 @@ func TestPublicationEventReadRequiresCurrentOwner(t *testing.T) {
 	}
 	if !strings.Contains(criteria.Expression, "studio_event_report.owner_id = ?") ||
 		!strings.Contains(criteria.Expression, "studio_event_report.deleted_at IS NULL") ||
-		len(criteria.Placeholders) != 1 || criteria.Placeholders[0] != "owner" {
+		!strings.Contains(criteria.Expression, "studio_event_deletion.owner_id = ?") ||
+		len(criteria.Placeholders) != 2 || criteria.Placeholders[0] != "owner" || criteria.Placeholders[1] != "owner" {
 		t.Fatalf("criteria = %+v", criteria)
 	}
 }

@@ -1,0 +1,2 @@
+SELECT r.component_id, r.namespace_id, r.owner_id, r.deleted_at, r.deleted_by FROM (SELECT * FROM (SELECT d.component_id,d.namespace_id,d.owner_id,d.deleted_at,d.deleted_by FROM component_deletions d
+) deletion) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentDeletionParentKeys($CurrentReport))

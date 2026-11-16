@@ -1,4 +1,2 @@
-SELECT head."max_version_no" FROM  (SELECT COALESCE(MAX(v.version_no), 0) AS max_version_no
-FROM component_versions v
-WHERE v.report_id = $ReportId
-)  head WHERE 1 = 1
+SELECT head.* FROM  (SELECT c.id, c.namespace_id, c.last_version_no, c.last_version_no AS max_version_no FROM components c WHERE c.id = $ReportId AND c.namespace_id = $NamespaceId
+)  head

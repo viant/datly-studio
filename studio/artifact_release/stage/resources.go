@@ -7,5 +7,5 @@ import "embed"
 // DatlyResourceNamespace identifies this package's generated resource filesystem.
 const StageDatlyResourceNamespace = "studio_artifact_release_stage_stage"
 
-//go:embed "sql/binding.sql" "sql/bundle.sql" "sql/channel_snapshot.sql" "sql/current_binding.sql" "sql/current_bundle.sql" "sql/current_operation.sql" "sql/current_stage.sql" "sql/operation.sql" "sql/stage.sql" "sql/stage_keys.sql"
+//go:embed "sql/binding.sql" "sql/bound_versions.sql" "sql/bundle.sql" "sql/channel_snapshot.sql" "sql/component_locks.sql" "sql/current_binding.sql" "sql/current_bundle.sql" "sql/current_operation.sql" "sql/current_stage.sql" "sql/operation.sql" "sql/stage.sql" "sql/stage_keys.sql"
 var StageDatlyResources embed.FS

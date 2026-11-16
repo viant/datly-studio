@@ -1,0 +1,28 @@
+#package('studio/reports/store_removal_snapshot')
+#import('encoding/json')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/reports/store-removal-snapshot', 'GET'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('report','sql/read.sql'))
+#define($_ = $ReportId<string>(query/reportId).Required())
+#define($_ = $Reports<[]*RemovalReport>(output/view))
+
+SELECT report.*, version.*, warmup.*,
+       type(report,'RemovalReport'), set_limit(report,1), set_limit(version,0), set_limit(warmup,0), row_lock(report,'components r','r.id'), type(version,'RemovalVersion'), type(warmup,'RemovalWarmup'),
+       CAST(report.id AS string), CAST(report.namespace_id AS string), CAST(report.owner_id AS string),
+       CAST(report.etag AS *int64), CAST(report.current_draft_version AS *int), CAST(report.updated_at AS *time.Time),
+       CAST(report.should_delete AS bool),
+       CAST(version.report_id AS string), CAST(version.namespace_id AS string), CAST(version.version_no AS int),
+       CAST(version.source_revision AS *int64), CAST(version.should_delete AS bool),
+       CAST(warmup.run_id AS string), CAST(warmup.report_id AS string), CAST(warmup.version_no AS int),
+       CAST(warmup.status AS string), CAST(warmup.should_delete AS bool),
+       tag(report.id,'sqlx:"id,primaryKey"'),
+       tag(version.report_id,'sqlx:"report_id,primaryKey"'), tag(version.version_no,'sqlx:"version_no,primaryKey"'),
+       tag(warmup.run_id,'sqlx:"run_id,primaryKey"')
+FROM (${embed:sql/read.sql}) report
+LEFT JOIN (${embed:sql/versions.sql}) version ON version.report_id = report.id AND version.namespace_id = report.namespace_id
+LEFT JOIN (${embed:sql/warmups.sql}) warmup ON warmup.report_id = version.report_id AND warmup.version_no = version.version_no
+WHERE 1=1

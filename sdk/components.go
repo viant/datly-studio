@@ -11,6 +11,7 @@ const (
 	OperationComponentGet    = "components.get"
 	OperationComponentList   = "components.list"
 	OperationComponentUpdate = "components.update"
+	OperationComponentDelete = "components.delete"
 )
 
 type Component struct {
@@ -75,6 +76,19 @@ type ComponentPage struct {
 	Offset int          `json:"offset"`
 }
 
+// DeletionResult identifies the permanently removed object. Historical audit
+// and publication events remain subject to their existing retention policy.
+type DeletionResult struct {
+	ComponentID     string `json:"componentId"`
+	VersionNo       int    `json:"versionNo,omitempty"`
+	DeletedVersions int    `json:"deletedVersions"`
+}
+
+// DeleteComponentInput requires the current component ETag. Only its owner may delete it.
+type DeleteComponentInput struct {
+	ETag int64 `json:"etag"`
+}
+
 // OwnerPackageSegment returns a deterministic Go-package-safe form of the
 // verified JWT sub. It is used by dynamic component packages and globally
 // scoped MCP tool names; callers must never substitute display-name claims.
@@ -105,6 +119,7 @@ type ComponentService interface {
 	Get(context.Context, string) (*Component, error)
 	List(context.Context, ListComponentsInput) (*ComponentPage, error)
 	Update(context.Context, string, UpdateComponentInput) (*Component, error)
+	Delete(context.Context, string, DeleteComponentInput) (*DeletionResult, error)
 }
 
 type componentClient struct{ transport Transport }
@@ -124,5 +139,12 @@ func (c componentClient) Update(ctx context.Context, id string, input UpdateComp
 	return invoke[Component](ctx, c.transport, OperationComponentUpdate, struct {
 		ID    string               `json:"id"`
 		Input UpdateComponentInput `json:"input"`
+	}{id, input})
+}
+
+func (c componentClient) Delete(ctx context.Context, id string, input DeleteComponentInput) (*DeletionResult, error) {
+	return invoke[DeletionResult](ctx, c.transport, OperationComponentDelete, struct {
+		ID    string               `json:"id"`
+		Input DeleteComponentInput `json:"input"`
 	}{id, input})
 }

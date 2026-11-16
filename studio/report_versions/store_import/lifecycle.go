@@ -45,7 +45,10 @@ const (
 
 // Init fills server-owned defaults and derives file identities. Values the
 // caller supplied are left intact so Validate can deny inconsistent input.
-func (hooks *ImportRules) Init(_ context.Context, version *ImportedVersion, _ xhandler.LifecycleContext[ImportedVersion, xhandler.NoParent, Output]) error {
+func (hooks *ImportRules) Init(_ context.Context, version *ImportedVersion, state xhandler.LifecycleContext[ImportedVersion, VersionAllocation, Output]) error {
+	if state.Previous != nil {
+		return fmt.Errorf("imported version must be inserted")
+	}
 	if version == nil {
 		return fmt.Errorf("imported version is required")
 	}
@@ -105,7 +108,7 @@ func (hooks *ImportRules) Init(_ context.Context, version *ImportedVersion, _ xh
 
 // Validate denies before any row is written. Every check is an exact rule of
 // the import contract; the writer never repairs a violating row.
-func (hooks *ImportRules) Validate(_ context.Context, version *ImportedVersion, _ xhandler.LifecycleContext[ImportedVersion, xhandler.NoParent, Output]) error {
+func (hooks *ImportRules) Validate(_ context.Context, version *ImportedVersion, _ xhandler.LifecycleContext[ImportedVersion, VersionAllocation, Output]) error {
 	if version == nil {
 		return fmt.Errorf("imported version is required")
 	}
@@ -197,11 +200,11 @@ func (hooks *ImportRules) Validate(_ context.Context, version *ImportedVersion, 
 	return nil
 }
 
-func (hooks *ImportRules) AfterSequence(context.Context, *ImportedVersion, xhandler.LifecycleContext[ImportedVersion, xhandler.NoParent, Output]) error {
+func (hooks *ImportRules) AfterSequence(context.Context, *ImportedVersion, xhandler.LifecycleContext[ImportedVersion, VersionAllocation, Output]) error {
 	return nil
 }
 
-func (hooks *ImportRules) AfterQueue(context.Context, *ImportedVersion, xhandler.LifecycleContext[ImportedVersion, xhandler.NoParent, Output]) error {
+func (hooks *ImportRules) AfterQueue(context.Context, *ImportedVersion, xhandler.LifecycleContext[ImportedVersion, VersionAllocation, Output]) error {
 	return nil
 }
 

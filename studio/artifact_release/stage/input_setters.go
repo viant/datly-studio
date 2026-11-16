@@ -123,6 +123,39 @@ func (input *Input) SetNoPending(value bool) {
 	input.Has.NoPending = true
 }
 
+func (input *Input) SetComponentIds(value []string) {
+	if input == nil {
+		return
+	}
+	input.ComponentIds = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.ComponentIds = true
+}
+
+func (input *Input) SetComponentLocks(value []*LockedComponent) {
+	if input == nil {
+		return
+	}
+	input.ComponentLocks = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.ComponentLocks = true
+}
+
+func (input *Input) SetBoundVersions(value []*BoundVersion) {
+	if input == nil {
+		return
+	}
+	input.BoundVersions = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.BoundVersions = true
+}
+
 func (input *Input) SetChannelSnapshot(value []*ChannelSnapshot) {
 	if input == nil {
 		return

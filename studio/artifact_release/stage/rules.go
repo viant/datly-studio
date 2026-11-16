@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"reflect"
+	"strconv"
 	"strings"
 
 	releasevalue "github.com/viant/datly-studio/sdk/artifactrelease/value"
@@ -125,10 +126,11 @@ func (rules *StageRules) Init(ctx context.Context, row *StageChannel, state xhan
 		if existingBinding == nil || existingBinding.BindingsJson == nil || text(existingBinding.BindingsHash) != input.BindingsHash {
 			return contract.ErrConflict
 		}
-		if _, err := releasevalue.DecodeBindings(bundle, *existingBinding.BindingsJson, input.BindingsHash); err != nil {
+		bindings, err := releasevalue.DecodeBindings(bundle, *existingBinding.BindingsJson, input.BindingsHash)
+		if err != nil {
 			return err
 		}
-		return nil
+		return validateComponentReferences(input, bindings)
 	}
 	if existingBinding != nil {
 		return contract.ErrConflict
@@ -165,8 +167,11 @@ func (rules *BindingRules) Init(ctx context.Context, row *BundleBinding, state x
 	if releasevalue.StrictJSON(*source.BundleJson, &bundle) != nil {
 		return contract.ErrInvalid
 	}
-	_, err = releasevalue.DecodeBindings(bundle, *row.BindingsJson, *row.BindingsHash)
+	bindings, err := releasevalue.DecodeBindings(bundle, *row.BindingsJson, *row.BindingsHash)
 	if err != nil {
+		return err
+	}
+	if err = validateComponentReferences(input, bindings); err != nil {
 		return err
 	}
 	if state.Previous != nil {
@@ -175,5 +180,48 @@ func (rules *BindingRules) Init(ctx context.Context, row *BundleBinding, state x
 	return nil
 }
 func (rules *BindingRules) Validate(context.Context, *BundleBinding, xhandler.LifecycleContext[BundleBinding, StageChannel, Output]) error {
+	return nil
+}
+
+// Reference integrity belongs to this native persistence graph. Both views are
+// transaction-current locking reads, held until the binding commit completes.
+func validateComponentReferences(input *Input, bindings []releasevalue.ComponentBinding) error {
+	required := map[string]bool{}
+	for _, binding := range bindings {
+		if binding.ComponentKind != "dynamic" {
+			continue
+		}
+		required[binding.ComponentID] = true
+		version, err := strconv.Atoi(binding.ComponentRevision)
+		if err != nil || version < 1 {
+			return contract.ErrInvalid
+		}
+		componentFound, versionFound := false, false
+		for _, row := range input.ComponentLocks {
+			if row != nil && row.Id == binding.ComponentID {
+				componentFound = true
+				break
+			}
+		}
+		for _, row := range input.BoundVersions {
+			if row != nil && row.ReportId == binding.ComponentID && row.VersionNo == version {
+				versionFound = true
+				break
+			}
+		}
+		if !componentFound || !versionFound {
+			return contract.ErrConflict
+		}
+	}
+	if len(required) != len(input.ComponentIds) {
+		return contract.ErrInvalid
+	}
+	previous := ""
+	for _, id := range input.ComponentIds {
+		if !required[id] || id <= previous {
+			return contract.ErrInvalid
+		}
+		previous = id
+	}
 	return nil
 }

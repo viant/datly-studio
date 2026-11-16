@@ -7,5 +7,5 @@ import "embed"
 // DatlyResourceNamespace identifies this package's generated resource filesystem.
 const VersionDatlyResourceNamespace = "studio_report_versions_store_insert_version"
 
-//go:embed "sql/read.sql"
+//go:embed "sql/current_draft.sql" "sql/current_version.sql" "sql/draft.sql" "sql/read.sql" "sql/version_keys.sql"
 var VersionDatlyResources embed.FS

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/viant/authz/oauth"
+	"github.com/viant/datly-studio/internal/warmupoperation"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly/bootstrap/connector"
 	"github.com/viant/scy"
@@ -36,9 +37,12 @@ type Audit struct {
 }
 
 type Config struct {
-	Forge        *runtimehost.ForgeConfig
-	MCPToolNames runtimehost.MCPToolNames
-	Audit        *Audit
+	// WarmupOperationTimeout governs newly accepted durable warmup jobs.
+	// Nil retains the native five-minute default (or a trusted embedding override).
+	WarmupOperationTimeout *string
+	Forge                  *runtimehost.ForgeConfig
+	MCPToolNames           runtimehost.MCPToolNames
+	Audit                  *Audit
 	datly.Config
 	// Store is the one Studio metadata storage connection. Application data
 	// connectors are managed in the database, outside deployment configuration.
@@ -95,6 +99,9 @@ func Decode(data []byte) (*Config, error) {
 	jsonDecoder.DisallowUnknownFields()
 	if err := jsonDecoder.Decode(result); err != nil {
 		return nil, errors.New("host configuration contains an unknown field or invalid value")
+	}
+	if _, err := warmupoperation.Timeout(result.WarmupOperationTimeout); err != nil {
+		return nil, err
 	}
 	if err := result.ValidateAuth(); err != nil {
 		return nil, err

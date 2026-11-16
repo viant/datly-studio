@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/warmupoperation"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
@@ -48,7 +49,7 @@ func TestWarmupRunStoreReadFiltersOrderAndNulls(t *testing.T) {
 		}
 	}
 	transport := &Transport{DB: db}
-	_, err = db.ExecContext(ctx, `UPDATE component_warmup_runs SET started_at=?,completed_at=?,max_cases=7,row_limit=9,duration_ns=123,target_json=?,diagnostics_json=? WHERE run_id='b'`, now, now, `{"view":"reader","cacheName":"cache"}`, `[{"severity":"error","code":"warmup_failed","message":"failed"}]`)
+	_, err = db.ExecContext(ctx, `UPDATE component_warmup_runs SET started_at=?,completed_at=?,max_cases=7,row_limit=9,duration_ns=123,target_json=?,diagnostics_json=? WHERE run_id='b'`, now, now, `{"view":"reader","cacheName":"cache","scheduledTargets":[{"view":"","origin":"host","policyRef":"profile","work":[{"view":"reader","origin":"host","policyRef":"profile"}]}]}`, `[{"severity":"error","code":"warmup_failed","message":"failed"}]`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,6 +65,26 @@ func TestWarmupRunStoreReadFiltersOrderAndNulls(t *testing.T) {
 	}
 	if page.Items[0].StartedAt == nil || page.Items[0].CompletedAt == nil || page.Items[0].MaxCases == nil || *page.Items[0].MaxCases != 7 || page.Items[0].RowLimit == nil || *page.Items[0].RowLimit != 9 || page.Items[0].Duration != 123 || page.Items[0].Target.CacheName != "cache" || len(page.Items[0].Diagnostics) != 1 {
 		t.Fatalf("populated fields=%+v", page.Items[0])
+	}
+	target := page.Items[0].Target.ScheduledTargets[0]
+	if target.Origin != "host" || target.PolicyRef != "profile" || target.Work[0].Origin != "host" || target.Work[0].PolicyRef != "profile" {
+		t.Fatalf("native origin readback lost: %+v", target)
+	}
+	legacyJSON := `{"view":"reader","scheduledTargets":[{"view":"","policyName":"profile","work":[{"view":"reader"}]}]}`
+	if _, err = db.ExecContext(ctx, "UPDATE component_warmup_runs SET target_json=? WHERE run_id='a'", legacyJSON); err != nil {
+		t.Fatal(err)
+	}
+	legacy, err := transport.readWarmupRun(ctx, "r1", "a")
+	if err != nil {
+		t.Fatal(err)
+	}
+	old := legacy.Target.ScheduledTargets[0]
+	if old.Origin != "" || old.PolicyRef != "" || old.Work[0].Origin != "" || old.Work[0].PolicyRef != "" {
+		t.Fatalf("historical origin invented: %+v", old)
+	}
+	var unchanged string
+	if err = db.QueryRowContext(ctx, "SELECT target_json FROM component_warmup_runs WHERE run_id='a'").Scan(&unchanged); err != nil || unchanged != legacyJSON {
+		t.Fatalf("historical evidence rewritten: %v %s", err, unchanged)
 	}
 	run, err := transport.readWarmupRun(ctx, "r1", "b")
 	if err != nil || run.RunID != "b" {
@@ -103,8 +124,8 @@ func TestRecoverExpiredWarmupRunsUsesNativeMatchedWrites(t *testing.T) {
 		if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
 			(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,created_at,created_by,updated_at,updated_by)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, id, "r1", 1, 1, "hash", "plan", id, status, "owner", "{}",
-			now.Add(-warmupRunTimeout-time.Minute), now.Add(-warmupRunTimeout-time.Minute), "owner",
-			now.Add(-warmupRunTimeout-time.Minute), "owner"); err != nil {
+			now.Add(-warmupoperation.DefaultTimeout-time.Minute), now.Add(-warmupoperation.DefaultTimeout-time.Minute), "owner",
+			now.Add(-warmupoperation.DefaultTimeout-time.Minute), "owner"); err != nil {
 			t.Fatal(err)
 		}
 	}

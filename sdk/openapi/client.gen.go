@@ -587,6 +587,11 @@ type InputAdff4675f499a769cb093e90fbca27e902af83cc23c5e13071057671fe8d89f0 struc
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
+// InputAe6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6 defines model for Input_ae6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6.
+type InputAe6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6 struct {
+	Etag *int64 `json:"etag,omitempty"`
+}
+
 // InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b defines model for Input_b11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b.
 type InputB11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b struct {
 	AdditionalVersions     *[]InputDa2b3e655a12ef21c05da22075dced832460528bf97a14e0c9f4a4a1140b97b0 `json:"additionalVersions,omitempty"`
@@ -824,6 +829,7 @@ type InputE14cc58c4ee74d7747f498bcbd7c71a8cb3028eda5782588b9c5299ed0cf9c37 struc
 
 // InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa defines model for Input_ea8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa.
 type InputEa8cf0b60e82e17c8f2e6bc2ad35fe0985cc717838bb65d7f9b56c81bd0718aa struct {
+	// Cube Preview the derived single cube. Put dimensions, measures, filters and limit inside input; this does not invoke multi-cube composition.
 	Cube  *bool       `json:"cube,omitempty"`
 	Input interface{} `json:"input,omitempty"`
 	Limit *int64      `json:"limit,omitempty"`
@@ -994,6 +1000,21 @@ type Output1d9bf0079b94d75e2b9b7b33bb81b13886a46428db871596012139c64cc1a4d6 stru
 	Stage    *string `json:"stage,omitempty"`
 }
 
+// Output1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619 defines model for Output_1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619.
+type Output1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619 struct {
+	CacheName      *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName  *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                   `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                     `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                   `json:"indexParameter,omitempty"`
+	Origin         *string                                                                   `json:"origin,omitempty"`
+	PolicyName     *string                                                                   `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                   `json:"policyRef,omitempty"`
+	View           *string                                                                   `json:"view,omitempty"`
+	Work           *[]OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 `json:"work,omitempty"`
+}
+
 // Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 defines model for Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260.
 type Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260 struct {
 	Entity *Output20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260_Entity `json:"entity,omitempty"`
@@ -1042,6 +1063,13 @@ type Output2914a64d6f54333c61713839f0d41e0bc4a70208751189288a2870c3ee2496f9 stru
 	Status            *string    `json:"status,omitempty"`
 	Subject           *string    `json:"subject,omitempty"`
 	ToolName          *string    `json:"toolName,omitempty"`
+}
+
+// Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866 defines model for Output_2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866.
+type Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866 struct {
+	ComponentId     *string `json:"componentId,omitempty"`
+	DeletedVersions *int64  `json:"deletedVersions,omitempty"`
+	VersionNo       *int64  `json:"versionNo,omitempty"`
 }
 
 // Output2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2 defines model for Output_2c9aea90415dac647efe579c8889a77a58c3e88f24a1c30f945e7743e5dd5ae2.
@@ -1095,12 +1123,13 @@ type Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d stru
 
 // Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 defines model for Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391.
 type Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 struct {
-	CacheName      *string `json:"cacheName,omitempty"`
-	CacheProvider  *string `json:"cacheProvider,omitempty"`
-	ConnectorName  *string `json:"connectorName,omitempty"`
-	IndexColumn    *string `json:"indexColumn,omitempty"`
-	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           *string `json:"view,omitempty"`
+	CacheName        *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider    *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName    *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn      *string                                                                   `json:"indexColumn,omitempty"`
+	IndexParameter   *string                                                                   `json:"indexParameter,omitempty"`
+	ScheduledTargets *[]Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f `json:"scheduledTargets,omitempty"`
+	View             *string                                                                   `json:"view,omitempty"`
 }
 
 // Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9 defines model for Output_4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9.
@@ -1288,6 +1317,21 @@ type Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 stru
 	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
 }
 
+// Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f defines model for Output_7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f.
+type Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f struct {
+	CacheName      *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName  *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                   `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                     `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                   `json:"indexParameter,omitempty"`
+	Origin         *string                                                                   `json:"origin,omitempty"`
+	PolicyName     *string                                                                   `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                   `json:"policyRef,omitempty"`
+	View           *string                                                                   `json:"view,omitempty"`
+	Work           *[]Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 `json:"work,omitempty"`
+}
+
 // Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 defines model for Output_7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5.
 type Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 struct {
 	ActiveGeneration  *int64     `json:"activeGeneration,omitempty"`
@@ -1299,6 +1343,19 @@ type Output7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5 stru
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
 	Status            *string    `json:"status,omitempty"`
+}
+
+// Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 defines model for Output_7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43.
+type Output7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43 struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
+	View           *string `json:"view,omitempty"`
 }
 
 // Output8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d defines model for Output_8035fb9f56e2dfdb283039cb87b71ab1d5f6fa189d850d698929cee1b6b6464d.
@@ -1417,6 +1474,19 @@ type OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 stru
 	RuntimeRevision   *string    `json:"runtimeRevision,omitempty"`
 	SpecHash          *string    `json:"specHash,omitempty"`
 	Status            *string    `json:"status,omitempty"`
+}
+
+// OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 defines model for Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261.
+type OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
+	View           *string `json:"view,omitempty"`
 }
 
 // OutputA6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6 defines model for Output_a6d9fb3f70e6b7863e0c88327d238407dbfc8a53a8fbbcb08c080358f1491ec6.
@@ -1584,6 +1654,13 @@ type OutputCa207e9470562713039abace94a8b79c331512fc095ce1e937d8c9887565342b stru
 	Type *string `json:"type,omitempty"`
 }
 
+// OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae defines model for Output_cebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae.
+type OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae struct {
+	ComponentId     *string `json:"componentId,omitempty"`
+	DeletedVersions *int64  `json:"deletedVersions,omitempty"`
+	VersionNo       *int64  `json:"versionNo,omitempty"`
+}
+
 // OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 defines model for Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2.
 type OutputD14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2 struct {
 	Id      *string `json:"id,omitempty"`
@@ -1715,12 +1792,13 @@ type OutputEc5ca322e57ac033e6183e7ca87a4dc5a2dba0223eb08b4a914e37bb9e628b8e stru
 
 // OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee defines model for Output_ef553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee.
 type OutputEf553e0e338a00cf70d43289eb53e588abb65348804f4defbd8fd2ea4e5691ee struct {
-	CacheName      *string `json:"cacheName,omitempty"`
-	CacheProvider  *string `json:"cacheProvider,omitempty"`
-	ConnectorName  *string `json:"connectorName,omitempty"`
-	IndexColumn    *string `json:"indexColumn,omitempty"`
-	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           *string `json:"view,omitempty"`
+	CacheName        *string                                                                   `json:"cacheName,omitempty"`
+	CacheProvider    *string                                                                   `json:"cacheProvider,omitempty"`
+	ConnectorName    *string                                                                   `json:"connectorName,omitempty"`
+	IndexColumn      *string                                                                   `json:"indexColumn,omitempty"`
+	IndexParameter   *string                                                                   `json:"indexParameter,omitempty"`
+	ScheduledTargets *[]Output1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619 `json:"scheduledTargets,omitempty"`
+	View             *string                                                                   `json:"view,omitempty"`
 }
 
 // OutputF2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf defines model for Output_f2954ccbc2dd12cce598727f4c49ad7d3d88f3404672f047b6fb03d041c024bf.
@@ -1850,6 +1928,13 @@ type Wire08938620e84156f14c3eb03478de7df19afa5374952a4abae29cf28f9d58f8f5 struct
 	Kind    *string `json:"kind,omitempty"`
 	Tenant  *string `json:"tenant,omitempty"`
 	Version *string `json:"version,omitempty"`
+}
+
+// Wire09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07 defines model for Wire_09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07.
+type Wire09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07 struct {
+	ExcludeDefault *bool   `json:"excludeDefault,omitempty"`
+	Name           *string `json:"name,omitempty"`
+	ValueCount     *int64  `json:"valueCount,omitempty"`
 }
 
 // Wire0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f defines model for Wire_0b4fc596d18790b4851cf320f7b9abf6d446bab3fd3f2ae6a2d3cb1481542e8f.
@@ -2168,7 +2253,17 @@ type Wire221846f313892219b53265500a015547384983c9f728252d253349f904fb06a9 struct
 	ReportId       *string    `json:"reportId,omitempty"`
 	RequestedBy    *string    `json:"requestedBy,omitempty"`
 	Status         *string    `json:"status,omitempty"`
+	VersionDeleted *bool      `json:"versionDeleted,omitempty"`
 	VersionNo      *int64     `json:"versionNo,omitempty"`
+}
+
+// Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 defines model for Wire_22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8.
+type Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 struct {
+	ReportId       *string                                                                 `json:"reportId,omitempty"`
+	SourceRevision *int64                                                                  `json:"sourceRevision,omitempty"`
+	Status         *string                                                                 `json:"status,omitempty"`
+	Targets        *[]WireBdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c `json:"targets,omitempty"`
+	VersionNo      *int64                                                                  `json:"versionNo,omitempty"`
 }
 
 // Wire22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46 defines model for Wire_22f8d5b6b2e00ab542f425835e6d63f595971318f417b0060e6c9dd3890ffd46.
@@ -2284,6 +2379,7 @@ type Wire2814de9651d34fb853f6a86b2936b81947b070cd306c8f39e5a036a9a3e140d6_Rule s
 type Wire284d529f33778b8025eaf493c0c081fa071dfc15595367cd050c6aea84390073 struct {
 	AutoIncrement   *bool   `json:"autoIncrement,omitempty"`
 	Default         *string `json:"default,omitempty"`
+	Description     *string `json:"description,omitempty"`
 	Name            *string `json:"name,omitempty"`
 	Nullable        *bool   `json:"nullable,omitempty"`
 	NullableKnown   *bool   `json:"nullableKnown,omitempty"`
@@ -2461,6 +2557,21 @@ type Wire3260fb4c4c3ba7c084402fa64664f099dae40719e64a304feae0d1fd05cf8c6c struct
 	ReportId    *string `json:"reportId,omitempty"`
 	SubjectId   *string `json:"subjectId,omitempty"`
 	SubjectType *string `json:"subjectType,omitempty"`
+}
+
+// Wire32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa defines model for Wire_32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa.
+type Wire32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa struct {
+	CacheName      *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                 `json:"cacheProvider,omitempty"`
+	ConnectorName  *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                 `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
+	Origin         *string                                                                 `json:"origin,omitempty"`
+	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                 `json:"policyRef,omitempty"`
+	View           *string                                                                 `json:"view,omitempty"`
+	Work           *[]WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 `json:"work,omitempty"`
 }
 
 // Wire33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58 defines model for Wire_33e5247ebc5c8c7a90566f8ad084b60e92d39e02e7318b8d44d82392a4711b58.
@@ -2953,6 +3064,13 @@ type Wire503eecae2f1d1d659f4e4c2e5e08bec8db2f264a5bdc6c2b084dc41a3aadf478 struct
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
+// Wire50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c defines model for Wire_50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c.
+type Wire50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c struct {
+	ExcludeDefault *bool   `json:"excludeDefault,omitempty"`
+	Name           *string `json:"name,omitempty"`
+	ValueCount     *int64  `json:"valueCount,omitempty"`
+}
+
 // Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de defines model for Wire_517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de.
 type Wire517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de struct {
 	Id   *string `json:"id,omitempty"`
@@ -2997,6 +3115,11 @@ type Wire54a6e7e8a3352a79d0d8aa5227adf7c3d1830da9722934796424332f6659bafe struct
 	TypeManifest         interface{} `json:"typeManifest,omitempty"`
 	ValidatedAt          *time.Time  `json:"validatedAt,omitempty"`
 	VersionNo            *int64      `json:"versionNo,omitempty"`
+}
+
+// Wire5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9 defines model for Wire_5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9.
+type Wire5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9 struct {
+	Dimensions *[]Wire50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c `json:"dimensions,omitempty"`
 }
 
 // Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75 defines model for Wire_59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75.
@@ -3052,6 +3175,15 @@ type Wire5f3729574877d8503a4dec333774588fe1c7a2ed2ff47c9b7076fcd0f551abe7 struct
 	Kind    *string `json:"kind,omitempty"`
 	Tenant  *string `json:"tenant,omitempty"`
 	Version *string `json:"version,omitempty"`
+}
+
+// Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa defines model for Wire_600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa.
+type Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa struct {
+	ReportId       *string                                                                 `json:"reportId,omitempty"`
+	SourceRevision *int64                                                                  `json:"sourceRevision,omitempty"`
+	Status         *string                                                                 `json:"status,omitempty"`
+	Targets        *[]WireAe7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db `json:"targets,omitempty"`
+	VersionNo      *int64                                                                  `json:"versionNo,omitempty"`
 }
 
 // Wire60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b defines model for Wire_60650a6f04edcea743087085a996dbd0928e83e4db2d4d201f65feede3ef338b.
@@ -3234,14 +3366,36 @@ type Wire6eb7fc5381443fd97876b99edd185761fb616aa93f65106e8bce0b948e4541ea struct
 	Version *string `json:"version,omitempty"`
 }
 
+// Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff defines model for Wire_6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff.
+type Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
+	View           *string `json:"view,omitempty"`
+}
+
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad defines model for Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.
 type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad struct {
-	Capabilities *WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c              `json:"capabilities,omitempty"`
-	Diagnostics  *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9            `json:"diagnostics,omitempty"`
-	Dql          *string                                                                            `json:"dql,omitempty"`
-	PreviewInput *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput `json:"previewInput,omitempty"`
-	Structure    interface{}                                                                        `json:"structure,omitempty"`
-	Version      *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version      `json:"version,omitempty"`
+	Capabilities    *WireC47cf46b58e263ed665fbdce50f43ecc62642c4837741ba43aaa439c1623d39c                 `json:"capabilities,omitempty"`
+	Diagnostics     *[]Wire878bfd02a12294e26d1a40f1b673a231fa11c24402268d818f39f80be43c86f9               `json:"diagnostics,omitempty"`
+	Dql             *string                                                                               `json:"dql,omitempty"`
+	EffectiveWarmup *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup `json:"effectiveWarmup,omitempty"`
+	PreviewInput    *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput    `json:"previewInput,omitempty"`
+	Structure       interface{}                                                                           `json:"structure,omitempty"`
+	Version         *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_Version         `json:"version,omitempty"`
+}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.EffectiveWarmup.1.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 = map[string]interface{}
+
+// Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.EffectiveWarmup.
+type Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup struct {
+	union json.RawMessage
 }
 
 // Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adPreviewInput1 defines model for Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad.PreviewInput.1.
@@ -3509,6 +3663,19 @@ type Wire8147805369c129ab8a8ae87482dbb8be4c51d1125dda4427e8adca5f845d6a7b struct
 	Data        interface{}                                                             `json:"data,omitempty"`
 	Diagnostics *[]WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b `json:"diagnostics,omitempty"`
 	Duration    *int64                                                                  `json:"duration,omitempty"`
+}
+
+// Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db defines model for Wire_837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db.
+type Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
+	View           *string `json:"view,omitempty"`
 }
 
 // Wire840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86 defines model for Wire_840cfa047107122263565776ba6756036c58e38f7dbf6a18c3ad6f42c3003a86.
@@ -3977,6 +4144,24 @@ type WireAacc75c3206df7826e260289c3b0d5e2d973fd06f1bdc6d8b062241bdce3294a struct
 	VersionNo              *int64  `json:"versionNo,omitempty"`
 }
 
+// WireAe7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db defines model for Wire_ae7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db.
+type WireAe7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db struct {
+	CacheName      *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                 `json:"cacheProvider,omitempty"`
+	Cases          *[]Wire5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9 `json:"cases,omitempty"`
+	ConnectorName  *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                 `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
+	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
+	Origin         *string                                                                 `json:"origin,omitempty"`
+	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                 `json:"policyRef,omitempty"`
+	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
+	View           *string                                                                 `json:"view,omitempty"`
+	Work           *[]Wire837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db `json:"work,omitempty"`
+}
+
 // WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 defines model for Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3.
 type WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 struct {
 	Id      *string `json:"id,omitempty"`
@@ -3987,12 +4172,21 @@ type WireAfbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3 struct
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 defines model for Wire_affe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.
 type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19 struct {
-	Capabilities *Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244              `json:"capabilities,omitempty"`
-	Diagnostics  *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e            `json:"diagnostics,omitempty"`
-	Dql          *string                                                                            `json:"dql,omitempty"`
-	PreviewInput *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput `json:"previewInput,omitempty"`
-	Structure    interface{}                                                                        `json:"structure,omitempty"`
-	Version      *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version      `json:"version,omitempty"`
+	Capabilities    *Wire3100c253c572f716ab2eb88f6d83d813eedfe0b04003220edb6e98677fced244                 `json:"capabilities,omitempty"`
+	Diagnostics     *[]Wire5dcb9a5385549159028a02b9f90b5f85b74ea0076b725bce7e222e5cfe3ae71e               `json:"diagnostics,omitempty"`
+	Dql             *string                                                                               `json:"dql,omitempty"`
+	EffectiveWarmup *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup `json:"effectiveWarmup,omitempty"`
+	PreviewInput    *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_PreviewInput    `json:"previewInput,omitempty"`
+	Structure       interface{}                                                                           `json:"structure,omitempty"`
+	Version         *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_Version         `json:"version,omitempty"`
+}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.EffectiveWarmup.1.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 = map[string]interface{}
+
+// WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.EffectiveWarmup.
+type WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup struct {
+	union json.RawMessage
 }
 
 // WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19PreviewInput1 defines model for WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19.PreviewInput.1.
@@ -4159,6 +4353,24 @@ type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033Items1 
 // WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item defines model for Wire_bd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033.items.Item.
 type WireBd6e76f62db1909af28d472c9cb0fb67de5010ef927c7606ccecfe2dd7f95033_Items_Item struct {
 	union json.RawMessage
+}
+
+// WireBdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c defines model for Wire_bdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c.
+type WireBdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c struct {
+	CacheName      *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider  *string                                                                 `json:"cacheProvider,omitempty"`
+	Cases          *[]WireFc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a `json:"cases,omitempty"`
+	ConnectorName  *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn    *string                                                                 `json:"indexColumn,omitempty"`
+	IndexMeta      *bool                                                                   `json:"indexMeta,omitempty"`
+	IndexParameter *string                                                                 `json:"indexParameter,omitempty"`
+	MaxCases       *int64                                                                  `json:"maxCases,omitempty"`
+	Origin         *string                                                                 `json:"origin,omitempty"`
+	PolicyName     *string                                                                 `json:"policyName,omitempty"`
+	PolicyRef      *string                                                                 `json:"policyRef,omitempty"`
+	RowLimit       *int64                                                                  `json:"rowLimit,omitempty"`
+	View           *string                                                                 `json:"view,omitempty"`
+	Work           *[]Wire6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff `json:"work,omitempty"`
 }
 
 // WireBe64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0 defines model for Wire_be64a4e788b222824ca2bfc9a2295b3bbec8018e95bf6a6c02777e55ddbc83f0.
@@ -4632,12 +4844,13 @@ type WireDf12dfa59799793038c477f45c5acb6ce486b84479f8df9c47f1698fc478a940 struct
 
 // WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb defines model for Wire_e0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb.
 type WireE0b9d64ac7d2034342d226cd5a657956619fb94bfab0f429f31d295bbee568fb struct {
-	CacheName      *string `json:"cacheName,omitempty"`
-	CacheProvider  *string `json:"cacheProvider,omitempty"`
-	ConnectorName  *string `json:"connectorName,omitempty"`
-	IndexColumn    *string `json:"indexColumn,omitempty"`
-	IndexParameter *string `json:"indexParameter,omitempty"`
-	View           *string `json:"view,omitempty"`
+	CacheName        *string                                                                 `json:"cacheName,omitempty"`
+	CacheProvider    *string                                                                 `json:"cacheProvider,omitempty"`
+	ConnectorName    *string                                                                 `json:"connectorName,omitempty"`
+	IndexColumn      *string                                                                 `json:"indexColumn,omitempty"`
+	IndexParameter   *string                                                                 `json:"indexParameter,omitempty"`
+	ScheduledTargets *[]Wire32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa `json:"scheduledTargets,omitempty"`
+	View             *string                                                                 `json:"view,omitempty"`
 }
 
 // WireE18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1 defines model for Wire_e18028c8d8678f7b196b454563aabcdf784e9c96e81c3a01b6b229ef99506ee1.
@@ -4982,6 +5195,24 @@ type WireF9bfe019ac3bc8cf27b88f9b16d1f9a636d24292970f41843ad5f4eba742d99b struct
 	Stage    *string `json:"stage,omitempty"`
 }
 
+// WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 defines model for Wire_fbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6.
+type WireFbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6 struct {
+	CacheName      *string `json:"cacheName,omitempty"`
+	CacheProvider  *string `json:"cacheProvider,omitempty"`
+	ConnectorName  *string `json:"connectorName,omitempty"`
+	IndexColumn    *string `json:"indexColumn,omitempty"`
+	IndexParameter *string `json:"indexParameter,omitempty"`
+	Origin         *string `json:"origin,omitempty"`
+	PolicyName     *string `json:"policyName,omitempty"`
+	PolicyRef      *string `json:"policyRef,omitempty"`
+	View           *string `json:"view,omitempty"`
+}
+
+// WireFc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a defines model for Wire_fc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a.
+type WireFc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a struct {
+	Dimensions *[]Wire09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07 `json:"dimensions,omitempty"`
+}
+
 // WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c defines model for Wire_fcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c.
 type WireFcb2b68ea97735a078bf238fa93fc316117bac1af3b4b77c1a5f30eb2753801c struct {
 	CanCreate *bool                                                                              `json:"canCreate,omitempty"`
@@ -5242,6 +5473,17 @@ type POSTv1studiosdkcomponentsCreateJSONBody struct {
 // POSTv1studiosdkcomponentsCreateParams defines parameters for POSTv1studiosdkcomponentsCreate.
 type POSTv1studiosdkcomponentsCreateParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkcomponentsDeleteJSONBody defines parameters for POSTv1studiosdkcomponentsDelete.
+type POSTv1studiosdkcomponentsDeleteJSONBody struct {
+	Id    string                                                                `json:"id"`
+	Input InputAe6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6 `json:"input"`
+}
+
+// POSTv1studiosdkcomponentsDeleteParams defines parameters for POSTv1studiosdkcomponentsDelete.
+type POSTv1studiosdkcomponentsDeleteParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
 }
 
 // POSTv1studiosdkcomponentsGetJSONBody defines parameters for POSTv1studiosdkcomponentsGet.
@@ -5664,6 +5906,18 @@ type POSTv1studiosdkversionsCreateParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
+// POSTv1studiosdkversionsDeleteJSONBody defines parameters for POSTv1studiosdkversionsDelete.
+type POSTv1studiosdkversionsDeleteJSONBody struct {
+	ExpectedSourceRevision int64  `json:"expectedSourceRevision"`
+	ReportId               string `json:"reportId"`
+	VersionNo              int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsDeleteParams defines parameters for POSTv1studiosdkversionsDelete.
+type POSTv1studiosdkversionsDeleteParams struct {
+	XStudioNamespace string `json:"X-Studio-Namespace"`
+}
+
 // POSTv1studiosdkversionsDescriptorJSONBody defines parameters for POSTv1studiosdkversionsDescriptor.
 type POSTv1studiosdkversionsDescriptorJSONBody struct {
 	ReportId  string `json:"reportId"`
@@ -5710,9 +5964,11 @@ type POSTv1studiosdkversionsGetParams struct {
 
 // POSTv1studiosdkversionsInspectJSONBody defines parameters for POSTv1studiosdkversionsInspect.
 type POSTv1studiosdkversionsInspectJSONBody struct {
-	DiscoverColumns *bool  `json:"discoverColumns,omitempty"`
-	ReportId        string `json:"reportId"`
-	VersionNo       int64  `json:"versionNo"`
+	DiscoverColumns        *bool  `json:"discoverColumns,omitempty"`
+	IncludeEffectiveWarmup *bool  `json:"includeEffectiveWarmup,omitempty"`
+	IncludePreviewInput    *bool  `json:"includePreviewInput,omitempty"`
+	ReportId               string `json:"reportId"`
+	VersionNo              int64  `json:"versionNo"`
 }
 
 // POSTv1studiosdkversionsInspectParams defines parameters for POSTv1studiosdkversionsInspect.
@@ -5924,6 +6180,9 @@ type POSTv1studiosdkauthorizationPredicatesUpdateJSONRequestBody POSTv1studiosdk
 // POSTv1studiosdkcomponentsCreateJSONRequestBody defines body for POSTv1studiosdkcomponentsCreate for application/json ContentType.
 type POSTv1studiosdkcomponentsCreateJSONRequestBody POSTv1studiosdkcomponentsCreateJSONBody
 
+// POSTv1studiosdkcomponentsDeleteJSONRequestBody defines body for POSTv1studiosdkcomponentsDelete for application/json ContentType.
+type POSTv1studiosdkcomponentsDeleteJSONRequestBody POSTv1studiosdkcomponentsDeleteJSONBody
+
 // POSTv1studiosdkcomponentsGetJSONRequestBody defines body for POSTv1studiosdkcomponentsGet for application/json ContentType.
 type POSTv1studiosdkcomponentsGetJSONRequestBody POSTv1studiosdkcomponentsGetJSONBody
 
@@ -6067,6 +6326,9 @@ type POSTv1studiosdkversionsCloneJSONRequestBody POSTv1studiosdkversionsCloneJSO
 
 // POSTv1studiosdkversionsCreateJSONRequestBody defines body for POSTv1studiosdkversionsCreate for application/json ContentType.
 type POSTv1studiosdkversionsCreateJSONRequestBody POSTv1studiosdkversionsCreateJSONBody
+
+// POSTv1studiosdkversionsDeleteJSONRequestBody defines body for POSTv1studiosdkversionsDelete for application/json ContentType.
+type POSTv1studiosdkversionsDeleteJSONRequestBody POSTv1studiosdkversionsDeleteJSONBody
 
 // POSTv1studiosdkversionsDescriptorJSONRequestBody defines body for POSTv1studiosdkversionsDescriptor for application/json ContentType.
 type POSTv1studiosdkversionsDescriptorJSONRequestBody POSTv1studiosdkversionsDescriptorJSONBody
@@ -10890,6 +11152,68 @@ func (t *Wire69a7c7ab30f383c255ab8dc4322a722d528d5319af676a4ad4fa42763271dc3d_Ru
 	return err
 }
 
+// AsWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as a Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) AsWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8() (Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8, error) {
+	var body Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as the provided Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) FromWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8(v Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8 performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup, using the provided Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) MergeWire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8(v Wire22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as a Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) AsWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1() (Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1, error) {
+	var body Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 overwrites any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup as the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) FromWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1 performs a merge with any union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup, using the provided Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) MergeWire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1(v Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7adEffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_EffectiveWarmup) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca returns the union data inside the Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput as a WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
 func (t Wire71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad_PreviewInput) AsWireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca() (WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca, error) {
 	var body WireD898068d79f9ab4599fd8f30bffb8a6c8bc06d0e63e90430d7e800ec223ea4ca
@@ -12560,6 +12884,68 @@ func (t WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Ver
 }
 
 func (t *WireA1d273d5932b1743e789689950989d814cd8e3a90923654fe30afb020fcc1ece_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as a Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) AsWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa() (Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa, error) {
+	var body Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as the provided Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) FromWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa(v Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup, using the provided Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) MergeWire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa(v Wire600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 returns the union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as a WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) AsWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1() (WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1, error) {
+	var body WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 overwrites any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup as the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) FromWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1 performs a merge with any union data inside the WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup, using the provided WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) MergeWireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1(v WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19EffectiveWarmup1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *WireAffe7195b4b994e2bc73c2eafa9399e8aa7e19dc564d21b68f89ebdea0b9ea19_EffectiveWarmup) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -14637,6 +15023,14 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkcomponentsCreate(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// POSTv1studiosdkcomponentsDeleteWithBody performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkcomponentsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkcomponentsDelete performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkcomponentsDelete(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// POSTv1studiosdkcomponentsGetWithBody report
 	//
 	// Takes any type of body and a specified content type.
@@ -15083,6 +15477,14 @@ type ClientInterface interface {
 	// POSTv1studiosdkversionsCreate performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkversionsCreate(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsDeleteWithBody performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsDelete performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsDelete(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// POSTv1studiosdkversionsDescriptorWithBody version
 	//
@@ -15930,6 +16332,34 @@ func (c *Client) POSTv1studiosdkcomponentsCreateWithBody(ctx context.Context, pa
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkcomponentsCreate(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkcomponentsCreateRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsDeleteWithBody performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkcomponentsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsDeleteRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkcomponentsDelete performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkcomponentsDelete(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkcomponentsDeleteRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17347,6 +17777,34 @@ func (c *Client) POSTv1studiosdkversionsCreateWithBody(ctx context.Context, para
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkversionsCreate(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkversionsCreateRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsDeleteWithBody performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsDeleteWithBody(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDeleteRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsDelete performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsDelete(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsDeleteRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -19131,6 +19589,59 @@ func NewPOSTv1studiosdkcomponentsCreateRequestWithBody(server string, params *PO
 
 			req.Header.Set("X-Studio-Namespace", headerParam0)
 		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkcomponentsDeleteRequest calls the generic POSTv1studiosdkcomponentsDelete builder with application/json body
+func NewPOSTv1studiosdkcomponentsDeleteRequest(server string, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkcomponentsDeleteRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkcomponentsDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkcomponentsDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkcomponentsDeleteRequestWithBody(server string, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/components.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
 
 	}
 
@@ -21501,6 +22012,59 @@ func NewPOSTv1studiosdkversionsCreateRequestWithBody(server string, params *POST
 	return req, nil
 }
 
+// NewPOSTv1studiosdkversionsDeleteRequest calls the generic POSTv1studiosdkversionsDelete builder with application/json body
+func NewPOSTv1studiosdkversionsDeleteRequest(server string, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsDeleteRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsDeleteRequestWithBody(server string, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Studio-Namespace", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewPOSTv1studiosdkversionsDescriptorRequest calls the generic POSTv1studiosdkversionsDescriptor builder with application/json body
 func NewPOSTv1studiosdkversionsDescriptorRequest(server string, params *POSTv1studiosdkversionsDescriptorParams, body POSTv1studiosdkversionsDescriptorJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -22672,6 +23236,16 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkcomponentsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsCreateParams, body POSTv1studiosdkcomponentsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsCreateResponse, error)
 
+	// POSTv1studiosdkcomponentsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error)
+
+	// POSTv1studiosdkcomponentsDeleteWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkcomponentsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error)
+
 	// POSTv1studiosdkcomponentsGetWithBodyWithResponse report
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -23196,6 +23770,16 @@ type ClientWithResponsesInterface interface {
 	// POSTv1studiosdkversionsCreateWithResponse performs a POST /v1/studio/sdk/versions.create (the `POSTv1studiosdkversionsCreate` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkversionsCreateWithResponse(ctx context.Context, params *POSTv1studiosdkversionsCreateParams, body POSTv1studiosdkversionsCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsCreateResponse, error)
+
+	// POSTv1studiosdkversionsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error)
+
+	// POSTv1studiosdkversionsDeleteWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error)
 
 	// POSTv1studiosdkversionsDescriptorWithBodyWithResponse version
 	//
@@ -24387,6 +24971,47 @@ func (r POSTv1studiosdkcomponentsCreateResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r POSTv1studiosdkcomponentsCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkcomponentsDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkcomponentsDeleteResponse) GetJSON200() *Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkcomponentsDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkcomponentsDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkcomponentsDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkcomponentsDeleteResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -26388,6 +27013,47 @@ func (r POSTv1studiosdkversionsCreateResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdkversionsDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsDeleteResponse) GetJSON200() *OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type POSTv1studiosdkversionsDescriptorResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27597,6 +28263,28 @@ func (c *ClientWithResponses) POSTv1studiosdkcomponentsCreateWithResponse(ctx co
 	return ParsePOSTv1studiosdkcomponentsCreateResponse(rsp)
 }
 
+// POSTv1studiosdkcomponentsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsDeleteWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkcomponentsDeleteWithResponse performs a POST /v1/studio/sdk/components.delete (the `POSTv1studiosdkcomponentsDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkcomponentsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkcomponentsDeleteParams, body POSTv1studiosdkcomponentsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkcomponentsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkcomponentsDelete(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkcomponentsDeleteResponse(rsp)
+}
+
 // POSTv1studiosdkcomponentsGetWithBodyWithResponse report
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -28704,6 +29392,28 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsCreateWithResponse(ctx cont
 	return ParsePOSTv1studiosdkversionsCreateResponse(rsp)
 }
 
+// POSTv1studiosdkversionsDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDeleteWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkversionsDeleteWithResponse performs a POST /v1/studio/sdk/versions.delete (the `POSTv1studiosdkversionsDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkversionsDeleteParams, body POSTv1studiosdkversionsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsDelete(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsDeleteResponse(rsp)
+}
+
 // POSTv1studiosdkversionsDescriptorWithBodyWithResponse version
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -29700,6 +30410,32 @@ func ParsePOSTv1studiosdkcomponentsCreateResponse(rsp *http.Response) (*POSTv1st
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkcomponentsDeleteResponse parses an HTTP response from a POSTv1studiosdkcomponentsDeleteWithResponse call
+func ParsePOSTv1studiosdkcomponentsDeleteResponse(rsp *http.Response) (*POSTv1studiosdkcomponentsDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkcomponentsDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -30954,6 +31690,32 @@ func ParsePOSTv1studiosdkversionsCreateResponse(rsp *http.Response) (*POSTv1stud
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire59787f7087b974a90942d4d67d870a8382b1189efe4cc88cfba1b0ada4d89c75
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsDeleteResponse parses an HTTP response from a POSTv1studiosdkversionsDeleteWithResponse call
+func ParsePOSTv1studiosdkversionsDeleteResponse(rsp *http.Response) (*POSTv1studiosdkversionsDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputCebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

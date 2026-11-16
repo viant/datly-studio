@@ -34,6 +34,7 @@ import (
 	authoring "github.com/viant/datly-studio/studio/host"
 	namespacechange "github.com/viant/datly-studio/studio/namespaces/change"
 	"github.com/viant/datly/bootstrap/connector"
+	druntime "github.com/viant/datly/runtime"
 	nativeauth "github.com/viant/datly/runtime/auth"
 	datlyconfig "github.com/viant/datly/standalone/config"
 	"github.com/viant/mcp-protocol/authorization"
@@ -103,6 +104,16 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}
 	ctx, cancel := context.WithCancel(parent)
 	defer cancel()
+	// Reuse native Logging policy and sink ownership for Studio's dynamic
+	// execution runtimes. Nil leaves existing native behavior unchanged.
+	var executionObservability *druntime.Observability
+	if config.Logging != nil {
+		executionObservability, err = druntime.NewObservability(druntime.ObservabilityConfig{Logging: config.Logging})
+		if err != nil {
+			return err
+		}
+		defer executionObservability.Shutdown(context.WithoutCancel(ctx))
+	}
 	// Resolve the one storage secret through the same SCY contract as Datly.
 	if catalog.Secret != nil {
 		secret, loadErr := scy.New().Load(ctx, catalog.Secret)
@@ -170,6 +181,12 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		options.Native.Authoring = &authoring.AuthoringConfig{}
 	}
 	authoringConfig := *options.Native.Authoring
+	if executionObservability != nil {
+		authoringConfig.Config.Observability = executionObservability
+	}
+	if config.WarmupOperationTimeout != nil {
+		authoringConfig.Config.WarmupOperationTimeout = config.WarmupOperationTimeout
+	}
 	authoringConfig.Const = config.Const
 	if authoringConfig.ModulePath == "" {
 		authoringConfig.ModulePath = authoring.DefaultAuthoringModule

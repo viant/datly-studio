@@ -254,6 +254,8 @@ func outputFor(operation string) (any, bool) {
 		return nil, true
 	case sdk.OperationNamespaceDelete:
 		return nil, true
+	case sdk.OperationComponentDelete, sdk.OperationVersionDelete:
+		return new(sdk.DeletionResult), true
 	case sdk.OperationComponentCreate, sdk.OperationComponentGet, sdk.OperationComponentUpdate:
 		return new(sdk.Component), true
 	case sdk.OperationComponentList:

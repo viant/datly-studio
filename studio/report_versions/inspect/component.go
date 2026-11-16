@@ -10,7 +10,9 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/internal/readerinspection"
 	"github.com/viant/datly-studio/internal/versionprojection"
 	"github.com/viant/datly-studio/internal/versionrun"
@@ -23,6 +25,7 @@ import (
 	versions "github.com/viant/datly-studio/studio/report_versions/get"
 	catalog "github.com/viant/datly-studio/studio/report_versions/store_catalog"
 	reports "github.com/viant/datly-studio/studio/reports/get"
+	publishguard "github.com/viant/datly-studio/studio/reports/publish_guard"
 	capabilities "github.com/viant/datly-studio/studio/reports/store_capabilities"
 	"github.com/viant/datly/authoring/readerbuilder"
 	"github.com/viant/datly/exec"
@@ -38,21 +41,24 @@ import (
 )
 
 type Input struct {
-	NamespaceId     *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
-	Jwt             *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
-	Auth            *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
-	ReportId        string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
-	VersionNo       int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
-	DiscoverColumns *bool              `parameter:"DiscoverColumns,kind=body,in=discoverColumns,dataType=*bool,required=false" json:"discoverColumns,omitempty"`
+	NamespaceId            *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
+	Jwt                    *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
+	Auth                   *studioauth.Output `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true"`
+	ReportId               string             `parameter:"ReportId,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
+	VersionNo              int                `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
+	DiscoverColumns        *bool              `parameter:"DiscoverColumns,kind=body,in=discoverColumns,dataType=*bool,required=false" json:"discoverColumns,omitempty"`
+	IncludePreviewInput    *bool              `parameter:"IncludePreviewInput,kind=body,in=includePreviewInput,dataType=*bool,required=false" json:"includePreviewInput,omitempty"`
+	IncludeEffectiveWarmup *bool              `parameter:"IncludeEffectiveWarmup,kind=body,in=includeEffectiveWarmup,dataType=*bool,required=false" json:"includeEffectiveWarmup,omitempty"`
 }
 
 type Output struct {
-	PreviewInput *sdk.PreviewInputContract `parameter:"PreviewInput,kind=output,in=body,dataType=*sdk.PreviewInputContract" json:"previewInput,omitempty"`
-	Version      *sdk.ReportVersion        `parameter:"Version,kind=output,in=body,dataType=*sdk.ReportVersion" json:"version"`
-	DQL          string                    `parameter:"DQL,kind=output,in=body,dataType=string" json:"dql,omitempty"`
-	Structure    json.RawMessage           `parameter:"Structure,kind=output,in=body,dataType=json.RawMessage" json:"structure,omitempty"`
-	Diagnostics  []sdk.Diagnostic          `parameter:"Diagnostics,kind=output,in=body,dataType=[]sdk.Diagnostic" json:"diagnostics,omitempty"`
-	Capabilities sdk.ReportCapabilities    `parameter:"Capabilities,kind=output,in=body,dataType=sdk.ReportCapabilities" json:"capabilities"`
+	EffectiveWarmup *sdk.EffectiveWarmupInspection `parameter:"EffectiveWarmup,kind=output,in=body,dataType=*sdk.EffectiveWarmupInspection" json:"effectiveWarmup,omitempty"`
+	PreviewInput    *sdk.PreviewInputContract      `parameter:"PreviewInput,kind=output,in=body,dataType=*sdk.PreviewInputContract" json:"previewInput,omitempty"`
+	Version         *sdk.ReportVersion             `parameter:"Version,kind=output,in=body,dataType=*sdk.ReportVersion" json:"version"`
+	DQL             string                         `parameter:"DQL,kind=output,in=body,dataType=string" json:"dql,omitempty"`
+	Structure       json.RawMessage                `parameter:"Structure,kind=output,in=body,dataType=json.RawMessage" json:"structure,omitempty"`
+	Diagnostics     []sdk.Diagnostic               `parameter:"Diagnostics,kind=output,in=body,dataType=[]sdk.Diagnostic" json:"diagnostics,omitempty"`
+	Capabilities    sdk.ReportCapabilities         `parameter:"Capabilities,kind=output,in=body,dataType=sdk.ReportCapabilities" json:"capabilities"`
 }
 
 type Component struct {
@@ -194,7 +200,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		Operation: readerbuilder.Operation{Type: readerbuilder.OperationInspect}})
 	if (input.DiscoverColumns == nil || *input.DiscoverColumns) && permissions.CanUseDQL && inspected.Structure != nil && inspected.Structure.Component != nil {
 
-		resolved, inspectErr := (preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}).InspectContract(ctx, input.ReportId, input.VersionNo)
+		resolved, inspectErr := (preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), Observability: authoring.Observability(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}).InspectContract(ctx, input.ReportId, input.VersionNo)
 		if inspectErr != nil {
 			inspected.Structure.Status = "partial"
 			inspected.Diagnostics = append(inspected.Diagnostics, &transcribe.Diagnostic{Severity: transcribe.SeverityWarning, Code: "column_inspection_unavailable", Message: "Column metadata is unavailable; check the draft source and connector configuration."})
@@ -203,19 +209,54 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		}
 	}
 	projected := readerinspection.Project(version, &inspected, permissions)
-	if permissions.CanRun {
-		var metadata *sdk.PreviewInputContract
-		previewCtx, engine, cancel, authorizeErr := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportId, input.VersionNo, 0)
+	wantInput := (input.IncludePreviewInput == nil || *input.IncludePreviewInput) && permissions.CanRun
+	wantWarmup := false
+	metadataCtx := ctx
+	engine := preview.Dynamic{Predicates: authoring.PredicateCatalog(), StudioDB: db, ModulePath: authoring.ModulePath(), Types: types, Const: authoring.Constants(), Observability: authoring.Observability(), ReaderCaches: authoring.ReaderCaches(), SourceValidator: authoring.SourceValidator(), Dependencies: authoring.Dependencies()}
+	inputAuthorized := false
+	if wantInput {
+		previewCtx, previewEngine, cancel, authorizeErr := versionrun.Authorized(ctx, session, input.Jwt, input.Auth, input.ReportId, input.VersionNo, 0)
 		if authorizeErr == nil {
-			metadata, err = engine.InspectPreviewInput(previewCtx, input.ReportId, input.VersionNo)
-			cancel()
-			if err != nil {
-				metadata = nil
+			defer cancel()
+			metadataCtx, engine, inputAuthorized = previewCtx, previewEngine, true
+		}
+	}
+	warmupAuthorized := false
+	if input.IncludeEffectiveWarmup == nil || *input.IncludeEffectiveWarmup {
+		warmupAccess := &publishguard.Input{}
+		warmupAccess.SetJwt(input.Jwt)
+		warmupAccess.SetAuth(input.Auth)
+		warmupAccess.SetReportId(input.ReportId)
+		allowed, accessErr := invoker.InvokeComponent(ctx, exec.ComponentRequest{Target: target(reflect.TypeFor[publishguard.ReportComponent](), "report", "POST", "/_studio/reports/publish-guard"), Input: warmupAccess})
+		if granted, ok := allowed.(*publishguard.Output); accessErr == nil && ok && granted != nil && granted.Item != nil && granted.Item.Id == input.ReportId {
+			wantWarmup = true
+			var header struct {
+				Authorization string `bind:"kind=header,in=Authorization"`
+			}
+			if bindErr := session.Binder().Bind(ctx, &header); bindErr == nil {
+				// Warmup inspection has always retained the verified bearer, even
+				// when preview authorization does not need an ACL provider.
+				metadataCtx = sdk.WithPrincipal(metadataCtx, sdk.Principal{Subject: input.Jwt.Subject})
+				metadataCtx = sdk.WithNamespaceSelection(metadataCtx, namespaceaccess.ID(report.Item.OwnerId, report.Item.Namespace))
+				metadataCtx = sdk.WithVerifiedCredential(metadataCtx, sdk.VerifiedCredential{Bearer: strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer ")), Claims: input.Jwt})
+				if !inputAuthorized {
+					var cancel context.CancelFunc
+					metadataCtx, cancel = context.WithTimeout(metadataCtx, 30*time.Second)
+					defer cancel()
+				}
+				engine.SourceValidator = authoring.SourceValidator()
+				warmupAuthorized = true
 			}
 		}
-		readerinspection.SetPreviewInput(projected, metadata)
 	}
-	*output = Output{Version: projected.Version, DQL: projected.DQL,
+	previewInput, effectiveWarmup, _, _ := engine.InspectExecutionMetadata(metadataCtx, input.ReportId, input.VersionNo, inputAuthorized, warmupAuthorized)
+	if wantInput {
+		readerinspection.SetPreviewInput(projected, previewInput)
+	}
+	if wantWarmup {
+		readerinspection.SetEffectiveWarmup(projected, effectiveWarmup)
+	}
+	*output = Output{Version: projected.Version, DQL: projected.DQL, EffectiveWarmup: projected.EffectiveWarmup,
 		Structure: projected.Structure, Diagnostics: projected.Diagnostics, Capabilities: projected.Capabilities, PreviewInput: projected.PreviewInput}
 	return nil
 }

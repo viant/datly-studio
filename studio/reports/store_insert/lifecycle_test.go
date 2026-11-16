@@ -15,7 +15,7 @@ func TestReportInsertRulesRequireDraftIdentity(t *testing.T) {
 		OwnerId: "owner-1", Status: "draft", DefaultConnectorName: "main",
 		ComponentScope: "reports/owner-1/report-1", ComponentName: "reader",
 		Etag: 1, CreatedAt: now, UpdatedAt: now}
-	rules := &ReportInsertRules{}
+	rules := &ReportInsertRules{Input: &Input{ComponentIds: []string{row.Id}}}
 	state := xhandler.LifecycleContext[StoredReport, xhandler.NoParent, Output]{}
 	if err := rules.Init(context.Background(), row, state); err != nil {
 		t.Fatal(err)

@@ -212,9 +212,9 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_resource_files.read
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
-      Namespace: owner.resources.docs
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
+      namespace: owner.resources.docs
   readFilesAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -234,8 +234,8 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_resource_folders.read
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
   readFoldersAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -256,8 +256,8 @@ pipeline:
     bearerTokenSecret: $ownerToken
     '@name': studio.component_skill_roots.read
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
   readSkillsAssert:
     action: validator:assert
     normalizeKVPairs: true
@@ -278,8 +278,8 @@ pipeline:
     bearerTokenSecret: $outsiderToken
     '@name': studio.component_resource_files.read
     arguments:
-      ReportId: $component.StructuredContent.id
-      VersionNo: $import.StructuredContent.version.versionNo
+      reportId: $component.StructuredContent.id
+      versionNo: $import.StructuredContent.version.versionNo
   hiddenFiles:
     action: validator:assert
     normalizeKVPairs: true

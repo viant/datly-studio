@@ -302,6 +302,18 @@ func (s *Store) StageRevisionWithBindingsAndDependencies(ctx context.Context, cu
 	i.SetBindingsHash(hash)
 	i.SetExpectedRevision(int64(current.Revision))
 	i.SetNoPending(true)
+	componentSet := map[string]bool{}
+	for _, binding := range bindings {
+		if binding.ComponentKind == "dynamic" {
+			componentSet[binding.ComponentID] = true
+		}
+	}
+	componentIDs := make([]string, 0, len(componentSet))
+	for id := range componentSet {
+		componentIDs = append(componentIDs, id)
+	}
+	sort.Strings(componentIDs)
+	i.SetComponentIds(componentIDs)
 	i.SetStage([]*stageview.StageChannel{row})
 	_, e = s.invoke(ctx, reflect.TypeFor[stageview.StageComponent](), "stage", "PATCH", i)
 	if e != nil {

@@ -28,18 +28,28 @@ func TestGeneratedPackagesMatchCanonicalInventory(t *testing.T) {
 		"component_resource_files": true, "component_resource_folders": true, "component_skill_roots": true,
 		"runtime_generations": true, "component_warmup_runs": true, "component_publications": true, "component_acl": true,
 		"component_publication_events": true,
-		"bff_sessions":                 true,
-		"authorization_predicates":     true,
-		"resource_policy":              true,
-		"resource_namespaces":          true,
-		"resource_namespace_claims":    true,
-		"authorization_grants":         true,
-		"namespace_skills":             true,
-		"namespace_skill_revisions":    true,
-		"tool_call_audit":              true,
+		// Cohesive graphs own these tables without one package per table.
+		"component_deletions":              true,
+		"artifact_release":                 true,
+		"artifact_release_bundles":         true,
+		"artifact_release_channels":        true,
+		"artifact_release_operations":      true,
+		"artifact_release_bundle_bindings": true,
+		"namespace_settings":               true,
+		"audit":                            true,
+		"tool_audit_settings":              true,
+		"bff_sessions":                     true,
+		"authorization_predicates":         true,
+		"resource_policy":                  true,
+		"resource_namespaces":              true,
+		"resource_namespace_claims":        true,
+		"authorization_grants":             true,
+		"namespace_skills":                 true,
+		"namespace_skill_revisions":        true,
+		"tool_call_audit":                  true,
 	}
 	legacy := map[string]bool{"report_filters": true}
-	support := map[string]bool{"codeccatalog": true, "codecs": true, "authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true, "catalog": true}
+	support := map[string]bool{"settings": true, "sourcevalidation": true, "codeccatalog": true, "codecs": true, "authorization": true, "host": true, "predicatecatalog": true, "resources": true, "preview": true, "runtime": true, "catalog": true}
 	for root, label := range map[string]string{filepath.Join(repoRoot, "studio"): "generated Go", filepath.Join(repoRoot, "dql", "studio"): "DQL"} {
 		entries, err := os.ReadDir(root)
 		if err != nil {
@@ -272,12 +282,12 @@ func TestEveryStaticDatlyComponentContract(t *testing.T) {
 		{"connectors/store_runtime_catalog/connector.dql", "get"},
 		{"report_versions/store_head/head.dql", "get"},
 		{"report_versions/store_catalog/version.dql", "get"},
-		{"report_versions/store_insert/version.dql", "post"},
+		{"report_versions/store_insert/version.dql", "patch"},
 		{"report_versions/store_edit/version.dql", "patch"},
 		{"report_versions/store_validation/version.dql", "patch"},
 		{"report_versions/store_state/version.dql", "patch"},
 		{"report_versions/store_mcp_names/version.dql", "get"},
-		{"report_versions/store_import/version.dql", "post"},
+		{"report_versions/store_import/version.dql", "patch"},
 		{"reports/store_draft_pointer/report.dql", "patch"},
 		{"reports/store_insert/report.dql", "post"},
 		{"reports/store_config/report.dql", "patch"},

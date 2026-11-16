@@ -9,7 +9,9 @@ import (
 )
 
 // ReportInsertRules customizes role Input.Reports.
-type ReportInsertRules struct{}
+type ReportInsertRules struct {
+	Input *Input `bind:"kind=input,required"`
+}
 
 func ReportInsertRulesDatlyType() reflect.Type {
 	return reflect.TypeOf((*ReportInsertRules)(nil)).Elem()
@@ -26,6 +28,24 @@ func (hooks *ReportInsertRules) Init(_ context.Context, entity *StoredReport, _ 
 		entity.ComponentScope == "" || entity.ComponentName == "" || entity.Status != "draft" ||
 		entity.Etag != 1 || entity.CreatedAt.IsZero() || entity.UpdatedAt.IsZero() {
 		return fmt.Errorf("new report requires identity, owner, connector, draft state, timestamps and etag 1")
+	}
+	if hooks.Input == nil {
+		return fmt.Errorf("component creation requires receipt admission")
+	}
+	covered := false
+	for _, id := range hooks.Input.ComponentIds {
+		if id == entity.Id {
+			covered = true
+			break
+		}
+	}
+	if !covered {
+		return fmt.Errorf("component creation requires receipt admission for its identity")
+	}
+	for _, receipt := range hooks.Input.Deletions {
+		if receipt != nil && receipt.ComponentId == entity.Id {
+			return &xhandler.Conflict{Entity: "component", Field: "id", Reason: "component identity is permanently reserved"}
+		}
 	}
 	if entity.NamespaceId != namespaceaccess.ID(entity.OwnerId, entity.Namespace) {
 		return fmt.Errorf("component namespace ownership must match its owner and namespace")

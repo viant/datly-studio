@@ -23,7 +23,10 @@ var (
 	VersionInsertRulesDatly = VersionInsertRulesDatlyType()
 )
 
-func (hooks *VersionInsertRules) Init(_ context.Context, entity *StoredVersion, _ xhandler.LifecycleContext[StoredVersion, xhandler.NoParent, Output]) error {
+func (hooks *VersionInsertRules) Init(_ context.Context, entity *StoredVersion, state xhandler.LifecycleContext[StoredVersion, VersionAllocation, Output]) error {
+	if state.Previous != nil {
+		return fmt.Errorf("new report version must be inserted")
+	}
 	if entity == nil || strings.TrimSpace(entity.ReportId) == "" || entity.VersionNo <= 0 ||
 		entity.State != "draft" || entity.CompileStatus != "pending" || entity.SourceRevision != 1 ||
 		strings.TrimSpace(entity.CreatedBy) == "" || entity.CreatedAt.IsZero() ||
@@ -50,13 +53,13 @@ func (hooks *VersionInsertRules) Init(_ context.Context, entity *StoredVersion, 
 	}
 	return nil
 }
-func (hooks *VersionInsertRules) Validate(ctx context.Context, entity *StoredVersion, state xhandler.LifecycleContext[StoredVersion, xhandler.NoParent, Output]) error {
+func (hooks *VersionInsertRules) Validate(ctx context.Context, entity *StoredVersion, state xhandler.LifecycleContext[StoredVersion, VersionAllocation, Output]) error {
 	return nil
 }
-func (hooks *VersionInsertRules) AfterSequence(ctx context.Context, entity *StoredVersion, state xhandler.LifecycleContext[StoredVersion, xhandler.NoParent, Output]) error {
+func (hooks *VersionInsertRules) AfterSequence(ctx context.Context, entity *StoredVersion, state xhandler.LifecycleContext[StoredVersion, VersionAllocation, Output]) error {
 	return nil
 }
-func (hooks *VersionInsertRules) AfterQueue(ctx context.Context, entity *StoredVersion, state xhandler.LifecycleContext[StoredVersion, xhandler.NoParent, Output]) error {
+func (hooks *VersionInsertRules) AfterQueue(ctx context.Context, entity *StoredVersion, state xhandler.LifecycleContext[StoredVersion, VersionAllocation, Output]) error {
 	return nil
 }
 func (hooks *VersionInsertRules) Finalize(ctx context.Context, input *Input, output *Output, outcome xhandler.Outcome) error {

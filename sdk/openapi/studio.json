@@ -1296,6 +1296,15 @@
           }
         }
       },
+      "Input_ae6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6": {
+        "type": "object",
+        "properties": {
+          "etag": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_b11523bf8a7cc12531330e851f7fb2dd5c4f01768e8eaf6d9a50d7d84ad1250b": {
         "type": "object",
         "properties": {
@@ -1841,7 +1850,8 @@
         "type": "object",
         "properties": {
           "cube": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Preview the derived single cube. Put dimensions, measures, filters and limit inside input; this does not invoke multi-cube composition."
           },
           "input": {},
           "limit": {
@@ -2255,6 +2265,48 @@
           }
         }
       },
+      "Output_1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Output_20d14e6c9e21afc4a0245cde30dbea83a572b7611ecb2a2d7721e85b2f520260": {
         "type": "object",
         "properties": {
@@ -2362,6 +2414,22 @@
           },
           "toolName": {
             "type": "string"
+          }
+        }
+      },
+      "Output_2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866": {
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string"
+          },
+          "deletedVersions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -2515,6 +2583,13 @@
           },
           "indexParameter": {
             "type": "string"
+          },
+          "scheduledTargets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f"
+            },
+            "nullable": true
           },
           "view": {
             "type": "string"
@@ -3022,6 +3097,48 @@
           }
         }
       },
+      "Output_7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Output_7f617ddc14b6df274d226551b825c90a4f977a14591bdfd1ddc94b5f6066bce5": {
         "type": "object",
         "properties": {
@@ -3058,6 +3175,38 @@
             "type": "string"
           },
           "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Output_7f8c2e575ef0274159a31f33c6cf9be7c3fa485e125fe895c49e798d6225fa43": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
             "type": "string"
           }
         }
@@ -3344,6 +3493,38 @@
             "type": "string"
           },
           "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
             "type": "string"
           }
         }
@@ -3728,6 +3909,22 @@
           }
         }
       },
+      "Output_cebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae": {
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string"
+          },
+          "deletedVersions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Output_d14887150549e1252499c617aacbd48b5aab3c262cdf2f62fa7fbaf8f1edbaa2": {
         "type": "object",
         "properties": {
@@ -4068,6 +4265,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "scheduledTargets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Output_1fa7891831078d2bd3c395f23b92a9f29613c13d9e995639402d73867aef3619"
+            },
+            "nullable": true
+          },
           "view": {
             "type": "string"
           }
@@ -4379,6 +4583,21 @@
           },
           "version": {
             "type": "string"
+          }
+        }
+      },
+      "Wire_09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07": {
+        "type": "object",
+        "properties": {
+          "excludeDefault": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "valueCount": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -5150,10 +5369,39 @@
           "status": {
             "type": "string"
           },
+          "versionDeleted": {
+            "type": "boolean"
+          },
           "versionNo": {
             "type": "integer",
             "format": "int64",
             "nullable": true
+          }
+        }
+      },
+      "Wire_22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8": {
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "string"
+          },
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_bdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c"
+            },
+            "nullable": true
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -5408,6 +5656,9 @@
           "default": {
             "type": "string",
             "nullable": true
+          },
+          "description": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5855,6 +6106,48 @@
           },
           "subjectType": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Wire_32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_fbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6"
+            },
             "nullable": true
           }
         }
@@ -6928,6 +7221,21 @@
           }
         }
       },
+      "Wire_50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c": {
+        "type": "object",
+        "properties": {
+          "excludeDefault": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "valueCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Wire_517b25ae3a6a1221520076308b5e6474437dc4fcead897aa4ecfa71bf21374de": {
         "type": "object",
         "properties": {
@@ -7040,6 +7348,18 @@
           "versionNo": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "Wire_5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9": {
+        "type": "object",
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_50eca458999caa29e04521ce4fca483e899de0f405e93d6732c7ae5155c82e4c"
+            },
+            "nullable": true
           }
         }
       },
@@ -7174,6 +7494,32 @@
           },
           "version": {
             "type": "string"
+          }
+        }
+      },
+      "Wire_600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa": {
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "string"
+          },
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_ae7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db"
+            },
+            "nullable": true
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -7616,6 +7962,38 @@
           }
         }
       },
+      "Wire_6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          }
+        }
+      },
       "Wire_71135f21ef144ede226f59f1b64910efa1147d20e135146157de32743475d7ad": {
         "type": "object",
         "properties": {
@@ -7631,6 +8009,20 @@
           },
           "dql": {
             "type": "string"
+          },
+          "effectiveWarmup": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_22dd4d50702549d5219c9a32cc13bdb21aea2767871bd4cebd907b665d1ef6d8"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "previewInput": {
             "anyOf": [
@@ -8276,6 +8668,38 @@
           "duration": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "Wire_837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
           }
         }
       },
@@ -9309,6 +9733,65 @@
           }
         }
       },
+      "Wire_ae7f652cfa697bf95e41d911ebfdc1729062029caed45fe012ad3b25d49a22db": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_5693e7c82aff29244cda24388a1632a9502670999263ee69134c3c6a1ca59aa9"
+            },
+            "nullable": true
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "maxCases": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "rowLimit": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_837407b1fc28775753adc0892f1befa09ca9dbe67a14e15dd26ce6bcbcc0c5db"
+            },
+            "nullable": true
+          }
+        }
+      },
       "Wire_afbd3ba313288192c9a8ae3627ea548117f98143f4f73d04a19579f4207fa6b3": {
         "type": "object",
         "properties": {
@@ -9341,6 +9824,20 @@
           },
           "dql": {
             "type": "string"
+          },
+          "effectiveWarmup": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wire_600d937dc650665c71dcee068e69f041a08e39bc9bf53b63b7ca96172a0a88aa"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           },
           "previewInput": {
             "anyOf": [
@@ -9714,6 +10211,65 @@
                   ]
                 }
               ]
+            },
+            "nullable": true
+          }
+        }
+      },
+      "Wire_bdd521b40af50ee2a6adae9bef89b6347863ba049bfdfbdcaca818f86c2c849c": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_fc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a"
+            },
+            "nullable": true
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexMeta": {
+            "type": "boolean"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "maxCases": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "rowLimit": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "view": {
+            "type": "string"
+          },
+          "work": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_6f7c44eab66917ac250b10b98196f2e05afa5a32d324e146302a7ab49f2ff5ff"
             },
             "nullable": true
           }
@@ -10814,6 +11370,13 @@
           "indexParameter": {
             "type": "string"
           },
+          "scheduledTargets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_32f8f7d808ff059ae8283308be99fd2ba2e355d10944c0dbb72756f78e066afa"
+            },
+            "nullable": true
+          },
           "view": {
             "type": "string"
           }
@@ -11670,6 +12233,50 @@
           },
           "stage": {
             "type": "string"
+          }
+        }
+      },
+      "Wire_fbe11d837e929789a12b89ddfda7882878aa92ce43ae86779f88f0d4302560e6": {
+        "type": "object",
+        "properties": {
+          "cacheName": {
+            "type": "string"
+          },
+          "cacheProvider": {
+            "type": "string"
+          },
+          "connectorName": {
+            "type": "string"
+          },
+          "indexColumn": {
+            "type": "string"
+          },
+          "indexParameter": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "policyName": {
+            "type": "string"
+          },
+          "policyRef": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          }
+        }
+      },
+      "Wire_fc345e9e7a8e2049c17320b181895ab8838774e1209da49638fcf844ed3c4b1a": {
+        "type": "object",
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Wire_09df33dcbf2664a7a55ef590811d92c59af059f56498ed2e491a1182fd8d8b07"
+            },
+            "nullable": true
           }
         }
       },
@@ -13000,6 +13607,60 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_443bbe5c4c72f351c9a66a106cdb43706c944ab1d042017ad7a9092b72d13f21"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/components.delete": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/components.delete",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "input": {
+                    "$ref": "#/components/schemas/Input_ae6f59a187d655d1fcbd39952ffc02eaaa1d8dbc64e4bc293601118c88077fd6"
+                  }
+                },
+                "required": [
+                  "id",
+                  "input"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_2c60683b08b76f39208271b18a2b94730b1f1e37172d73ad8b5720be47593866"
                 }
               }
             }
@@ -15404,6 +16065,66 @@
         ]
       }
     },
+    "/v1/studio/sdk/versions.delete": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/versions.delete",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedSourceRevision": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "reportId": {
+                    "type": "string"
+                  },
+                  "versionNo": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "reportId",
+                  "versionNo",
+                  "expectedSourceRevision"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_cebad8ca6654e6bf48eaed22585705bb5faf50e574b898e50147049f0430d0ae"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
     "/v1/studio/sdk/versions.descriptor": {
       "post": {
         "summary": "version",
@@ -15643,6 +16364,14 @@
                 "type": "object",
                 "properties": {
                   "discoverColumns": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "includeEffectiveWarmup": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "includePreviewInput": {
                     "type": "boolean",
                     "nullable": true
                   },

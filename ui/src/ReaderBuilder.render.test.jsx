@@ -308,7 +308,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     const api = {
       listVersions:vi.fn().mockImplementation(async()=>({items:published?[{...current.version,state:'published'},old]:[current.version,old]})),
       inspectVersion:vi.fn().mockImplementation(async(_,no)=>({...current,version:no===13?{...current.version,state:published?'published':'draft'}:old})),
-      getPublication:vi.fn().mockResolvedValue({activeVersionNo:11,activeGeneration:25,status:'active'}),
+      getPublication:vi.fn().mockImplementation(async()=>published?outcome:{activeVersionNo:11,activeGeneration:25,status:'active'}),
       listPublicationEvents:vi.fn().mockResolvedValue({items:[]}),
       getRuntimeStatus:vi.fn().mockResolvedValue({status:'active',host:{status:'ready'}}),
       publishReader:vi.fn().mockImplementation(async()=>{published=true;return outcome;}),
@@ -321,7 +321,9 @@ describe('ReaderBuilder graph-first authoring', () => {
     await screen.findByText('Published version is now v13 · generation 28.');
     expect(api.inspectVersion.mock.calls.at(-1)).toEqual(['vendor',13,{discoverColumns:false}]);
     expect(screen.getByRole('combobox',{name:'Publish version'}).value).toBe('13');
-    expect(screen.getByText('Published v13')).toBeTruthy();
+    const versionSelector=screen.getByRole('combobox',{name:'Component version'});
+    expect(versionSelector.value).toBe('13');
+    expect(versionSelector.selectedOptions[0].textContent).toContain('Published');
   });
 
   test('keeps rollback and unpublish reachable while the current draft is invalid', async () => {

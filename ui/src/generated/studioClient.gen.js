@@ -1008,6 +1008,15 @@ var postV1StudioSdkComponentsCreate = (options) => (options.client ?? client).po
     ...options.headers
   }
 });
+var postV1StudioSdkComponentsDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/components.delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkComponentsGet = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/components.get",
@@ -1445,6 +1454,15 @@ var postV1StudioSdkVersionsCreate = (options) => (options.client ?? client).post
     ...options.headers
   }
 });
+var postV1StudioSdkVersionsDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 var postV1StudioSdkVersionsDescriptor = (options) => (options.client ?? client).post({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/v1/studio/sdk/versions.descriptor",
@@ -1615,6 +1633,7 @@ export {
   postV1StudioSdkAuthorizationPredicatesUpdate,
   postV1StudioSdkCodecsTypes,
   postV1StudioSdkComponentsCreate,
+  postV1StudioSdkComponentsDelete,
   postV1StudioSdkComponentsGet,
   postV1StudioSdkComponentsList,
   postV1StudioSdkComponentsUpdate,
@@ -1664,6 +1683,7 @@ export {
   postV1StudioSdkVersionsBuilder,
   postV1StudioSdkVersionsClone,
   postV1StudioSdkVersionsCreate,
+  postV1StudioSdkVersionsDelete,
   postV1StudioSdkVersionsDescriptor,
   postV1StudioSdkVersionsDownload,
   postV1StudioSdkVersionsExportDql,
