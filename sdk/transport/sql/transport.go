@@ -167,6 +167,10 @@ type CandidateContractInspector interface {
 }
 
 type Transport struct {
+	// WarmupOperationTimeout is trusted host startup configuration, never input.
+	// Nil preserves five minutes; embedding hosts validate through host.Config.
+	WarmupOperationTimeout *string
+
 	// AuthoringModule is trusted host configuration, never request data.
 	AuthoringModule string
 	// ReleaseNamespace is a trusted startup capability. Empty hides native

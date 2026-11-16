@@ -3,6 +3,46 @@
 Dynamic warmup is implemented in `runtime/preview/dynamic.go` and the native
 `studio.sdk.versions.warmup` handler.
 
+## Host-owned operation deadline
+
+The existing trusted `studio/host.Config` accepts an optional
+`WarmupOperationTimeout` duration string. For example, an embedding host can use:
+
+```go
+timeout := "10m"
+config := host.Config{WarmupOperationTimeout: &timeout}
+```
+
+Supply that configuration through `host.AuthoringConfig.Config` for the native
+host, or `app/studioapi.Options.HostConfig` for the SQL API host. The native
+authoring snapshot captures the resolved duration once; the SQL API host also
+validates and captures it at startup. Omission retains five minutes. Explicit
+empty, malformed, overflowing, zero, and negative durations fail startup.
+This is not a browser argument, authored warmup case, or Datly gateway timeout.
+
+Layout 29 adds an internal nullable `component_warmup_runs.deadline_at` column.
+Acceptance captures one UTC `requested_at` and stores its deadline in the same
+native writer operation. The worker uses that absolute deadline, including
+commit visibility, compilation, dependency initialization, and execution. The
+existing independent five-second commit-visibility bound is unchanged.
+
+Both recovery paths use the accepted deadline, not their current host timeout.
+Old rows with NULL deadlines retain their historical `requested_at + 5m` budget;
+no historical evidence or timestamps are rewritten. Configuration changes affect
+new jobs only. Apply the explicit `029-warmup-deadline` database upgrade before
+starting updated hosts, and upgrade all recovery hosts before enabling longer
+timeouts. Startup does not migrate existing stores automatically.
+
+The native list/recovery operation declares Datly's `imperative` component-call
+policy so each recovery write is visible to its next expiry read inside the
+same root transaction. Buffered child writes would leave that loop reading the
+same expired batch until root completion. This uses Datly's existing transaction
+policy; it does not create independent child transactions.
+
+Accepted jobs remain independent of browser cancellation. Existing execution
+guards, completed/partial/failed outcomes, cleanup, and terminal-state persistence
+remain in place. The deadline is internal and adds no public response field.
+
 Dynamic warmup reuses `prepareContexts` after definition and predicate-policy
 validation, registering the resolved components and runtime options alongside the
 reader. Existing SDK access checks remain unchanged. Runtime shutdown precedes

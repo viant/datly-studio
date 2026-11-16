@@ -499,6 +499,7 @@ CREATE TABLE component_warmup_runs (
     diagnostics_json        JSON NULL,
     target_json             JSON NOT NULL,
     requested_at            DATETIME(6) NOT NULL,
+    deadline_at             DATETIME(6) NULL,
     created_at              DATETIME(6) NULL,
     created_by              VARCHAR(128) NULL,
     updated_at              DATETIME(6) NULL,
@@ -708,7 +709,7 @@ CREATE TABLE schema_version (
     version                 INTEGER NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO schema_version(version) VALUES (28);
+INSERT INTO schema_version(version) VALUES (29);
 
 CREATE TABLE tool_call_audit (
     id BIGINT NOT NULL AUTO_INCREMENT,

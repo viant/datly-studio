@@ -9,6 +9,7 @@
 #setting($_ = $sql_dest('warmup_run', 'sql/read.sql'))
 
 #define($_ = $Before<time.Time>(query/before).Required())
+#define($_ = $Now<time.Time>(query/now).Required())
 #define($_ = $PageLimit<int>(query/pageLimit).Required())
 #define($_ = $WarmupRuns<[]*ExpiredWarmupRun>(output/view))
 

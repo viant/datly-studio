@@ -9,6 +9,7 @@ import (
 
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/internal/warmupoperation"
 	stored "github.com/viant/datly-studio/studio/report_warmup_runs/store_expired"
 	dexec "github.com/viant/datly/exec"
 	druntime "github.com/viant/datly/runtime"
@@ -16,7 +17,7 @@ import (
 	dsql "github.com/viant/datly/sql"
 )
 
-func (t *Transport) expiredWarmupRuns(ctx context.Context, before time.Time, limit int) (rows []*stored.ExpiredWarmupRun, err error) {
+func (t *Transport) expiredWarmupRuns(ctx context.Context, now time.Time, limit int) (rows []*stored.ExpiredWarmupRun, err error) {
 	resources := resource.New()
 	if err := resources.Register(stored.WarmupRunDatlyResourceNamespace, stored.WarmupRunDatlyResources); err != nil {
 		return nil, err
@@ -36,7 +37,7 @@ func (t *Transport) expiredWarmupRuns(ctx context.Context, before time.Time, lim
 	}
 	defer func() { err = errors.Join(err, runtime.Shutdown(context.Background())) }()
 	value, err := runtime.InvokeComponent(ctx, dexec.ComponentRequest{Target: target,
-		Input: &stored.Input{Before: before, PageLimit: limit, Has: &stored.InputHas{Before: true, PageLimit: true}}})
+		Input: &stored.Input{Before: now.Add(-warmupoperation.DefaultTimeout), Now: now, PageLimit: limit, Has: &stored.InputHas{Before: true, Now: true, PageLimit: true}}})
 	if err != nil {
 		return nil, err
 	}

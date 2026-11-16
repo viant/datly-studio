@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/warmupoperation"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/sdk"
 	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
@@ -123,8 +124,8 @@ func TestRecoverExpiredWarmupRunsUsesNativeMatchedWrites(t *testing.T) {
 		if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
 			(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,created_at,created_by,updated_at,updated_by)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, id, "r1", 1, 1, "hash", "plan", id, status, "owner", "{}",
-			now.Add(-warmupRunTimeout-time.Minute), now.Add(-warmupRunTimeout-time.Minute), "owner",
-			now.Add(-warmupRunTimeout-time.Minute), "owner"); err != nil {
+			now.Add(-warmupoperation.DefaultTimeout-time.Minute), now.Add(-warmupoperation.DefaultTimeout-time.Minute), "owner",
+			now.Add(-warmupoperation.DefaultTimeout-time.Minute), "owner"); err != nil {
 			t.Fatal(err)
 		}
 	}

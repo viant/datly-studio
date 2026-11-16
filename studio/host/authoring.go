@@ -10,6 +10,7 @@ import (
 	"github.com/viant/datly/constant"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/viant/datly-studio/runtime/preview"
 	"github.com/viant/datly-studio/studio/codeccatalog"
@@ -34,6 +35,7 @@ type AuthoringConfig struct {
 
 // Authoring is a detached immutable per-host compilation snapshot.
 type Authoring struct {
+	warmupTimeout   time.Duration
 	schemaSearch    *connectivity.SchemaSearch
 	sourceValidator sourcevalidation.Validator
 	codecs          []*codeccatalog.Descriptor
@@ -46,6 +48,10 @@ type Authoring struct {
 }
 
 func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
+	timeout, err := config.Config.WarmupTimeout()
+	if err != nil {
+		return nil, err
+	}
 	name := strings.TrimSpace(config.ModulePath)
 	if name == "" {
 		name = DefaultAuthoringModule
@@ -62,10 +68,11 @@ func NewAuthoring(config AuthoringConfig) (*Authoring, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Authoring{schemaSearch: connectivity.NewSchemaSearch(connectivity.SQLCatalog{Const: config.Const}, config.SchemaSearch), sourceValidator: config.SourceValidator, codecs: codecs, constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
+	return &Authoring{warmupTimeout: timeout, schemaSearch: connectivity.NewSchemaSearch(connectivity.SQLCatalog{Const: config.Const}, config.SchemaSearch), sourceValidator: config.SourceValidator, codecs: codecs, constants: config.Const, module: name, predicates: predicates, types: types, readerCaches: cloneReaderCaches(config.ReaderCaches), dependencies: config.Dependencies}, nil
 }
 
 func (a *Authoring) ModulePath() string                          { return a.module }
+func (a *Authoring) WarmupTimeout() time.Duration                { return a.warmupTimeout }
 func (a *Authoring) RuntimeTypes() (*typecatalog.Catalog, error) { return a.types.Clone() }
 func (a *Authoring) PredicateCatalog() *predicatecatalog.Catalog { return a.predicates }
 

@@ -38,8 +38,6 @@ import (
 	xhandler "github.com/viant/xdatly/handler"
 )
 
-const runTimeout = 5 * time.Minute
-
 type Input struct {
 	NamespaceId *string            `parameter:"NamespaceId,kind=header,in=X-Studio-Namespace,dataType=*string,required=false" json:"namespaceId,omitempty"`
 	Jwt         *jwt.Claims        `parameter:"Jwt,kind=header,in=Authorization,dataType=string,errorCode=401,required=true" codec:"JwtClaim"`
@@ -62,7 +60,7 @@ func (output *Output) MarshalJSON() ([]byte, error) {
 }
 
 type Component struct {
-	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.warmup,method=POST,connector=studio,handler=NewWarmup" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.warmup\",\"description\":\"Accept one durable authorized Datly cache warmup run\"}]" caseFormat:"lc"`
+	Contract xdatly.Component[Input, Output] `component:"version,path=/v1/studio/sdk/versions.warmup,method=POST,connector=studio,handler=NewWarmup" mcp:"[{\"kind\":\"tool\",\"name\":\"studio.sdk.versions.warmup\",\"description\":\"Accept one durable authorized Datly cache warmup run\"}]" caseFormat:"lc" componentCallPolicy:"imperative"`
 }
 
 var Datly = new(Component)
@@ -165,15 +163,20 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	if err != nil {
 		return err
 	}
-	now, actor := time.Now().UTC(), input.Jwt.Subject
+	authoring, err := host.AuthoringFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	now, actor := time.Now().UTC().Truncate(time.Microsecond), input.Jwt.Subject
+	deadline := now.Add(authoring.WarmupTimeout()).Truncate(time.Microsecond)
 	row := &storedwriter.StoredWarmupRun{NamespaceId: namespaceID, RunId: runID, ReportId: input.ReportID,
 		VersionNo: input.VersionNo, SourceRevision: version.SourceRevision, SpecHash: version.SpecHash,
 		PlanKey: planKey, ActiveKey: &activeKey, Status: "accepted", RequestedBy: actor,
-		TargetJson: json.RawMessage(`{}`), RequestedAt: now, CreatedAt: &now, CreatedBy: &actor,
+		TargetJson: json.RawMessage(`{}`), RequestedAt: now, DeadlineAt: &deadline, CreatedAt: &now, CreatedBy: &actor,
 		UpdatedAt: &now, UpdatedBy: &actor,
 		Has: &storedwriter.StoredWarmupRunHas{NamespaceId: true, RunId: true, ReportId: true, VersionNo: true,
 			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
-			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true,
+			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true, DeadlineAt: true,
 			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}
 	write := &storedwriter.Input{}
 	write.SetRuns([]*storedwriter.StoredWarmupRun{row})
@@ -191,10 +194,6 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 		SourceRevision: version.SourceRevision, SpecHash: version.SpecHash, PlanKey: planKey,
 		Status: "accepted", RequestedBy: actor, RequestedAt: now,
 		CreatedAt: &now, CreatedBy: &actor, UpdatedAt: &now, UpdatedBy: &actor}
-	authoring, err := host.AuthoringFromContext(ctx)
-	if err != nil {
-		return err
-	}
 	types, err := authoring.RuntimeTypes()
 	if err != nil {
 		return err
@@ -216,7 +215,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	jobCtx = sdk.WithNamespaceSelection(jobCtx, namespaceID)
 	jobCtx = sdk.WithVerifiedCredential(jobCtx, sdk.VerifiedCredential{Bearer: strings.TrimSpace(strings.TrimPrefix(header.Authorization, "Bearer ")), Claims: input.Jwt})
 	jobCtx = studiocodecs.WithFactory(jobCtx, studiocodecs.FromContext(ctx))
-	jobCtx, cancel := context.WithTimeout(jobCtx, runTimeout)
+	jobCtx, cancel := context.WithDeadline(jobCtx, deadline)
 	jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 	reportID, versionNo := input.ReportID, input.VersionNo
 	go func() {

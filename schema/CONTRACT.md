@@ -56,3 +56,14 @@ current owner while the component exists and its final owner after removal.
 `028-permanent-removal` explicitly after version 27, with writers stopped and a
 backup; it backfills the maximum existing version. Startup verifies the receipt,
 counter and event constraints without applying migrations.
+
+Version 29 adds nullable `component_warmup_runs.deadline_at`. New warmup jobs
+persist their server-owned deadline atomically with acceptance. Workers and both
+recovery paths use that accepted deadline, independently of later configuration
+changes. Historical rows retain NULL and use `requested_at + 5m`; the migration
+does not rewrite their status, evidence, or timestamps.
+
+Apply `029-warmup-deadline` explicitly after layout 28, with writers stopped and
+a backup. Startup continues to verify existing databases without altering them.
+Upgrade every recovery host before enabling longer warmup budgets: old binaries
+ignore the new deadline. No application database or public reader schema changes.

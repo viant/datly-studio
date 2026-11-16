@@ -16,6 +16,7 @@ import (
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/datatest"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/warmupoperation"
 	"github.com/viant/datly-studio/sdk"
 	expired "github.com/viant/datly-studio/studio/report_warmup_runs/store_expired"
 	storedreader "github.com/viant/datly-studio/studio/report_warmup_runs/store_read"
@@ -40,11 +41,12 @@ import (
 )
 
 func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
+	defer cancel()
 	db := datatest.OpenSQLite(t, "sdk_warmup_list", "studio")
 	jwt := datatest.NewJWTFixture(t)
 	now := time.Now().UTC().Truncate(time.Microsecond)
-	old := now.Add(-warmupRunTimeout - time.Minute)
+	old := now.Add(-warmupoperation.DefaultTimeout - time.Minute)
 	if err := datatest.Hydrate(ctx, db,
 		datatest.Table{Name: "connectors", Rows: []datatest.Row{{"name": "main", "driver": "sqlite", "owner_id": "alice", "status": "active", "created_at": now, "updated_at": now}}},
 		datatest.Table{Name: "namespaces", Rows: []datatest.Row{{"owner_id": "alice", "name": "general", "title": "General", "status": "active", "created_at": now, "updated_at": now}}},
@@ -80,6 +82,18 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 		if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs
  (run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,updated_at,updated_by)
  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`, id, "r2", 1, 1, "hash", "plan", id, "accepted", "alice", `{}`, old, old, "alice"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, run := range []struct {
+		id, status          string
+		requested, deadline time.Time
+	}{
+		{"long-budget", "running", old, now.Add(4 * time.Minute)},
+		{"short-budget", "running", now.Add(-time.Second), now.Add(-time.Millisecond)},
+		{"finished-budget", "completed", old, now.Add(-time.Minute)},
+	} {
+		if _, err := db.ExecContext(ctx, `INSERT INTO component_warmup_runs(run_id,report_id,version_no,source_revision,spec_hash,plan_key,active_key,status,requested_by,target_json,requested_at,deadline_at,updated_at,updated_by) VALUES(?,'r2',1,1,'hash','plan',?,?,'alice','{}',?,?,?,'alice')`, run.id, run.id, run.status, run.requested, run.deadline, run.requested); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -184,7 +198,7 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 	}
 	request := func(subject, reportID string, input string) *http.Request {
 		body := `{"reportId":"` + reportID + `","versionNo":1,"input":` + input + `}`
-		req := httptest.NewRequest(http.MethodPost, "/v1/studio/sdk/versions.warmup_list", bytes.NewBufferString(body))
+		req := httptest.NewRequestWithContext(ctx, http.MethodPost, "/v1/studio/sdk/versions.warmup_list", bytes.NewBufferString(body))
 		req.Header.Set("Content-Type", "application/json")
 		if subject != "" {
 			req.Header.Set("Authorization", jwt.Bearer(t, subject))
@@ -238,8 +252,14 @@ func TestWarmupListSDKDatlyHTTPMCPAndRecovery(t *testing.T) {
 		}
 	}
 	var recoveredForeign int
-	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_warmup_runs WHERE report_id='r2' AND status='failed' AND diagnostics_json LIKE '%warmup_expired%'").Scan(&recoveredForeign); err != nil || recoveredForeign != 106 {
+	if err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM component_warmup_runs WHERE report_id='r2' AND status='failed' AND diagnostics_json LIKE '%warmup_expired%'").Scan(&recoveredForeign); err != nil || recoveredForeign != 107 {
 		t.Fatalf("global recovery across 100-row pages=%d err=%v", recoveredForeign, err)
+	}
+	for id, want := range map[string]string{"long-budget": "running", "short-budget": "failed", "finished-budget": "completed"} {
+		var status string
+		if err := db.QueryRowContext(ctx, "SELECT status FROM component_warmup_runs WHERE run_id=?", id).Scan(&status); err != nil || status != want {
+			t.Fatalf("native deadline recovery %s=%s want=%s err=%v", id, status, want, err)
+		}
 	}
 	var recent string
 	if err = db.QueryRowContext(ctx, "SELECT status FROM component_warmup_runs WHERE run_id='recent'").Scan(&recent); err != nil || recent != "accepted" {

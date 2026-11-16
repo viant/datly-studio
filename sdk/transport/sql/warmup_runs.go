@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/warmupoperation"
 	"github.com/viant/datly-studio/sdk/executionguard"
 	"reflect"
 	"strings"
@@ -24,8 +25,6 @@ import (
 	dsql "github.com/viant/datly/sql"
 	xhandler "github.com/viant/xdatly/handler"
 )
-
-const warmupRunTimeout = 5 * time.Minute
 
 type warmupRunGetRequest struct {
 	ReportID string `json:"reportId"`
@@ -61,6 +60,10 @@ func warmupActor(ctx context.Context) sdk.Principal {
 }
 
 func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityRequest, output any) error {
+	timeout, err := warmupoperation.Timeout(t.WarmupOperationTimeout)
+	if err != nil {
+		return err
+	}
 	version, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
 	if err != nil {
 		return err
@@ -72,10 +75,9 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	requestedBy := warmupActor(ctx).Subject
 	planKey := warmupprojection.PlanKey(version)
 	activeKey := fmt.Sprintf("%s:%d:%s", in.ReportID, in.VersionNo, planKey)
-	now := t.now()
 	t.warmupMu.Lock()
 	defer t.warmupMu.Unlock()
-	if err = t.recoverExpiredWarmupRuns(ctx, now); err != nil {
+	if err = t.recoverExpiredWarmupRuns(ctx, t.now()); err != nil {
 		return err
 	}
 	active, err := t.readWarmupRows(ctx, &storedreader.Input{ReportId: in.ReportID, ActiveKey: activeKey, PageLimit: 2})
@@ -95,14 +97,16 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	if err != nil {
 		return internal(err)
 	}
+	now := t.now().UTC().Truncate(time.Microsecond)
+	deadline := now.Add(timeout).Truncate(time.Microsecond)
 	if err = t.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{NamespaceId: namespaceID, RunId: runID, ReportId: in.ReportID,
 		VersionNo: in.VersionNo, SourceRevision: version.SourceRevision, SpecHash: version.SpecHash,
 		PlanKey: planKey, ActiveKey: &activeKey, Status: "accepted", RequestedBy: requestedBy,
-		TargetJson: json.RawMessage(`{}`), RequestedAt: now, CreatedAt: &now, CreatedBy: &requestedBy,
+		TargetJson: json.RawMessage(`{}`), RequestedAt: now, DeadlineAt: &deadline, CreatedAt: &now, CreatedBy: &requestedBy,
 		UpdatedAt: &now, UpdatedBy: &requestedBy,
 		Has: &storedwriter.StoredWarmupRunHas{NamespaceId: true, RunId: true, ReportId: true, VersionNo: true,
 			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
-			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true,
+			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true, DeadlineAt: true,
 			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}); err != nil {
 		return classify(err, "warmup run", runID)
 	}
@@ -113,7 +117,7 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	if run.UpdatedAt == nil {
 		return internal(errors.New("warmup run has no updated_at token"))
 	}
-	jobCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), warmupRunTimeout)
+	jobCtx, cancel := context.WithDeadline(context.WithoutCancel(ctx), deadline)
 	jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 	go func() {
 		defer releaseServerGuard()
@@ -245,7 +249,7 @@ func (t *Transport) recoverExpiredWarmupRuns(ctx context.Context, now time.Time)
 	diagnosticsPayload := json.RawMessage(diagnostics)
 	actor := sdk.SystemPrincipal().Subject
 	for {
-		rows, err := t.expiredWarmupRuns(systemCtx, now.Add(-warmupRunTimeout), 100)
+		rows, err := t.expiredWarmupRuns(systemCtx, now, 100)
 		if err != nil {
 			return internal(err)
 		}

@@ -194,7 +194,8 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 	var cleaned atomic.Int32
 	var previewing atomic.Bool
 	var metadataLoads atomic.Int32
-	authoring, err := host.NewAuthoring(host.AuthoringConfig{ModulePath: "example.com/fixture", ReaderCaches: readerCaches, SourceValidator: func(ctx context.Context, input sourcevalidation.Input) error {
+	configuredTimeout := "10m"
+	authoring, err := host.NewAuthoring(host.AuthoringConfig{Config: host.Config{WarmupOperationTimeout: &configuredTimeout}, ModulePath: "example.com/fixture", ReaderCaches: readerCaches, SourceValidator: func(ctx context.Context, input sourcevalidation.Input) error {
 		metadataLoads.Add(1)
 		credential, ok := sdk.VerifiedCredentialFromContext(ctx)
 		if !ok || credential.Bearer == "" {
@@ -217,8 +218,19 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 		if ctx.Value(privateRequestValue{}) != nil && !previewing.Load() {
 			return nil, fmt.Errorf("unrelated request state retained")
 		}
-		if _, ok := ctx.Deadline(); !ok {
+		deadline, hasDeadline := ctx.Deadline()
+		if !hasDeadline {
 			return nil, fmt.Errorf("server-owned timeout lost")
+		}
+		if !previewing.Load() {
+			if time.Until(deadline) < 9*time.Minute {
+				return nil, fmt.Errorf("configured warmup budget lost")
+			}
+			id := strings.ReplaceAll(component.Key.Scope[strings.LastIndex(component.Key.Scope, "/")+1:], "_", "-")
+			var persisted time.Time
+			if err := db.QueryRowContext(ctx, "SELECT deadline_at FROM component_warmup_runs WHERE report_id=? AND status='running' ORDER BY requested_at DESC LIMIT 1", id).Scan(&persisted); err != nil || !persisted.Equal(deadline) {
+				return nil, fmt.Errorf("worker deadline differs from durable acceptance: %v", err)
+			}
 		}
 		selectedFactory := jwtFixture.Factory
 		if strings.HasSuffix(component.Key.Scope, "/accepted") {
@@ -324,7 +336,7 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 		var run sdk.WarmupRun
 		if len(raw) > 0 {
 			if err := json.Unmarshal(raw, &run); err != nil {
-				t.Fatal(err)
+				t.Fatalf("warmup response: %v: %s", err, raw)
 			}
 		}
 		return run, ok
@@ -538,6 +550,10 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 				disconnect()
 				t.Fatalf("warmup not accepted: %+v", accepted)
 			}
+			var savedDeadline time.Time
+			if err := db.QueryRowContext(ctx, "SELECT deadline_at FROM component_warmup_runs WHERE run_id=?", accepted.RunID).Scan(&savedDeadline); err != nil || savedDeadline.Sub(accepted.RequestedAt) != 10*time.Minute {
+				t.Fatalf("native deadline not persisted: %v", err)
+			}
 			if id == "accepted" {
 				select {
 				case <-reached:
@@ -679,6 +695,77 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 			}
 		})
 	}
+	t.Run("configured timeout records a durable failure", func(t *testing.T) {
+		setting := "1s"
+		reached := make(chan time.Time, 1)
+		shortAuthoring, err := host.NewAuthoring(host.AuthoringConfig{Config: host.Config{WarmupOperationTimeout: &setting}, ModulePath: "example.com/fixture", ReaderCaches: readerCaches, Dependencies: func(ctx context.Context, component *spec.Component) (*preview.DependencyRuntime, error) {
+			deadline, _ := ctx.Deadline()
+			reached <- deadline
+			<-ctx.Done()
+			return nil, ctx.Err()
+		}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer shortAuthoring.Close()
+		shortConfig := *cfg
+		shortServer, err := standalone.New(ctx, standalone.Options{Config: &shortConfig, RequireLinked: true, HTTPMiddleware: func(next http.Handler) http.Handler {
+			next = shortAuthoring.Middleware(next)
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next.ServeHTTP(w, r.WithContext(studiocodecs.WithFactory(r.Context(), studiocodecs.New(jwtFixture.Factory))))
+			})
+		}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer shortServer.Shutdown(context.WithoutCancel(ctx))
+		shortCtx, stopShort := context.WithCancel(ctx)
+		defer stopShort()
+		go shortServer.Serve(shortCtx, io.Discard)
+		ready, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+		shortAddresses, err := shortServer.WaitReady(ready)
+		if err != nil {
+			t.Fatal(err)
+		}
+		original := addresses
+		addresses = shortAddresses
+		defer func() { addresses = original }()
+		requestCtx, disconnect := context.WithCancel(ctx)
+		accepted, ok := call(requestCtx, "studio.sdk.versions.warmup", bearer, args("named-root", namespace))
+		disconnect()
+		if !ok || accepted.Status != "accepted" {
+			t.Fatalf("short warmup not accepted: %+v", accepted)
+		}
+		var persisted time.Time
+		if err = db.QueryRowContext(ctx, "SELECT deadline_at FROM component_warmup_runs WHERE run_id=?", accepted.RunID).Scan(&persisted); err != nil || persisted.Sub(accepted.RequestedAt) != time.Second {
+			t.Fatalf("short acceptance deadline: %v", err)
+		}
+		select {
+		case actual := <-reached:
+			if !actual.Equal(persisted) {
+				t.Fatal("worker restarted timeout budget")
+			}
+		case <-time.After(3 * time.Second):
+			t.Fatal("short worker did not reach native dependency initialization")
+		}
+		var run sdk.WarmupRun
+		until := time.Now().Add(4 * time.Second)
+		for time.Now().Before(until) {
+			run, ok = call(ctx, "studio.sdk.versions.warmup_get", bearer, map[string]any{"namespaceId": namespace, "reportId": "named-root", "runId": accepted.RunID})
+			if ok && run.CompletedAt != nil {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		if !ok || run.Status != "failed" || run.CompletedAt == nil || len(run.Diagnostics) != 1 || run.Diagnostics[0].Code != "warmup_timeout" {
+			t.Fatalf("timeout result: %+v", run)
+		}
+		var active sql.NullString
+		if err = db.QueryRowContext(ctx, "SELECT active_key FROM component_warmup_runs WHERE run_id=?", accepted.RunID).Scan(&active); err != nil || active.Valid {
+			t.Fatal("timed out job retained its active key")
+		}
+	})
 	// Two indexed entries prove warmup used batch: main has only one authorized
 	// row. Ordinary preview must still use main without requiring batch.
 	if _, err = db.ExecContext(ctx, "UPDATE connectors SET status='disabled' WHERE name='batch'"); err != nil {

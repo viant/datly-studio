@@ -8,6 +8,9 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
+
+	"github.com/viant/datly-studio/internal/warmupoperation"
 
 	"github.com/viant/datly-studio/runtime/accesscontext"
 	"github.com/viant/datly-studio/studio/authorization"
@@ -22,8 +25,15 @@ const studioAuthorizationPath = "github.com/viant/datly-studio/studio/authorizat
 // into the executable by the embedding application and become selectable in
 // Studio's governed authorization-predicate catalog.
 type Config struct {
-	PredicatePackages []predicatecatalog.Package
-	CodecPackages     []codeccatalog.Package
+	// WarmupOperationTimeout is a trusted duration string, for example "10m".
+	// Nil retains the historical five-minute budget; invalid values fail startup.
+	WarmupOperationTimeout *string
+	PredicatePackages      []predicatecatalog.Package
+	CodecPackages          []codeccatalog.Package
+}
+
+func (c Config) WarmupTimeout() (time.Duration, error) {
+	return warmupoperation.Timeout(c.WarmupOperationTimeout)
 }
 
 // RuntimeTypes combines linked predicates with server-owned authorization
