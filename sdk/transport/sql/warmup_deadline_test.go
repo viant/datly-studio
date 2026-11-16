@@ -37,7 +37,10 @@ func TestWarmupAcceptedDeadlineAndTerminalStatus(t *testing.T) {
 		{"partial-timeout", warmupDuration("300ms"), 300 * time.Millisecond, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			f := newImportFixture(t)
+			// Match the managed host's SQLite transaction and connection settings
+			// (app/studiohost/storage.go). Polling overlaps the terminal writer;
+			// raw connections without a busy timeout can fail with SQLITE_BUSY.
+			f := newImportFixtureDSN(t, "?_txlock=immediate&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)")
 			f.transport.Now = nil // Deadlines use the same real clock as worker contexts.
 			v, err := f.client.Versions().Create(f.ctx, f.report.ID, sdk.CreateVersionInput{AuthoringMode: "dql", AuthoredDQL: "SELECT 1"})
 			if err != nil {
