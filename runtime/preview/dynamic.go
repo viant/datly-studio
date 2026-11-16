@@ -1043,16 +1043,23 @@ func testViewDQL(ctx context.Context, definition *definition, viewName string, t
 		connectorName = selected.Source.Bindings.Connector
 	}
 	var sourceSpanStart, sourceSpanEnd int
+	viewAlias := ""
 	found := false
 	for _, view := range response.Structure.Views {
 		if strings.EqualFold(view.Name, viewName) {
 			sourceSpanStart, sourceSpanEnd, found = view.SourceSpan.Start, view.SourceSpan.End, true
+			viewAlias = view.Name
 			break
 		}
 	}
 	inner := ""
 	if selected != nil && selected.Source != nil {
 		inner = selected.Source.SQL
+		if selected.Namespace != "" {
+			viewAlias = selected.Namespace
+		} else if selected.Name != "" {
+			viewAlias = selected.Name
+		}
 	}
 	if inner == "" && found && sourceSpanStart >= 0 && sourceSpanEnd <= len(definition.DQL) && sourceSpanStart < sourceSpanEnd {
 		inner = definition.DQL[sourceSpanStart:sourceSpanEnd]
@@ -1077,7 +1084,9 @@ func testViewDQL(ctx context.Context, definition *definition, viewName string, t
 	}
 	token := safeViewToken(viewName)
 	typeName := "Preview" + strings.ToUpper(token[:1]) + token[1:]
-	return fmt.Sprintf("#package('%s/viewtest/%s')\n%s#setting($_ = $connector('%s'))\n#setting($_ = $route('/v1/studio/viewtest/%s','GET'))\n%s#define($_ = $Rows<[]*%s>(output/view))\nSELECT tested.*, type(tested, '%s')\nFROM (%s) tested", packagePath, token, imports, connectorName, token, strings.Join(declarations, "\n")+"\n", typeName, typeName, inner), nil
+	// Selector declarations still refer to the authored view alias. Preserve it
+	// in the isolated graph so native selector resolution keeps the same target.
+	return fmt.Sprintf("#package('%s/viewtest/%s')\n%s#setting($_ = $connector('%s'))\n#setting($_ = $route('/v1/studio/viewtest/%s','GET'))\n%s#define($_ = $Rows<[]*%s>(output/view))\nSELECT %s.*, type(%s, '%s')\nFROM (%s) %s", packagePath, token, imports, connectorName, token, strings.Join(declarations, "\n")+"\n", typeName, viewAlias, viewAlias, typeName, inner, viewAlias), nil
 }
 
 func safeViewToken(value string) string {
