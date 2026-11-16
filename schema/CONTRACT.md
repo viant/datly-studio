@@ -1,5 +1,8 @@
 # Studio and Authz schema ownership
 
+For operator commands, upgrade order, backups, verification, and failure recovery,
+see the [database migration runbook](../docs/database-migrations.md).
+
 `schema.ddl` owns Studio catalog tables. It does not duplicate Authz policy
 head or revision DDL. Fresh SQLite initialization appends
 `authz/component/schema.PolicyDDL("sqlite")`; `MySQLDDL` composes the same
