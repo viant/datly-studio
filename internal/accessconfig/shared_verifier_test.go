@@ -30,7 +30,7 @@ func TestSharedRSAResourceVerifiesClaimsAndDeniesWrongAuthority(t *testing.T) {
 	if err := os.WriteFile(path, pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: public}), 0600); err != nil {
 		t.Fatal(err)
 	}
-	config := Config{Issuer: "https://synthetic.example", Audience: "studio", JWTValidator: &verifier.Config{RSA: []*scy.Resource{{URL: path}}}}
+	config := Config{Issuer: "https://synthetic.example", Audience: "studio", Audiences: []string{"desktop"}, JWTValidator: &verifier.Config{RSA: []*scy.Resource{{URL: path}}}}
 	provider, err := New(config)
 	if err != nil {
 		t.Fatal(err)
@@ -40,6 +40,8 @@ func TestSharedRSAResourceVerifiesClaimsAndDeniesWrongAuthority(t *testing.T) {
 		valid                  bool
 	}{
 		{"allowed", config.Issuer, config.Audience, true},
+		{"alternative", config.Issuer, "desktop", true},
+		{"missing", config.Issuer, "", false},
 		{"wrong issuer", "https://other.example", config.Audience, false},
 		{"wrong audience", config.Issuer, "other-app", false},
 	} {

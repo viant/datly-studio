@@ -61,7 +61,7 @@ func (l *Login) freshIdentitySession(ctx context.Context, id string) (session, e
 		}
 		idToken, _ := refreshed.Extra("id_token").(string)
 		claims, verifyErr := l.sessions.verifier.VerifyClaims(refreshCtx, idToken)
-		if verifyErr != nil || claims == nil || validateTokenBinding(claims, l.sessions.config.Issuer, l.sessions.config.Audience) != nil ||
+		if verifyErr != nil || claims == nil || validateTokenBinding(claims, l.sessions.config.Issuer, l.sessions.config.Audience, l.sessions.config.Audiences...) != nil ||
 			claims.ExpiresAt == nil || !l.now().Before(claims.ExpiresAt.Time) ||
 			claims.ExpiresAt.Time.After(l.now().Add(maximumBrowserIDTokenTTL)) || claims.Subject != current.principal.Subject {
 			return session{}, identitySessionFailure(http.StatusUnauthorized, "refreshed identity token was rejected")

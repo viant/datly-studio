@@ -22,6 +22,7 @@ import (
 type Config struct {
 	JWTValidator                                          *verifier.Config
 	Issuer, Audience, PublicKeyFile, CertURL, UserInfoURL string
+	Audiences                                             []string
 	Tenant                                                string
 	Settings                                              []byte
 }
@@ -60,7 +61,7 @@ func New(ctx context.Context, config Config, factory ProviderFactory) (authz.Pro
 		}
 		return provider, nil
 	}
-	return accessconfig.New(accessconfig.Config{Issuer: config.Issuer, Audience: config.Audience,
+	return accessconfig.New(accessconfig.Config{Issuer: config.Issuer, Audience: config.Audience, Audiences: config.Audiences,
 		PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, UserInfoURL: config.UserInfoURL, JWTValidator: config.JWTValidator, Tenant: config.Tenant})
 }
 
@@ -162,7 +163,7 @@ func VerificationKey(config Config) (jwtlib.Keyfunc, error) {
 // HTTPProviders resolves generic user-info facts with the same trusted verifier
 // as the application. Field paths and tenant mapping remain explicit IdP config.
 func HTTPProviders(ctx context.Context, settings Config, identity oauth.HTTPIdentityConfig, evaluation *oauth.HTTPEvaluationConfig) (oauth.HTTPProviders, error) {
-	if identity.Issuer != "" || identity.Audience != "" || identity.JWKSURL != "" || identity.Keyfunc != nil {
+	if identity.Issuer != "" || identity.Audience != "" || len(identity.Audiences) > 0 || identity.JWKSURL != "" || identity.Keyfunc != nil {
 		return oauth.HTTPProviders{}, errors.New("Identity uses the shared JWTClaims and JWTValidator")
 	}
 	key, err := VerificationKey(settings)
@@ -172,6 +173,7 @@ func HTTPProviders(ctx context.Context, settings Config, identity oauth.HTTPIden
 	identity.Keyfunc = key
 	identity.Issuer = settings.Issuer
 	identity.Audience = settings.Audience
+	identity.Audiences = append([]string(nil), settings.Audiences...)
 	if identity.Kind == "" {
 		identity.Kind = "oidc-userinfo"
 	}
@@ -194,5 +196,5 @@ func HTTPProviders(ctx context.Context, settings Config, identity oauth.HTTPIden
 type ClaimsVerifier = accessconfig.ClaimsVerifier
 
 func NewClaimsVerifier(config Config) (*ClaimsVerifier, error) {
-	return accessconfig.NewClaimsVerifier(accessconfig.Config{JWTValidator: config.JWTValidator, Issuer: config.Issuer, Audience: config.Audience, PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, Tenant: config.Tenant})
+	return accessconfig.NewClaimsVerifier(accessconfig.Config{JWTValidator: config.JWTValidator, Issuer: config.Issuer, Audience: config.Audience, Audiences: config.Audiences, PublicKeyFile: config.PublicKeyFile, CertURL: config.CertURL, Tenant: config.Tenant})
 }

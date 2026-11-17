@@ -194,6 +194,7 @@ type Options struct {
 	// JWTValidator reuses the shared Datly/SCY verifier configuration. When set,
 	// certificate/key CLI overrides are rejected. Claim and session checks remain.
 	JWTValidator *verifier.Config
+	JWTAudiences []string
 	// HTTPMiddleware is an optional process-owned listener boundary. Unset
 	// preserves the complete standalone routing and authentication behavior.
 	HTTPMiddleware func(http.Handler) http.Handler
@@ -517,7 +518,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 		if authConfigErr != nil {
 			return authConfigErr
 		}
-		if options.JWTValidator != nil && *jwtAudience == "" && loginOAuth != nil {
+		if options.JWTValidator != nil && *jwtAudience == "" && len(options.JWTAudiences) == 0 && loginOAuth != nil {
 			*jwtAudience = loginOAuth.ClientID
 		}
 		issuer, audience, key, authConfigErr := resolveAuthenticatedIdentity(*jwtIssuer, *jwtAudience, *sessionKey, options.JWTValidator != nil)
@@ -546,7 +547,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			prunerDone := startSessionPruner(lifecycleCtx, sessionStore, *sessionPruneInterval)
 			defer func() { stop(); <-prunerDone }()
 		}
-		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: secureSessionCookies(origin), Issuer: issuer, Audience: audience, Store: sessionStore}, strictClaimsVerifier{jwtVerifier})
+		sessions, sessionErr := bffauth.New(bffauth.Config{CookieName: *cookieName, Secure: secureSessionCookies(origin), Issuer: issuer, Audience: audience, Audiences: options.JWTAudiences, Store: sessionStore}, strictClaimsVerifier{jwtVerifier})
 		if sessionErr != nil {
 			return sessionErr
 		}

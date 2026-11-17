@@ -344,6 +344,25 @@ func TestBFFRequiresConfiguredIssuerAndAudience(t *testing.T) {
 	}
 }
 
+func TestBFFAlternativeAudiences(t *testing.T) {
+	for _, audience := range []string{"browser", "desktop", "unknown", ""} {
+		t.Run(audience, func(t *testing.T) {
+			claims := &jwt.Claims{RegisteredClaims: jwtv5.RegisteredClaims{Subject: "owner", Issuer: "https://issuer.example", Audience: jwtv5.ClaimStrings{audience}, ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(time.Hour))}}
+			config := Config{Issuer: "https://issuer.example", Audiences: []string{"browser", "desktop"}}
+			service, err := New(config, claimsVerifier{claims: claims})
+			if err != nil {
+				t.Fatal(err)
+			}
+			config.Audiences[0] = "unknown"
+			_, _, _, err = service.Exchange(context.Background(), "signed-token")
+			allowed := audience == "browser" || audience == "desktop"
+			if (err == nil) != allowed {
+				t.Fatalf("audience %q allowed=%v err=%v", audience, allowed, err)
+			}
+		})
+	}
+}
+
 func TestSQLStoreSharesEncryptedSessionsAcrossInstances(t *testing.T) {
 	db, err := sql.Open("sqlite", "file:"+t.Name()+"?mode=memory&cache=shared")
 	if err != nil {

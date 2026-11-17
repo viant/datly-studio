@@ -19,6 +19,7 @@ import (
 type ClaimsVerifier struct {
 	key              jwtlib.Keyfunc
 	issuer, audience string
+	audiences        []string
 }
 
 func NewClaimsVerifier(config Config) (*ClaimsVerifier, error) {
@@ -26,7 +27,16 @@ func NewClaimsVerifier(config Config) (*ClaimsVerifier, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ClaimsVerifier{key: key, issuer: config.Issuer, audience: config.Audience}, nil
+	audiences := append([]string(nil), config.Audiences...)
+	for _, audience := range audiences {
+		if strings.TrimSpace(audience) == "" {
+			return nil, fmt.Errorf("JWT audience must not be blank")
+		}
+	}
+	if config.Audience != "" {
+		audiences = append(audiences, config.Audience)
+	}
+	return &ClaimsVerifier{key: key, issuer: config.Issuer, audience: config.Audience, audiences: audiences}, nil
 }
 func (v *ClaimsVerifier) Verify(ctx context.Context) (jwtlib.MapClaims, error) {
 	if v == nil || ctx == nil || ctx.Err() != nil {
@@ -36,8 +46,8 @@ func (v *ClaimsVerifier) Verify(ctx context.Context) (jwtlib.MapClaims, error) {
 	if v.issuer != "" {
 		options = append(options, jwtlib.WithIssuer(v.issuer))
 	}
-	if v.audience != "" {
-		options = append(options, jwtlib.WithAudience(v.audience))
+	if len(v.audiences) > 0 {
+		options = append(options, jwtlib.WithAudience(v.audiences...))
 	}
 	claims := jwtlib.MapClaims{}
 	token, err := jwtlib.ParseWithClaims(oauth.Bearer(ctx), claims, v.key, options...)

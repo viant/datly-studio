@@ -31,7 +31,7 @@ func (s *Service) initResourceAccess() error {
 	provider := c.Provider
 	if provider == nil {
 		var err error
-		provider, err = accessprovider.New(context.Background(), accessprovider.Config{Issuer: c.Issuer, Audience: c.Audience, PublicKeyFile: c.PublicKeyFile, CertURL: c.CertURL, UserInfoURL: c.UserInfoURL}, accessprovider.RegisteredEnvironmentFactory())
+		provider, err = accessprovider.New(context.Background(), accessprovider.Config{Issuer: c.Issuer, Audience: c.Audience, Audiences: c.Audiences, PublicKeyFile: c.PublicKeyFile, CertURL: c.CertURL, UserInfoURL: c.UserInfoURL}, accessprovider.RegisteredEnvironmentFactory())
 		if err != nil {
 			return err
 		}

@@ -47,6 +47,7 @@ type Authentication struct {
 	CertURL          string                             `yaml:"CertURL"`
 	Issuer           string                             `yaml:"Issuer"`
 	Audience         string                             `yaml:"Audience"`
+	Audiences        []string                           `yaml:"Audiences,omitempty"`
 }
 
 type MCPConnectionExport struct {
@@ -177,6 +178,7 @@ type ResourceAccessConfig struct {
 	Tenant           string                     `yaml:"Tenant"`
 	Issuer           string                     `yaml:"Issuer"`
 	Audience         string                     `yaml:"Audience"`
+	Audiences        []string                   `yaml:"Audiences,omitempty"`
 	PublicKeyFile    string                     `yaml:"PublicKeyFile"`
 	CertURL          string                     `yaml:"CertURL,omitempty"`
 	UserInfoURL      string                     `yaml:"UserInfoURL,omitempty"`
@@ -216,7 +218,7 @@ func (c *Config) Validate() error {
 	if c.ReleaseSyncInterval < 0 {
 		return fmt.Errorf("release reconciliation interval must not be negative")
 	}
-	if (strings.TrimSpace(c.Authentication.Issuer) == "") != (strings.TrimSpace(c.Authentication.Audience) == "") {
+	if (strings.TrimSpace(c.Authentication.Issuer) == "") != (strings.TrimSpace(c.Authentication.Audience) == "" && len(c.Authentication.Audiences) == 0) {
 		return fmt.Errorf("default runtime identity requires both Issuer and Audience")
 	}
 	for name, provider := range c.Authentication.Providers {
@@ -278,7 +280,7 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("unsupported dynamic authentication mode %q", c.Authentication.DefaultMode)
 	}
 	if c.Access != nil {
-		if c.Access.Tenant == "" || c.Access.Provider == nil && (c.Access.Issuer == "" || c.Access.Audience == "" || (c.Access.PublicKeyFile == "") == (c.Access.CertURL == "")) {
+		if c.Access.Tenant == "" || c.Access.Provider == nil && (c.Access.Issuer == "" || (c.Access.Audience == "" && len(c.Access.Audiences) == 0) || (c.Access.PublicKeyFile == "") == (c.Access.CertURL == "")) {
 			return fmt.Errorf("resource access requires Tenant, Issuer, Audience and one public key file or CertURL")
 		}
 		for prefix, r := range c.Access.ResourceBindings {

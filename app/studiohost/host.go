@@ -89,8 +89,10 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		return errors.New("Studio host requires JWTValidator")
 	}
 	issuer, audience := "", ""
+	var audiences []string
 	if config.JWTClaims != nil {
 		issuer, audience = config.JWTClaims.Issuer, config.JWTClaims.Audience
+		audiences = append([]string(nil), config.JWTClaims.Audiences...)
 	}
 	policyTenant := config.Tenant
 	if policyTenant == "" {
@@ -144,7 +146,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		}
 	}
 
-	authorityConfig := accessprovider.Config{Issuer: issuer, Audience: audience, JWTValidator: config.JWTValidator, Tenant: policyTenant}
+	authorityConfig := accessprovider.Config{Issuer: issuer, Audience: audience, Audiences: audiences, JWTValidator: config.JWTValidator, Tenant: policyTenant}
 	var provider authz.Provider
 	if config.Identity != nil && options.Native.AccessProviderFactory == nil {
 		providers, resolveErr := accessprovider.HTTPProviders(ctx, authorityConfig, *config.Identity, config.EntityEvaluation)
@@ -313,7 +315,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		CodecFactory:     studiocodecs.New(readerJWT),
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
-		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
+		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, Audiences: audiences, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
 		Access:         &runtimehost.ResourceAccessConfig{Tenant: tenant, Provider: provider}, ReaderCaches: config.Caches}
 	// PublicURL already defines the trusted reverse-proxy origin for this host.
 	// Local deployments without it retain the namespace listener's loopback URL.
@@ -389,6 +391,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		return handler
 	}
 	browser.JWTValidator = config.JWTValidator
+	browser.JWTAudiences = append([]string(nil), audiences...)
 	browser.AccessProviderConfig = &authorityConfig
 	browser.AccessProviderFactory = factory
 	browserReady := make(chan struct{})
