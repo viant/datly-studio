@@ -362,6 +362,10 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility='public' WHERE namespace_id=?", namespace); err != nil {
 		t.Fatal(err)
 	}
+	t.Run("contributor inspection", func(t *testing.T) {
+		runner := jwtFixture.BearerWithClaims(t, jwtv5.MapClaims{"sub": "contributor-runner", "iss": "warmup-test", "aud": "studio", "tenant": "tenant", "exp": time.Now().Add(time.Hour).Unix()})
+		testContributorInspection(ctx, t, db, namespace, bearer, runner, addresses[0], callRaw)
+	})
 	for _, subject := range []string{"publisher", "viewer"} {
 		canPublish := subject == "publisher"
 		if _, err = db.ExecContext(ctx, "INSERT INTO component_acl(namespace_id,report_id,subject_type,subject_id,can_view,can_publish) VALUES(?,?,'user',?,1,?)", namespace, "named-root", subject, canPublish); err != nil {
