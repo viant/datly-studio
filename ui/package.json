@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^6.0.0-alpha.1",
-    "forge": "https://codeload.github.com/viant/forge/tar.gz/3092cda5ba57892ad16ff282314d955187513718",
+    "forge": "https://codeload.github.com/viant/forge/tar.gz/f0cfd7efb1b675c61b7dc48e5d36a3cd03024fa4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "yaml": "2.9.1"
