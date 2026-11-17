@@ -169,6 +169,12 @@ is a case-sensitive enum. Match its payload field in `x-operation-contracts`;
 Setting/function args are DQL expressions: JSON `"'warehouse'"` represents a DQL
 quoted string; JSON `"true"` represents a boolean expression. Do not guess fields.
 
+Pass the canonical namespace ID on every preview request, including retries:
+
+```json
+{"namespaceId":"<namespaceId>","reportId":"<id>","versionNo":1,"input":{"cube":true,"input":{"dimensions":{"productId":true},"measures":{"units":true},"limit":10},"limit":10}}
+```
+
 Bound preview using the discovered input names. `preview.execute` supports
 `input:{cube:true,input:{dimensions:{...},measures:{...},filters:{...},limit:10},limit:10}`.
 For the default generated holder, selections have boolean values:
