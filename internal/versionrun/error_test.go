@@ -1,7 +1,9 @@
 package versionrun
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"github.com/viant/datly-studio/sdk"
 	xresponse "github.com/viant/xdatly/response"
 	"strings"
@@ -34,5 +36,28 @@ func TestPublicErrorPreservesSafeAuthoringDiagnostics(t *testing.T) {
 	diagnostics := payload["diagnostics"].([]sdk.Diagnostic)
 	if len(diagnostics) != 1 || diagnostics[0].Code != "cube_source_not_eligible" || strings.Contains(public.Error(), "private source") {
 		t.Fatalf("unsafe or missing diagnostic: %v", public)
+	}
+}
+
+func TestPublicErrorPreservesWrappedNativeCategory(t *testing.T) {
+	for _, code := range []int{400, 401, 403, 404, 409, 503} {
+		t.Run(fmt.Sprint(code), func(t *testing.T) {
+			native := &xresponse.Error{Code: code, Payload: map[string]string{"message": "PRIVATE_CANARY"}}
+			wrapped := &sdk.Error{Code: sdk.ErrorInternal, Message: "INTERNAL_CANARY", Cause: fmt.Errorf("runtime: %w", native)}
+			public := ExecutionError(context.Background(), wrapped, "reader preview", "synthetic", 1)
+			var result *xresponse.Error
+			if !errors.As(public, &result) || result.Code != code || !errors.Is(public, native) {
+				t.Fatalf("lost native category or cause: %v", public)
+			}
+			if strings.Contains(public.Error(), "CANARY") {
+				t.Fatal("private payload exposed")
+			}
+		})
+	}
+	native := &xresponse.Error{Code: 400, Cause: context.Canceled}
+	public := PublicError(&sdk.Error{Code: sdk.ErrorInternal, Cause: native}, "reader preview")
+	var result *xresponse.Error
+	if !errors.As(public, &result) || result.Code != 502 || !errors.Is(public, context.Canceled) {
+		t.Fatal("cancellation misclassified")
 	}
 }
