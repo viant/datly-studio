@@ -1373,6 +1373,8 @@ github.com/viant/authz v0.1.2-0.20261027201251-5ba403d7e022 h1:DOPMUWwogRn/120le
 github.com/viant/authz v0.1.2-0.20261027201251-5ba403d7e022/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
 github.com/viant/authz v0.1.2-0.20261112184253-02e92dcfc66b h1:YwG7D7z3wWi+pHAtG4khWyglNtq0pk8n/+pCbhoL7OY=
 github.com/viant/authz v0.1.2-0.20261112184253-02e92dcfc66b/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
+github.com/viant/authz v0.1.2-0.20261117163719-2344044d1a9f h1:t77GLuIBGZ5fZKyeau7EVPMLBDdry7rqxZ5RIqvYlv0=
+github.com/viant/authz v0.1.2-0.20261117163719-2344044d1a9f/go.mod h1:iFwUegvPiOLA/j9shvzculpGNehPFvdxd55eXN+kSFI=
 github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4 h1:IxngNqqpHBoCo7/FDaZsatuYckvYY1cqggVyzT3wZM0=
 github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4/go.mod h1:ox0oA/j5NmjymzPlxbFZXl64tnZmnLEIsqCkO8UF2KM=
 github.com/viant/authz/component v0.0.0-20261022145739-e618ce6d35c6 h1:xL9BUIAtyOYV64a7c1lnYahOqOU2pigYrPmRKan/meE=
@@ -1485,6 +1487,8 @@ github.com/viant/datly v1.1.1-0.20261115185528-327e7fc72d78 h1:96SJmPLQSI4pImDpa
 github.com/viant/datly v1.1.1-0.20261115185528-327e7fc72d78/go.mod h1:O4ADXUATqOZPUNlfVLufXbtEqNwCKh6i/ylkTT9PQj0=
 github.com/viant/datly v1.1.1-0.20261115190735-666734056181 h1:yYWr2Uvn0xMEjqcYXxmZqL/iS1fWzMUBeQ6utxh+iiU=
 github.com/viant/datly v1.1.1-0.20261115190735-666734056181/go.mod h1:O4ADXUATqOZPUNlfVLufXbtEqNwCKh6i/ylkTT9PQj0=
+github.com/viant/datly v1.1.1-0.20261117163720-73680f79d840 h1:fgWmeUGGDLv521klQ5vJ+F6GtmonsBIoN/NG3YBeAUE=
+github.com/viant/datly v1.1.1-0.20261117163720-73680f79d840/go.mod h1:QkHoZmjjhSoMGmcJorLdXQT0gcrMqyHXSLvTnAYlhDQ=
 github.com/viant/datly v1.1.1-0.20261117164441-a61f92a31242 h1:Bs7GRoS96Id7ypBqgFp+XTagQwZdw8Y40Syl0GzCBuU=
 github.com/viant/datly v1.1.1-0.20261117164441-a61f92a31242/go.mod h1:QkHoZmjjhSoMGmcJorLdXQT0gcrMqyHXSLvTnAYlhDQ=
 github.com/viant/datly v1.1.1-0.20261117190951-d46387b90d6a h1:ylfDiIV2cTEA4a0OByVI5U7Q/KwXDQoLcQ8aLiZ1UOs=

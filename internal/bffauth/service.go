@@ -31,6 +31,7 @@ type Config struct {
 	Secure     bool
 	Issuer     string
 	Audience   string
+	Audiences  []string
 	Store      SessionStore
 }
 
@@ -63,6 +64,12 @@ type Service struct {
 }
 
 func New(config Config, verifier ClaimsVerifier) (*Service, error) {
+	config.Audiences = append([]string(nil), config.Audiences...)
+	for _, audience := range config.Audiences {
+		if strings.TrimSpace(audience) == "" {
+			return nil, errors.New("BFF audience must not be blank")
+		}
+	}
 	if verifier == nil {
 		return nil, errors.New("BFF JWT verifier is required")
 	}
@@ -246,7 +253,7 @@ func (s *Service) Exchange(ctx context.Context, token string) (string, sdk.Princ
 	if err != nil {
 		return "", sdk.Principal{}, time.Time{}, err
 	}
-	if err = validateTokenBinding(claims, s.config.Issuer, s.config.Audience); err != nil {
+	if err = validateTokenBinding(claims, s.config.Issuer, s.config.Audience, s.config.Audiences...); err != nil {
 		return "", sdk.Principal{}, time.Time{}, err
 	}
 	if (strings.TrimSpace(s.config.Issuer) != "" || strings.TrimSpace(s.config.Audience) != "") && claims.ExpiresAt == nil {
@@ -287,7 +294,7 @@ func (s *Service) ExchangeIDToken(ctx context.Context, idToken, refreshToken str
 	if err != nil {
 		return "", sdk.Principal{}, time.Time{}, err
 	}
-	if err := validateTokenBinding(claims, s.config.Issuer, s.config.Audience); err != nil {
+	if err := validateTokenBinding(claims, s.config.Issuer, s.config.Audience, s.config.Audiences...); err != nil {
 		return "", sdk.Principal{}, time.Time{}, err
 	}
 	if claims.ExpiresAt == nil || !s.now().Before(claims.ExpiresAt.Time) {
@@ -363,13 +370,20 @@ func (s *Service) sessionForID(ctx context.Context, id string) (session, error) 
 	return current, nil
 }
 
-func validateTokenBinding(claims *jwt.Claims, issuer, audience string) error {
+func validateTokenBinding(claims *jwt.Claims, issuer, audience string, audiences ...string) error {
 	issuer = strings.TrimSpace(issuer)
 	audience = strings.TrimSpace(audience)
 	if issuer != "" && (claims == nil || claims.Issuer != issuer) {
 		return errors.New("JWT issuer does not match the configured issuer")
 	}
-	if audience != "" && (claims == nil || !claims.VerifyAudience(audience, true)) {
+	matched := claims != nil && audience != "" && claims.VerifyAudience(audience, true)
+	for _, candidate := range audiences {
+		if claims != nil && candidate != "" && claims.VerifyAudience(candidate, true) {
+			matched = true
+			break
+		}
+	}
+	if (audience != "" || len(audiences) > 0) && !matched {
 		return errors.New("JWT audience does not contain the configured audience")
 	}
 	return nil

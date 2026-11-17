@@ -257,3 +257,23 @@ no per-namespace public URL is needed. Listener addresses remain independent. Wi
 no public origin configured, loopback namespace listeners keep their local URL;
 wildcard/non-loopback listeners can still publish without advertising an internal
 HTTP address as a public connection.
+
+### Multiple trusted audiences
+
+`JWTClaims.Audiences` adds explicitly trusted alternatives to the existing
+`JWTClaims.Audience`. A token must contain at least one configured audience;
+issuer, signature, expiry, subject and resource authorization still apply.
+The shared host forwards the same list to browser sessions, verified user-info
+identity and namespace reader validation. Blank audience entries are rejected.
+
+```yaml
+JWTClaims:
+  Issuer: https://identity.example
+  Audiences: [studio-browser, studio-desktop]
+  RequireSubject: true
+```
+
+Existing single-`Audience` configurations retain their behavior. Applications
+embedding the host must also pass `Audiences` to their shared access-provider
+configuration. The legacy string-only user-info factory cannot represent this
+list; use the existing shared HTTP identity provider for multiple audiences.

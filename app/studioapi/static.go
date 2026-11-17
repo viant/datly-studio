@@ -2,12 +2,15 @@ package studioapi
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -75,6 +78,32 @@ func (s *staticAssets) open(name string) (fs.File, error) {
 	return s.files.Open(name)
 }
 
+// Vite's default output uses an eight-character content hash before the extension.
+var fingerprintedBundle = regexp.MustCompile(`^assets/[^/]+-[A-Za-z0-9_-]{8}\.(js|css)$`)
+
+func acceptsGzip(header string) bool {
+	wildcard := false
+	for _, entry := range strings.Split(header, ",") {
+		coding, parameter, _ := strings.Cut(entry, ";")
+		q := 1.0
+		if parameter != "" {
+			key, value, ok := strings.Cut(strings.TrimSpace(parameter), "=")
+			parsed, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
+			if !ok || !strings.EqualFold(strings.TrimSpace(key), "q") || err != nil || !(parsed >= 0 && parsed <= 1) {
+				continue
+			}
+			q = parsed
+		}
+		switch strings.ToLower(strings.TrimSpace(coding)) {
+		case "gzip":
+			return q > 0
+		case "*":
+			wildcard = q > 0
+		}
+	}
+	return wildcard
+}
+
 func (s *staticAssets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		w.Header().Set("Allow", "GET, HEAD")
@@ -102,6 +131,27 @@ func (s *staticAssets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	immutable := fingerprintedBundle.MatchString(name)
+	if immutable {
+		w.Header().Add("Vary", "Accept-Encoding")
+		if acceptsGzip(strings.Join(r.Header.Values("Accept-Encoding"), ",")) {
+			packed, err := s.open(name + ".gz")
+			if err == nil {
+				defer packed.Close()
+				packedInfo, statErr := packed.Stat()
+				if statErr != nil || !packedInfo.Mode().IsRegular() {
+					http.Error(w, "asset unavailable", http.StatusInternalServerError)
+					return
+				}
+				file, info = packed, packedInfo
+				w.Header().Set("Content-Encoding", "gzip")
+				w.Header().Set("Content-Length", strconv.FormatInt(info.Size(), 10))
+			} else if !errors.Is(err, fs.ErrNotExist) {
+				http.Error(w, "asset unavailable", http.StatusInternalServerError)
+				return
+			}
+		}
+	}
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	content, ok := file.(io.ReadSeeker)
 	if !ok {
@@ -111,6 +161,9 @@ func (s *staticAssets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		content = bytes.NewReader(data)
+	}
+	if immutable {
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 	}
 	http.ServeContent(w, r, name, info.ModTime(), content)
 }
