@@ -39,6 +39,57 @@ belongs to its connector's SQL dialect. `orders` is a view identity; `o` is only
 SQL alias. The typed output/view holder binds the root rows; naming an output
 type alone is not sufficient. Preserve the package/module and named row identity.
 
+## Paging metadata from the native summary
+
+Inside an output/summary or derived output, `$View.Limit`, `$View.Offset` and
+`$View.Page` refer to the parent view's effective selector window. `$View.Limit`
+includes the declared default when the caller omits the limit. Use these scoped
+values instead of an optional raw request input when computing page metadata.
+`$View.NonWindowSQL` retains the parent authorization and filters before paging.
+
+For a paged MySQL reader with a positive effective limit:
+
+```sql
+#define($_ = $Meta<?>(output/summary) /*
+SELECT COUNT(*) AS record_count,
+       CEIL(COUNT(*) * 1.0 / $View.Limit) AS page_count,
+       $View.Limit AS page_size
+FROM ($View.NonWindowSQL) AS filtered
+*/)
+```
+
+Preserve any existing summary fields when extending a reader. Verify omitted
+limit, an explicit nondefault limit, adjacent pages, and an empty population.
+An empty filtered population has zero records and zero pages. Use the connector's
+supported numeric conversion if the public page-count field requires an integer.
+
+## Deployment-owned summary caches
+
+A native summary can select a named cache already supplied by the host. The
+`use_cache` argument names the summary SQL alias, followed by the deployment-owned
+cache name. This declaration caches the summary, not the parent rows:
+
+```sql
+#define($_ = $Meta<?>(output/summary) /*
+SELECT COUNT(*) AS record_count,
+       CEIL(COUNT(*) * 1.0 / $View.Limit) AS page_count,
+       use_cache(filtered, 'countCache')
+FROM ($View.NonWindowSQL) AS filtered
+*/)
+```
+
+`countCache` is illustrative. Use a verified configured cache name; the directive
+does not create a provider or choose its location/TTL. Preserve the authorized
+filtered parent SQL and its bound values. Test page/projection reuse, changed
+filters, distinct authorized scopes, expiry and invalidation through the actual
+reader. Page size affects a cached page count and must remain part of its cache
+identity. Root rows should remain uncached when only counts require reuse.
+
+A duration or an unchanged result does not prove a cache hit. Native execution
+metrics can report cache writes and hits when the reader exposes those metrics.
+If the connected preview response supplies only duration/row evidence, report
+cache-hit qualification as pending rather than inferring it or adding a wrapper.
+
 ## Required predicate-builder filtering
 
 For authored readers, construct filtering WHERE clauses with `predicate.Builder`.
