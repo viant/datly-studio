@@ -197,6 +197,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		authoringConfig.ReaderCaches = config.Caches
 	}
 	options.Native.Authoring = &authoringConfig
+	options.Browser.ReaderCaches = authoringConfig.ReaderCaches
 	options.Browser.AuthoringModule = authoringConfig.ModulePath
 	options.Browser.SourceValidator = authoringConfig.SourceValidator
 	options.Browser.HostConfig = authoringConfig.Config

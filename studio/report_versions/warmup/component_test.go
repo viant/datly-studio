@@ -98,7 +98,12 @@ func TestMCPWarmupRetainsAuthorizedContextAfterClientDisconnect(t *testing.T) {
 		t.Fatal(err)
 	}
 	ids := []string{"accepted", "rejected", "missing", "named-root", "named-child", "named-multiple", "named-plural", "named-shared", "named-indexmeta", "named-rejected", "no-policy", "unresolved", "cache-unavailable"}
-	readerCaches := map[string]*spec.CacheSettings{}
+	readerCaches := map[string]*spec.CacheSettings{
+		"shared-storage":   {Name: "not-the-key", Enabled: true, Provider: "aerospike://unreachable.invalid:3000/test", Location: "PRIVATE_HOST_STORAGE", TTL: "1m"},
+		"combined-storage": {Enabled: true, Location: "PRIVATE_HOST_COMBINED", TTL: "1m", Warmup: &spec.CacheWarmupSettings{IndexColumn: "ID"}},
+		"policy-only":      {Warmup: &spec.CacheWarmupSettings{IndexColumn: "ID"}},
+		"disabled-storage": {Enabled: false, Location: "PRIVATE_HOST_DISABLED", TTL: "1m"}, "nil-storage": nil,
+	}
 	for _, id := range ids {
 		scope := "example.com/fixture/" + strings.ReplaceAll(id, "-", "_")
 		warmupConnector := "batch"
@@ -362,6 +367,10 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 	if _, err = db.ExecContext(ctx, "UPDATE namespaces SET visibility='public' WHERE namespace_id=?", namespace); err != nil {
 		t.Fatal(err)
 	}
+	t.Run("host cache selection", func(t *testing.T) {
+		runner := jwtFixture.BearerWithClaims(t, jwtv5.MapClaims{"sub": "cache-runner", "iss": "warmup-test", "aud": "studio", "tenant": "tenant", "exp": time.Now().Add(time.Hour).Unix()})
+		testHostCacheSelection(ctx, t, db, namespace, bearer, runner, addresses[0], authoring, callRaw)
+	})
 	t.Run("contributor inspection", func(t *testing.T) {
 		runner := jwtFixture.BearerWithClaims(t, jwtv5.MapClaims{"sub": "contributor-runner", "iss": "warmup-test", "aud": "studio", "tenant": "tenant", "exp": time.Now().Add(time.Hour).Unix()})
 		testContributorInspection(ctx, t, db, namespace, bearer, runner, addresses[0], callRaw)

@@ -189,7 +189,7 @@ func (*inspectHandler) Exec(ctx context.Context, session xhandler.Session, input
 		return err
 	}
 	service := readerbuilder.New(readerbuilder.Config{Resources: loaded.ByVersion[resourceVersion], Types: types, Scope: report.Item.ComponentScope,
-		Name: report.Item.ComponentName, AvailableConnectors: available})
+		Name: report.Item.ComponentName, AvailableConnectors: available, AvailableCaches: readerinspection.AvailableCacheNames(authoring.ReaderCaches())})
 	source := version.GeneratedDQL
 	if strings.TrimSpace(source) == "" {
 		source = version.AuthoredDQL

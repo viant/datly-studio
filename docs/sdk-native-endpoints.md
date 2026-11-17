@@ -201,6 +201,23 @@ The shared Workbench binding accepts `{refreshSchema: true}` as the seventh
 `previewReader` argument. Forge exposes this through **Refresh schema and run preview**
 for ordinary readers.
 
+For callers with DQL permission, `structure.availableCaches` lists host-defined
+storage names from the same trusted configuration used by Builder mutations.
+These are the configuration map keys of non-nil, enabled entries; policy-only
+and disabled entries are excluded, while combined storage/policy entries remain
+selectable. Only names are returned, never provider URIs, locations, credentials,
+or copied host settings. Listing does not contact storage or establish its
+reachability, configuration validity, or capacity. An omitted `availableCaches`
+means an empty catalog after successful inspection; an inspection failure must
+remain an error. Without DQL permission, the curated structure omits the catalog.
+
+Bind root and child views through the existing guarded `use_cache(view, 'name')`
+function mutations. Native validation still accepts appropriate component-owned
+cache references even when absent from the host catalog. Binding edits do not
+replace component cache declarations or warmup policies. SQL SDK embedders pass
+the same deployment-owned map through `sqltransport.Transport.ReaderCaches`;
+the unified host forwards it to both native authoring and the browser SDK.
+
 Reader Builder's authored `structure.targetedWarmups` metadata describes native
 targeted inline plans by target SQL namespace and merged policy. Each item
 contains `view`, authored `settings`, `editable`, optional `diagnostic`, and

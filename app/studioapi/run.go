@@ -47,6 +47,7 @@ import (
 	"github.com/viant/datly-studio/studio/authorization"
 	"github.com/viant/datly-studio/studio/host"
 	versionclone "github.com/viant/datly-studio/studio/report_versions/clone"
+	"github.com/viant/datly/spec"
 	"github.com/viant/scy/auth/jwt/verifier"
 	_ "github.com/viant/sqlx/metadata/product/bigquery"
 	_ "github.com/viant/sqlx/metadata/product/mysql"
@@ -166,6 +167,10 @@ type RuntimeControl interface {
 }
 
 type Options struct {
+	// ReaderCaches supplies the deployment-owned storage/policy configuration.
+	// It is never populated from browser requests.
+	ReaderCaches map[string]*spec.CacheSettings
+
 	// AuthoringModule is selected by the embedding host, never a request.
 	AuthoringModule string
 	SourceValidator sourcevalidation.Validator
@@ -387,7 +392,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio preview connector reader close: %v", err)
 		}
 	}()
-	dynamicPreview := &preview.Dynamic{Observability: options.HostConfig.Observability, SourceValidator: options.SourceValidator, Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
+	dynamicPreview := &preview.Dynamic{ReaderCaches: options.ReaderCaches, Observability: options.HostConfig.Observability, SourceValidator: options.SourceValidator, Const: options.Const, ModulePath: options.AuthoringModule, StudioDB: db, RootDir: ".", Definitions: definitionReader, Connectors: connectorReader}
 	predicates, types, err := options.HostConfig.RuntimeCatalogs()
 	if err != nil {
 		return err
@@ -416,7 +421,7 @@ func Serve(lifecycleCtx context.Context, args []string, options Options) (result
 			log.Printf("Studio authorizer reader close: %v", err)
 		}
 	}()
-	transport := &sqltransport.Transport{WarmupOperationTimeout: &warmupTimeoutSetting, AuthoringModule: options.AuthoringModule, DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, CacheInvalidator: cacheInvalidator, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
+	transport := &sqltransport.Transport{ReaderCaches: options.ReaderCaches, WarmupOperationTimeout: &warmupTimeoutSetting, AuthoringModule: options.AuthoringModule, DB: db, Authorizer: authorizer, ReleaseNamespace: options.ReleaseNamespace, ReleaseManagementAvailable: options.ReleaseManagementAvailable, Predicates: predicates, Probe: connectivity.SQLProbe{Const: options.Const}, Catalog: connectivity.SQLCatalog{Const: options.Const}, SQLTester: dynamicPreview, Preview: dynamicPreview, ViewTester: dynamicPreview, RelationTester: dynamicPreview, ComposeTester: dynamicPreview, Warmup: dynamicPreview, CacheInvalidator: cacheInvalidator, Validator: dynamicPreview, ContractInspector: dynamicPreview, Activator: runtimeAdmin, RuntimeProbe: runtimeAdmin}
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
