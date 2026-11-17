@@ -1,12 +1,15 @@
 package studioapi
 
 import (
+	"bytes"
+	"compress/gzip"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/viant/datly-studio/internal/bffauth"
 	"github.com/viant/datly-studio/sdk/httptransport"
@@ -198,5 +201,54 @@ func TestStaticUIAndAuthenticatedExtensionShareOneBFFOrigin(t *testing.T) {
 	handler.ServeHTTP(meResponse, me)
 	if meResponse.Code != http.StatusOK {
 		t.Fatalf("session route status=%d", meResponse.Code)
+	}
+}
+
+func TestFingerprintedAssetsThroughBFF(t *testing.T) {
+	const name = "assets/studio-a1B2c_3-.js"
+	raw := []byte("export default 1")
+	var packed bytes.Buffer
+	writer := gzip.NewWriter(&packed)
+	if _, err := writer.Write(raw); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	files := fstest.MapFS{
+		"index.html": {Data: []byte("index")},
+		name:         {Data: raw}, name + ".gz": {Data: packed.Bytes()},
+		"assets/other-abcdefgh.css": {Data: raw},
+		"assets/app.js":             {Data: raw},
+	}
+	assets, err := newStaticFS(files)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := noStore(assets)
+	for _, tc := range []struct {
+		path, accept          string
+		compressed, immutable bool
+	}{
+		{name, "br, gzip", true, true}, {name, "*;q=1, gzip;q=0", false, true},
+		{name, "", false, true}, {"assets/other-abcdefgh.css", "gzip", false, true},
+		{"assets/app.js", "gzip", false, false},
+	} {
+		response := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/"+tc.path, nil)
+		req.Header.Set("Accept-Encoding", tc.accept)
+		handler.ServeHTTP(response, req)
+		h := response.Header()
+		want := raw
+		if tc.compressed {
+			want = packed.Bytes()
+		}
+		if response.Code != 200 || !bytes.Equal(response.Body.Bytes(), want) ||
+			(h.Get("Content-Encoding") == "gzip") != tc.compressed ||
+			strings.Contains(h.Get("Cache-Control"), "immutable") != tc.immutable ||
+			(tc.immutable && h.Get("Vary") != "Accept-Encoding") ||
+			(tc.compressed && !strings.Contains(h.Get("Content-Type"), "javascript")) {
+			t.Errorf("%+v: status %d, headers %v", tc, response.Code, h)
+		}
 	}
 }
