@@ -174,6 +174,7 @@ func (d Dynamic) TestSQL(ctx context.Context, connector *sdk.Connector, request 
 	}
 	definition := &definition{
 		Scope: modulePath + "/dynamic/sqltest/" + token,
+		Types: d.Types,
 		Name:  "preview", Connector: connector.Name, Driver: connector.Driver, DSN: resolvedDSN, Options: connector.Options, Secrets: d.Secrets, SQLTestOffset: &request.Offset,
 	}
 	dql := fmt.Sprintf(`#package('%s')

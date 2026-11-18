@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"reflect"
 	"strings"
 	"time"
 
@@ -18,6 +19,8 @@ import (
 	"github.com/viant/datly-studio/studio/codeccatalog"
 	"github.com/viant/datly-studio/studio/predicatecatalog"
 	"github.com/viant/datly/typecatalog"
+	sqlxtypes "github.com/viant/sqlx/types"
+	"github.com/viant/x"
 )
 
 const studioAuthorizationPath = "github.com/viant/datly-studio/studio/authorization"
@@ -62,6 +65,11 @@ func (c Config) RuntimeCatalogs() (*predicatecatalog.Catalog, *typecatalog.Catal
 		return nil, nil, err
 	}
 	if err = codeccatalog.RegisterBuiltinTypes(types); err != nil {
+		return nil, nil, err
+	}
+	// SQLX discovers MySQL BIT(1) as this named scanner type. Keep its
+	// runtime identity in the same startup authority used by dynamic readers.
+	if err = types.LinkRuntimeAll(typecatalog.TypeOriginPackage, x.NewType(reflect.TypeFor[sqlxtypes.BitBool]())); err != nil {
 		return nil, nil, err
 	}
 	if err = accesscontext.RegisterTypes(types); err != nil {

@@ -18,7 +18,7 @@ func TestRuntimeTypesResolveAuthorizationDependenciesAndHostPredicates(t *testin
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{accesscontext.ImportPath + ".Output", accesscontext.ImportPath + ".Scope", "example.com/acme/iam.tenantPredicate"} {
+	for _, name := range []string{accesscontext.ImportPath + ".Output", accesscontext.ImportPath + ".Scope", "github.com/viant/sqlx/types.BitBool", "example.com/acme/iam.tenantPredicate"} {
 		if _, found, err := types.ResolveRuntimeType(typecatalog.PackageAuthority, name); err != nil || !found {
 			t.Fatalf("runtime dependency %s unavailable: %v", name, err)
 		}
