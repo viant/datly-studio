@@ -12,7 +12,7 @@ pipeline:
       - page.getByLabel("Display title").fill("Browser namespace")
       - page.getByRole("button", "Save").click()
       - expect(page.locator("xpath://td[normalize-space(.)='Browser namespace']")).toBeVisible(15000)
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
   persist:
     action: dsunit:query

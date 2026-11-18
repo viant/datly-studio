@@ -3,7 +3,7 @@ init:
 pipeline:
   createNamespaceInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:
@@ -30,7 +30,7 @@ pipeline:
       name: $caseName
   createConnectorInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:
@@ -57,7 +57,7 @@ pipeline:
       - expect(page.locator("xpath://div[@data-forge-container-id='connector-list']//tbody/tr[1]/td[3]")).toHaveText("active",15000)
   browseInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts: &a1
@@ -72,7 +72,7 @@ pipeline:
       - expect(page.locator("xpath://tr[.//*[normalize-space(.)='customers']]//button[@aria-label='Inspect table']")).toBeVisible(15000)
   layout:
     action: webdriver:call-driver
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     call:
       method: ExecuteScript
       parameters:
@@ -94,7 +94,7 @@ pipeline:
       noPageHorizontalOverflow: true
   queryInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts: *a1

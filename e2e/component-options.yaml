@@ -86,13 +86,8 @@ pipeline:
         - ${appPath}/.data/e2e/bin/options-fixture -mode wait -root ${appPath} -dir ${runDir} -port-offset 3000
   browser:
     driver:
-      action: exec:run
-      target: $target
-      strictCompletion: true
-      checkError: true
-      timeoutMs: 120000
-      commands:
-        - python3 ${appPath}/e2e/scripts/prepare_webdriver.py ${appPath}/.data/e2e/webdriver
+      action: run
+      request: '@local/prepare-webdriver'
     start:
       action: webdriver:start
       URL: ${appPath}/.data/e2e/webdriver

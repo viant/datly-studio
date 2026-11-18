@@ -1,7 +1,7 @@
 pipeline:
   createNamespaceInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:
@@ -28,7 +28,7 @@ pipeline:
       name: $caseName
   createComponentInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:
@@ -83,7 +83,7 @@ pipeline:
         - title: $caseTitle
   bindScopeInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:
@@ -99,7 +99,7 @@ pipeline:
       - expect(page.locator(".bp6-dialog")).toHaveCount(0,15000)
   policyInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:
@@ -109,7 +109,7 @@ pipeline:
     action: webdriver:run
     failureArtifacts:
       directory: ${runDir}/artifacts
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     commands:
@@ -118,7 +118,7 @@ pipeline:
       - expect(page.getByRole("button", "Edit component")).toBeVisible(15000)
   authorInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:
@@ -137,7 +137,7 @@ pipeline:
     action: webdriver:run
     failureArtifacts:
       directory: ${runDir}/artifacts
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     commands:
@@ -174,7 +174,7 @@ pipeline:
     expect: ready
   publishInUI:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:

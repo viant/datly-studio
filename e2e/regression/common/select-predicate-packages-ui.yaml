@@ -2,7 +2,7 @@
 pipeline:
   selectPackages:
     action: webdriver:run
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     browser: chrome
     failureArtifacts:

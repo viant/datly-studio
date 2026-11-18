@@ -4,6 +4,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {managementResourceFixture} from './managementWindowFixture.js';
 import { StudioApp } from './StudioApp.jsx';
+import {readerWorkbenchDefaults} from './readerWorkbenchDefaults.js';
 vi.mock('./ReleaseWorkspace.jsx',()=>({default:({namespace})=><section aria-label="Release manager fixture">Release namespace {namespace}</section>}));
 
 // Transform the lazy runtime as test setup, outside interaction deadlines.
@@ -37,6 +38,38 @@ function catalogAPI() {
 }
 
 describe('Studio connector catalog', () => {
+  test('transports host row scope metadata into the workbench and native builder command', async () => {
+    const user = userEvent.setup();
+    const api = catalogAPI();
+    const report = {id:'scoped-reader',title:'Scoped reader',slug:'scoped-reader',currentDraftVersion:2,status:'draft'};
+    const version = {reportId:report.id,versionNo:2,sourceRevision:3,state:'draft',compileStatus:'valid'};
+    const inspection = {version,capabilities:{canEdit:true,canRun:true,canPublish:true},diagnostics:[],
+      structure:{component:{rootView:{name:'records',namespace:'record',source:{table:'main.records'},columns:[{name:'id',type:{name:'int'}}]},routes:[{path:'/records'}]},declarations:[]}};
+    api.listComponents.mockResolvedValue({items:[report]});
+    api.listVersions = vi.fn(async () => ({items:[version]}));
+    const invoke = api.invoke;
+    api.invoke = vi.fn((operation,input) => {
+      if (operation === 'versions.inspect') return Promise.resolve(inspection);
+      if (operation === 'versions.builder') return Promise.resolve({applied:true,inspection});
+      return invoke(operation,input);
+    });
+    render(<StudioApp api={api} mode="development" subject="owner"/>);
+    await user.click(screen.getByRole('button',{name:'Components',exact:true}));
+    await screen.findByText('Scoped reader');
+    await user.click(screen.getByRole('button',{name:'Open Reader Builder'}));
+    await screen.findByRole('heading',{name:'Component graph'});
+    await user.click(screen.getByRole('button',{name:'More actions'}));
+    await user.click(await screen.findByRole('menuitem',{name:'Row access scope'}));
+    expect(managementResourceFixture('reader-workbench').variants.default.window.view.content.readerWorkbench.defaults).toEqual(readerWorkbenchDefaults);
+    await user.click(screen.getByRole('button',{name:'Bind entity scope'}));
+    await waitFor(() => expect(api.invoke).toHaveBeenCalledWith('versions.builder',{
+      reportId:report.id,versionNo:2,command:{expectedSourceRevision:3,operation:{type:'batch',operations:[
+        {type:'addField',field:{name:'Auth',type:'*github.com/viant/datly-studio/runtime/accesscontext.Output',sourceKind:'component',sourceName:'GET:/_studio/access/context/scoped-reader/customer',required:true}},
+        {type:'addField',field:{name:'AuthorizedEntityIDs',type:'[]string,[]int',sourceKind:'param',sourceName:'Auth.Scope.IDs',required:true,codec:{name:'EntityIDs'}}},
+        {type:'addFieldPredicate',predicate:{name:'in',group:99,groupOperator:'AND',applyWhenAbsent:true,field:'AuthorizedEntityIDs',view:'record',args:['records','id']}},
+      ]}},
+    }));
+  });
   test('opens the component catalog, inspects its saved reader, and returns to the catalog', async () => {
     const user = userEvent.setup();
     const api = catalogAPI();

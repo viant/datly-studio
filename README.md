@@ -339,13 +339,14 @@ cd e2e
 endly
 ```
 
-Plain `endly` first builds and tests the real single-process `studio` binary via
+Plain `endly` first qualifies native MySQL regressions on an owned disposable
+MySQL 8.4 container, then builds and tests the real single-process `studio` binary via
 the `unifiedHost` group, then runs the retained fixture-based browser suite:
 stop a previous fixture, build the Go fixture and production UI, create a fresh SQLite catalog, seed consumer data
 through DSUnit, start Studio, prepare ChromeDriver, run MCP, permission and browser
 cases, and stop the fixture. Each invocation chooses a new run directory under
-`.data/e2e`, so rerunning does not overwrite an earlier catalog. Python 3 and
-local Google Chrome are required for the browser cases; setup downloads a matching
+`.data/e2e`, so rerunning does not overwrite an earlier catalog. Local Google Chrome,
+curl, jq and unzip are required for the browser cases; setup downloads a matching
 ChromeDriver into the fixture directory.
 
 The unified-host regression checks one application PID with no child services,

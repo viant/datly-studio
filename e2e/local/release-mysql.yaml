@@ -1,0 +1,116 @@
+init:
+  appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
+  generatedMySQLId: $FormatTime('now In UTC', 'yyyyMMddHHmmssSSS')
+  mysqlOwner: datly-studio-release-e2e-${generatedMySQLId}
+  mysqlDirectory: ${appPath}/.data/e2e/${mysqlOwner}
+  target:
+    URL: ssh://localhost/
+pipeline:
+  mysqlFixtureShell:
+    action: exec:open
+    target: $target
+  mysqlFixtureCreate:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 180000
+    commands:
+      - |
+        (
+        set -eu
+        umask 077
+        mkdir -p '${mysqlDirectory}'
+        openssl rand -hex 24 > '${mysqlDirectory}/password'
+        MYSQL_ROOT_PASSWORD=$(cat '${mysqlDirectory}/password')
+        export MYSQL_ROOT_PASSWORD
+        docker run --detach --rm --memory=2g --name '${mysqlOwner}' --label 'datly-studio.e2e.owner=${mysqlOwner}' -e MYSQL_ROOT_PASSWORD -e MYSQL_DATABASE=studio_e2e -p 127.0.0.1::3306 mysql:8.4 > '${mysqlDirectory}/container'
+        printf '%s' "$(( $(date +%s) + 120 ))" > '${mysqlDirectory}/deadline'
+        )
+  mysqlFixtureProbe:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 10000
+    ':repeat': 121
+    ':thinkTimeMs': 1000
+    ':exit': '$mysqlFixtureProbe.Output:/E2E_MYSQL_READY=true/'
+    commands:
+      - |
+        (
+        set -eu
+        if [ "$(date +%s)" -ge "$(cat '${mysqlDirectory}/deadline')" ]; then echo 'owned MySQL fixture did not become ready' >&2; exit 1; fi
+        if docker exec '${mysqlOwner}' sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --protocol=TCP -h127.0.0.1 -uroot studio_e2e --execute="SELECT 1"' >/dev/null 2>&1; then
+          touch '${mysqlDirectory}/ready'
+          echo E2E_MYSQL_READY=true
+        else
+          echo E2E_MYSQL_READY=false
+        fi
+        )
+  mysqlFixtureBinding:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 10000
+    commands:
+      - |
+        (
+        set -eu
+        test -f '${mysqlDirectory}/ready'
+        docker port '${mysqlOwner}' 3306/tcp > '${mysqlDirectory}/binding'
+        test "$(wc -l < '${mysqlDirectory}/binding' | tr -d ' ')" = 1
+        grep -Eq '^127\.0\.0\.1:[0-9]+$' '${mysqlDirectory}/binding'
+        docker exec '${mysqlOwner}' sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot --execute="CREATE DATABASE studio_snapshot_e2e; CREATE DATABASE studio_audit_e2e; CREATE DATABASE studio_session_e2e; CREATE DATABASE studio_resource_e2e;"'
+        )
+  mysqlNativeTests:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 300000
+    commands:
+      - |
+        (
+        set -eu
+        cd '${appPath}'
+        mysql_password=$(cat '${mysqlDirectory}/password')
+        mysql_port=$(cut -d: -f2 '${mysqlDirectory}/binding')
+        export GOWORK=off
+        export STUDIO_RELEASE_MYSQL_DSN="root:$mysql_password@tcp(127.0.0.1:$mysql_port)/studio_e2e?parseTime=true&multiStatements=true"
+        export STUDIO_METADATA_MYSQL_DSN="$STUDIO_RELEASE_MYSQL_DSN"
+        export STUDIO_RELEASE_SNAPSHOT_MYSQL_DSN="root:$mysql_password@tcp(127.0.0.1:$mysql_port)/studio_snapshot_e2e?parseTime=true&multiStatements=true"
+        export STUDIO_AUDIT_MYSQL_DSN="root:$mysql_password@tcp(127.0.0.1:$mysql_port)/studio_audit_e2e?parseTime=true&multiStatements=true"
+        export STUDIO_SESSION_MYSQL_DSN="root:$mysql_password@tcp(127.0.0.1:$mysql_port)/studio_session_e2e?parseTime=true&multiStatements=true"
+        export STUDIO_RESOURCE_MYSQL_DSN="root:$mysql_password@tcp(127.0.0.1:$mysql_port)/studio_resource_e2e?parseTime=true&multiStatements=true"
+        mysql_test_status=0
+        go test -p=1 ./studio/artifact_release/channels ./studio/artifact_release/snapshot ./internal/auditstore ./internal/bffauth ./runtime/resources ./runtime/preview -run MySQL -count=1 -v > '${mysqlDirectory}/tests.log' 2>&1 || mysql_test_status=$?
+        sed "s/$mysql_password/[redacted]/g" '${mysqlDirectory}/tests.log'
+        test "$mysql_test_status" = 0
+        if grep -q -- '--- SKIP:' '${mysqlDirectory}/tests.log'; then echo 'native MySQL qualification skipped tests' >&2; exit 1; fi
+        for mysql_test in TestNativeChannelsMySQL TestNativeSnapshotGraphMySQL TestNativeAuditControlsMySQL TestNativeRefreshLeaseMySQL TestResourceSnapshotMySQL TestSQLNativeMySQLBitProjection; do
+          grep -Fq -- "--- PASS: $mysql_test " '${mysqlDirectory}/tests.log' || { echo "required MySQL test did not pass: $mysql_test" >&2; exit 1; }
+        done
+        )
+  defer:
+    mysqlFixtureResetShell:
+      action: exec:close
+      sessionID: $mysqlFixtureShell.SessionID
+    mysqlFixtureCleanup:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 30000
+      commands:
+        - |
+          (
+          set -eu
+          if [ -s '${mysqlDirectory}/container' ]; then
+            mysql_label=$(docker inspect --format '{{ index .Config.Labels "datly-studio.e2e.owner" }}' '${mysqlOwner}')
+            test "$mysql_label" = '${mysqlOwner}'
+            docker rm --force --volumes '${mysqlOwner}' >/dev/null
+          fi
+          rm -f '${mysqlDirectory}/password'
+          )

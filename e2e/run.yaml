@@ -1,32 +1,60 @@
 init:
-  appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
-  generatedRunId: $FormatTime('now In UTC', 'yyyyMMddHHmmssSSS')
-  runId: '$params.runId?$params.runId:$generatedRunId'
-  runDir: ${appPath}/.data/e2e/${runId}
-  target:
-    URL: ssh://localhost/
-  nativeMCP: http://127.0.0.1:18790/mcp
-  browserURL: http://127.0.0.1:18780
-  ownerToken: ${runDir}/owner.token
-  editorToken: ${runDir}/editor.token
-  viewerToken: ${runDir}/viewer.token
-  outsiderToken: ${runDir}/outsider.token
+  - appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
+  - generatedRunId: $FormatTime('now In UTC', 'yyyyMMddHHmmssSSS')
+  - runId: '$params.runId?$params.runId:$generatedRunId'
+  - runDir: ${appPath}/.data/e2e/${runId}
+  - target:
+      URL: ssh://localhost/
+  - {name: portOffset, from: params.portOffset, value: 0}
+  - defaultFixtureBinary: ${appPath}/.data/e2e/bin/fixture
+  - offsetFixtureBinary: ${appPath}/.data/e2e/bin/fixture-${portOffset}
+  - name: fixtureBinary
+    from: offsetFixtureBinary
+    when: '$in.portOffset > 0'
+    else: $defaultFixtureBinary
+  - ownerToken: ${runDir}/owner.token
+  - editorToken: ${runDir}/editor.token
+  - viewerToken: ${runDir}/viewer.token
+  - outsiderToken: ${runDir}/outsider.token
 pipeline:
-  nativeReleaseMySQL:
+  cleanupPrevious:
+    action: process:stop
+    target: $target
+    input: $fixtureBinary
+  fixturePorts:
     action: exec:run
     target: $target
     strictCompletion: true
     checkError: true
-    timeoutMs: 600000
     commands:
-      - python3 ${appPath}/e2e/scripts/verify_release_mysql.py
+      - |
+        (
+        set -eu
+        command -v lsof >/dev/null
+        test '${portOffset}' -ge 0 && test '${portOffset}' -le 46000
+        echo "E2E_BROWSER_PORT=$((18780 + ${portOffset}))"
+        echo "E2E_MCP_PORT=$((18790 + ${portOffset}))"
+        echo "E2E_IDP_PORT=$((18795 + ${portOffset}))"
+        echo "E2E_WEBDRIVER_PORT=$((4445 + ${portOffset}))"
+        for fixture_port in $((18780 + ${portOffset})) $((18790 + ${portOffset})) $((18795 + ${portOffset})) $((4445 + ${portOffset})) $((18781 + ${portOffset})) $((18782 + ${portOffset})); do
+          if lsof -nP -iTCP:$fixture_port -sTCP:LISTEN >/dev/null; then echo "e2e port is already occupied: $fixture_port" >&2; exit 1; fi
+        done
+        )
+    extract:
+      - {key: browserPort, regExpr: 'E2E_BROWSER_PORT=([0-9]+)', required: true}
+      - {key: nativePort, regExpr: 'E2E_MCP_PORT=([0-9]+)', required: true}
+      - {key: idpPort, regExpr: 'E2E_IDP_PORT=([0-9]+)', required: true}
+      - {key: webdriverPort, regExpr: 'E2E_WEBDRIVER_PORT=([0-9]+)', required: true}
+    post:
+      webdriverSessionID: localhost:${Data.webdriverPort}
+      nativeMCP: http://127.0.0.1:${Data.nativePort}/mcp
+      browserURL: http://127.0.0.1:${Data.browserPort}
+  nativeReleaseMySQL:
+    action: run
+    request: '@local/release-mysql'
   unifiedHost:
     action: run
     request: '@local/unified'
-  cleanupPrevious:
-    action: process:stop
-    target: $target
-    input: ${appPath}/.data/e2e/bin/fixture
   build:
     action: exec:run
     target: $target
@@ -36,7 +64,7 @@ pipeline:
     commands:
       - cd ${appPath}
       - mkdir -p .data/e2e/bin
-      - CGO_ENABLED=0 GOWORK=off go build -o .data/e2e/bin/fixture ./e2e/cmd/fixture
+      - CGO_ENABLED=0 GOWORK=off go build -o ${fixtureBinary} ./e2e/cmd/fixture
       - cd ui
       - npm ci --no-audit --no-fund
       - npm run build
@@ -48,7 +76,7 @@ pipeline:
       checkError: true
       commands:
         - cd ${appPath}
-        - .data/e2e/bin/fixture -mode prepare -root ${appPath} -dir ${runDir}
+        - ${fixtureBinary} -mode prepare -root ${appPath} -dir ${runDir} -port-offset ${portOffset}
     tokens:
       action: run
       request: '@sign-tokens'
@@ -58,11 +86,11 @@ pipeline:
       strictCompletion: true
       checkError: true
       commands:
-        - ${appPath}/.data/e2e/bin/fixture -mode prepare-idp -root ${appPath} -dir ${runDir}
+        - ${fixtureBinary} -mode prepare-idp -root ${appPath} -dir ${runDir} -port-offset ${portOffset}
     idp:
       action: http/endpoint:listen
       host: 127.0.0.1
-      port: 18795
+      port: $idpPort
       replace: true
       rotate: true
       indexKeys: [Method, URL, Header.Authorization]
@@ -101,9 +129,9 @@ pipeline:
       action: process:start
       target: $target
       directory: $appPath
-      command: ${appPath}/.data/e2e/bin/fixture
+      command: $fixtureBinary
       # process:start builds a shell command; detach output from its launch pipes.
-      arguments: [-mode, serve, -root, $appPath, -dir, $runDir, '>', '${runDir}/fixture.log', '2>&1']
+      arguments: [-mode, serve, -root, $appPath, -dir, $runDir, -port-offset, $portOffset, '>', '${runDir}/fixture.log', '2>&1']
       immuneToHangups: true
     wait:
       action: exec:run
@@ -112,7 +140,7 @@ pipeline:
       checkError: true
       timeoutMs: 40000
       commands:
-        - ${appPath}/.data/e2e/bin/fixture -mode wait -root ${appPath} -dir ${runDir}
+        - ${fixtureBinary} -mode wait -root ${appPath} -dir ${runDir} -port-offset ${portOffset}
     healthcheck:
       action: http/runner:send
       requests:
@@ -124,18 +152,14 @@ pipeline:
               status: ready
   setupBrowser:
     prepareDriver:
-      action: exec:run
-      strictCompletion: true
-      checkError: true
-      timeoutMs: 120000
-      commands:
-        - python3 ${appPath}/e2e/scripts/prepare_webdriver.py ${appPath}/.data/e2e/webdriver
+      action: run
+      request: '@local/prepare-webdriver'
     startDriver:
       action: webdriver:start
       URL: ${appPath}/.data/e2e/webdriver
       driver: chromedriver
       capabilities: ["--window-size=1440,1000"]
-      port: 4445
+      port: $webdriverPort
   audit:
     action: run
     request: '@audit'
@@ -145,4 +169,4 @@ pipeline:
   stop:
     action: process:stop
     target: $target
-    input: ${appPath}/.data/e2e/bin/fixture
+    input: $fixtureBinary

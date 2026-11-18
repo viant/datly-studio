@@ -33,26 +33,34 @@ explicit `params.runId`, use a new value for setup: preparation refuses to overw
 an existing catalog. All generated credentials, databases and browser evidence
 stay under `.data/e2e/<runId>`.
 
-- Initial build: `tasks: build`.
-- MCP group: `tasks: stop,setup,test`, with discovered `testMCP_*` tag IDs.
-- Permissions: `tasks: stop,setup,test`, with discovered `testPermissions_*` tag IDs.
-- Browser group: `tasks: stop,setup,setupBrowser,test`, with discovered `testWebDriver_*` tag IDs.
-- Complete replacement suite: `tasks: stop,build,setup,setupBrowser,test`.
+- Initial build: `tasks: fixturePorts,build`.
+- MCP group: `tasks: stop,fixturePorts,setup,test`, with discovered `testMCP_*` tag IDs.
+- Permissions: `tasks: stop,fixturePorts,setup,test`, with discovered `testPermissions_*` tag IDs.
+- Browser group: `tasks: stop,fixturePorts,setup,setupBrowser,test`, with discovered `testWebDriver_*` tag IDs.
+- Release qualification: run default `endly` without task or case selectors.
 - Individual cases: use `tasks: test` with discovered `tagIds` after setup.
 - Cleanup: `tasks: stop`, then close the Endly session to close its WebDriver.
 
 Requirements: Go 1.25.8 or newer (automatic Go toolchain downloads enabled),
-Node.js 22.12 or newer with npm, Python 3, a working local Google Chrome installation,
+Node.js 22.12 or newer with npm, curl, jq, unzip, OpenSSL, lsof, a working local Google Chrome installation,
 and Endly at `f59f672e1f85` or newer. Oracle and SQLite use pure-Go drivers; a C compiler is not required for the
 standard binaries. Run browsers as a regular user, not root. macOS and Linux are the
 supported fixture hosts; Windows is not yet supported by its POSIX shell steps.
 Network access is required for public Go modules, npm packages, the pinned public
 Forge archive, and Google's ChromeDriver download. The workflow runs `npm ci`;
-no sibling repository, preinstalled node_modules, Docker, database server, login,
-or pre-existing credentials are required. Endly pins Gosh's published strict-completion
+no sibling repository, preinstalled node_modules, login,
+or pre-existing credentials are required. Docker is required for the owned disposable
+MySQL 8.4 release qualification, which runs six native Go test packages without skips.
+Endly pins Gosh's published strict-completion
 implementation; build/readiness commands opt in. WebDriver setup downloads the
 official ChromeDriver matching the installed Chrome build into `.data/e2e/webdriver`
 and starts it on port 4445, without replacing a system driver.
+
+For concurrent runs, `endly portOffset=2000` executes the entire default pipeline
+using the fixture's existing port offset: browser 20780, native MCP 20790, IdP 20795,
+and WebDriver 6445. The default offset is zero. The workflow checks all fixture
+ports before setup and fails if any listener already owns one.
+Offset zero keeps `.data/e2e/bin/fixture`; nonzero offsets use `fixture-<offset>` so cleanup preserves fixtures running at other offsets.
 
 DSUnit registers SQLite, creates the consumer schema and loads the dictionary
 fixtures. Business mutations run through the native Studio MCP tools or the
@@ -61,6 +69,7 @@ identities, a real native Studio runtime, isolated namespace MCP listeners,
 and a trusted browser proxy. It does not implement substitute business handlers.
 
 The example predicate package is `github.com/viant/datly-studio/e2e/predicates`.
+The pinned Forge preview contract (`5aa1815e8ce3`, including upstream `c6a95ab2`) opens parameter controls on first metadata resolution; submit **Run with parameters** even when that resolved schema is empty.
 The fixture links it and configures `STUDIO_PREDICATE_PACKAGES` using the package
 string; the DQL case verifies discovery and filtered execution.
 

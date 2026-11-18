@@ -1,0 +1,132 @@
+init:
+  appPath: '$params.appPath?$params.appPath:$WorkingDirectory(..)'
+  webdriverDirectory: ${appPath}/.data/e2e/webdriver
+  webdriverCacheReusable: false
+  target:
+    URL: ssh://localhost/
+pipeline:
+  webdriverBrowserDiscovery:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 120000
+    commands:
+      - |
+        (
+        set -eu
+        echo "STUDIO_DRIVER_DEADLINE=$(( $(date +%s) + 120 ))"
+        if [ "$(uname -s)" = Darwin ]; then
+          chrome_browser='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+          case "$(uname -m)" in arm64) chrome_platform=mac-arm64 ;; *) chrome_platform=mac-x64 ;; esac
+        else
+          chrome_browser=$(command -v google-chrome || command -v chromium || true)
+          case "$(uname -m)" in arm64|aarch64) chrome_platform=linux-arm64 ;; *) chrome_platform=linux64 ;; esac
+        fi
+        test -n "$chrome_browser" && test -x "$chrome_browser" || { echo 'Chrome is required for Endly WebDriver acceptance tests' >&2; exit 1; }
+        chrome_browser_version=$("$chrome_browser" --version)
+        chrome_version=$(printf '%s' "$chrome_browser_version" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        test -n "$chrome_version"
+        chrome_build=$(echo "$chrome_version" | cut -d. -f1-3)
+        mkdir -p '${webdriverDirectory}'
+        echo "STUDIO_CHROME_VERSION=$chrome_version"
+        echo "STUDIO_CHROME_BUILD=$chrome_build"
+        echo "STUDIO_CHROME_PLATFORM=$chrome_platform"
+        )
+    extract:
+      - {key: webdriverPrepareDeadline, regExpr: 'STUDIO_DRIVER_DEADLINE=([0-9]+)', required: true}
+      - {key: webdriverChromeVersion, regExpr: 'STUDIO_CHROME_VERSION=([0-9.]+)', required: true}
+      - {key: webdriverChromeBuild, regExpr: 'STUDIO_CHROME_BUILD=([0-9.]+)', required: true}
+      - {key: webdriverChromePlatform, regExpr: 'STUDIO_CHROME_PLATFORM=([a-z0-9-]+)', required: true}
+  webdriverCacheBudget:
+    action: exec:run
+    target: $target
+    strictCompletion: true
+    checkError: true
+    timeoutMs: 1000
+    commands:
+      - |
+        (
+        set -eu
+        driver_remaining=$(( (${webdriverPrepareDeadline} - $(date +%s)) * 1000 ))
+        test "$driver_remaining" -gt 0 || { echo 'ChromeDriver preparation deadline elapsed' >&2; exit 1; }
+        if [ "$driver_remaining" -gt 10000 ]; then driver_remaining=10000; fi
+        echo "STUDIO_DRIVER_CACHE_BUDGET=$driver_remaining"
+        )
+    extract:
+      - {key: webdriverCacheBudgetMs, regExpr: 'STUDIO_DRIVER_CACHE_BUDGET=([0-9]+)', required: true}
+  webdriverCache:
+    webdriverCacheInspection:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: $webdriverCacheBudgetMs
+      commands:
+        - |
+          (
+          set -eu
+          test -x '${webdriverDirectory}/chromedriver' && test -f '${webdriverDirectory}/version.txt'
+          chrome_cached_version=$('${webdriverDirectory}/chromedriver' --version)
+          chrome_cached=$(printf '%s' "$chrome_cached_version" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          test -n "$chrome_cached"
+          test "$chrome_cached" = "$(cat '${webdriverDirectory}/version.txt')"
+          test "$(echo "$chrome_cached" | cut -d. -f1-3)" = '${webdriverChromeBuild}'
+          echo "Chrome ${webdriverChromeVersion}; ChromeDriver $chrome_cached (verified cache)"
+          )
+      post:
+        webdriverCacheReusable: true
+    catch:
+      webdriverResetShell:
+        action: exec:close
+        sessionID: $webdriverBrowserDiscovery.Session
+      webdriverCacheMiss:
+        action: exec:run
+        target: $target
+        strictCompletion: true
+        checkError: true
+        timeoutMs: 1000
+        commands:
+          - echo 'ChromeDriver cache unavailable; downloading the official matching driver'
+  webdriverDownload:
+    when: '$webdriverCacheReusable:false'
+    webdriverDownloadBudget:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: 1000
+      commands:
+        - |
+          (
+          set -eu
+          driver_remaining=$(( (${webdriverPrepareDeadline} - $(date +%s)) * 1000 ))
+          test "$driver_remaining" -gt 0 || { echo 'ChromeDriver preparation deadline elapsed' >&2; exit 1; }
+          echo "STUDIO_DRIVER_DOWNLOAD_BUDGET=$driver_remaining"
+          )
+      extract:
+        - {key: webdriverDownloadBudgetMs, regExpr: 'STUDIO_DRIVER_DOWNLOAD_BUDGET=([0-9]+)', required: true}
+    webdriverOfficialDownload:
+      action: exec:run
+      target: $target
+      strictCompletion: true
+      checkError: true
+      timeoutMs: $webdriverDownloadBudgetMs
+      commands:
+        - |
+          (
+          set -eu
+          chrome_build='${webdriverChromeBuild}'
+          chrome_platform='${webdriverChromePlatform}'
+          chrome_temp=$(mktemp -d '${webdriverDirectory}/download.XXXXXX')
+          trap 'rm -rf "$chrome_temp"' EXIT
+          curl --fail --silent --show-error --location --max-time 30 https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build-with-downloads.json -o "$chrome_temp/releases.json"
+          chrome_release=$(jq -er --arg build "$chrome_build" '.builds[$build].version' "$chrome_temp/releases.json")
+          chrome_url=$(jq -er --arg build "$chrome_build" --arg platform "$chrome_platform" '.builds[$build].downloads.chromedriver[] | select(.platform == $platform) | .url' "$chrome_temp/releases.json")
+          curl --fail --silent --show-error --location --max-time 60 "$chrome_url" -o "$chrome_temp/driver.zip"
+          unzip -q "$chrome_temp/driver.zip" -d "$chrome_temp"
+          chmod 755 "$chrome_temp/chromedriver-$chrome_platform/chromedriver"
+          mv "$chrome_temp/chromedriver-$chrome_platform/chromedriver" '${webdriverDirectory}/chromedriver'
+          printf '%s' "$chrome_release" > '${webdriverDirectory}/version.txt'
+          echo "Chrome ${webdriverChromeVersion}; ChromeDriver $chrome_release"
+          )

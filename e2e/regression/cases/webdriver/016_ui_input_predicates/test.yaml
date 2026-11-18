@@ -4,7 +4,7 @@ pipeline:
   createNamespace:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -36,7 +36,7 @@ pipeline:
   createConnector:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -63,7 +63,7 @@ pipeline:
   createReader:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -84,7 +84,7 @@ pipeline:
   createInputs:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -357,7 +357,7 @@ pipeline:
   editSelector:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -405,7 +405,7 @@ pipeline:
   restoreSelector:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -450,7 +450,7 @@ pipeline:
   editPredicates:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -542,7 +542,7 @@ pipeline:
   renameInput:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -587,7 +587,7 @@ pipeline:
   editHandler:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -630,7 +630,7 @@ pipeline:
   removePredicates:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -688,7 +688,7 @@ pipeline:
   removeInputs:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -768,7 +768,7 @@ pipeline:
   createJWT:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -862,7 +862,7 @@ pipeline:
   editJWT:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -876,7 +876,7 @@ pipeline:
   customCodec:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -948,7 +948,7 @@ pipeline:
   removeCodec:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
@@ -991,7 +991,7 @@ pipeline:
   removeCodecInput:
     action: webdriver:run
     browser: chrome
-    sessionID: localhost:4445
+    sessionID: $webdriverSessionID
     autoStart: false
     failureArtifacts:
       directory: ${runDir}/artifacts/webdriver
