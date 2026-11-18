@@ -167,6 +167,10 @@ type CandidateContractInspector interface {
 }
 
 type Transport struct {
+	// ReaderCaches is trusted host configuration, never operation input. Only
+	// enabled storage map keys are advertised to the native Reader Builder.
+	ReaderCaches map[string]*spec.CacheSettings
+
 	// WarmupOperationTimeout is trusted host startup configuration, never input.
 	// Nil preserves five minutes; embedding hosts validate through host.Config.
 	WarmupOperationTimeout *string
@@ -2096,6 +2100,7 @@ func (t *Transport) runReaderBuilder(ctx context.Context, reportID string, versi
 		Scope:               report.ComponentScope,
 		Name:                report.ComponentName,
 		AvailableConnectors: connectors,
+		AvailableCaches:     readerinspection.AvailableCacheNames(t.ReaderCaches),
 	})
 	if wholeValueInputEdit(operation) {
 		candidate, editErr := editWholeValueInput(versionDQL(version), operation.Field)

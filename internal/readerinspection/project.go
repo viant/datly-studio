@@ -37,6 +37,9 @@ func RedactVersion(version *sdk.ReportVersion, allowed bool) *sdk.ReportVersion 
 	}
 	copy := *version
 	copy.AuthoredDQL, copy.GeneratedDQL = "", ""
+	// The compiled specification retains authored SQL and inline warmup case
+	// values. It cannot accompany the curated structure without a source grant.
+	copy.ComponentSpec = nil
 	// Compiler diagnostics may quote source text or include generated DQL.
 	copy.CompileDiagnostics = nil
 	return &copy

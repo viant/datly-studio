@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
 	github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d
-	github.com/viant/datly v1.1.1-0.20261117163720-73680f79d840
+	github.com/viant/datly v1.1.1-0.20261117190951-d46387b90d6a
 	github.com/viant/jsonrpc v0.25.2-0.20261113180529-6b4100cf455d
 	github.com/viant/mcp v0.24.2-0.20261116165220-428f5da35f09
 	github.com/viant/mcp-protocol v0.19.2-0.20261114220942-9489f5fccb2b
@@ -116,7 +116,7 @@ require (
 	github.com/viant/afsc v1.18.0 // indirect
 	github.com/viant/authz v0.1.2-0.20261117163719-2344044d1a9f
 	github.com/viant/authz/component v0.0.0-20261022171511-cc9325165338
-	github.com/viant/forge v0.3.47-0.20261116230202-3092cda5ba57
+	github.com/viant/forge v0.3.47-0.20261117212512-5aa1815e8ce3
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect

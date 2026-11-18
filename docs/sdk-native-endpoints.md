@@ -201,6 +201,51 @@ The shared Workbench binding accepts `{refreshSchema: true}` as the seventh
 `previewReader` argument. Forge exposes this through **Refresh schema and run preview**
 for ordinary readers.
 
+For callers with DQL permission, `structure.availableCaches` lists host-defined
+storage names from the same trusted configuration used by Builder mutations.
+These are the configuration map keys of non-nil, enabled entries; policy-only
+and disabled entries are excluded, while combined storage/policy entries remain
+selectable. Only names are returned, never provider URIs, locations, credentials,
+or copied host settings. Listing does not contact storage or establish its
+reachability, configuration validity, or capacity. An omitted `availableCaches`
+means an empty catalog after successful inspection; an inspection failure must
+remain an error. Without DQL permission, the curated structure omits the catalog.
+
+Bind root and child views through the existing guarded `use_cache(view, 'name')`
+function mutations. Native validation still accepts appropriate component-owned
+cache references even when absent from the host catalog. Binding edits do not
+replace component cache declarations or warmup policies. SQL SDK embedders pass
+the same deployment-owned map through `sqltransport.Transport.ReaderCaches`;
+the unified host forwards it to both native authoring and the browser SDK.
+
+Reader Builder's authored `structure.targetedWarmups` metadata describes native
+targeted inline plans by target SQL namespace and merged policy. Each item
+contains `view`, authored `settings`, `editable`, optional `diagnostic`, and
+`contributors`. A contributor has the existing function `name`, per-name
+`occurrence`, `args`, and half-open byte `sourceSpan` in the inspected DQL.
+This is source metadata, not the host-resolved `effectiveWarmup` projection:
+existing DQL permission is required, and shared `CaseRefs` remain unexpanded.
+The same permission filters the complete inspection envelope, including the
+source-bearing compiled component specification in `version.componentSpec`.
+When the existing guarded outer-projection operations cannot represent every
+contributor, native metadata retains the plan's settings with `editable: false`,
+a diagnostic, and `contributors: []`. Preserve these fields exactly; do not
+infer editability from settings or construct a partial removal recipe.
+Host-reference calls and component-level `$cache_warmup(...)` declarations are
+not editable plans in this collection. Embedded/resource SQL is outside the
+outer-function editing contract and may therefore produce read-only metadata.
+
+Treat contributor identities as scoped to the inspection's component, version,
+and source revision. Use the existing Builder operations with
+`expectedSourceRevision` and each contributor's `args` as `expectedArgs`;
+the producer retains its existing argument comparison semantics. Edit the
+contributor definitions without discarding unedited options or collapsing
+separate case groups into expanded settings. Remove all contributors to a plan
+in descending per-function occurrence order. Submit related changes as one
+batch, retain shared case declarations and storage bindings, and reinspect after
+saving. A stale revision or any contributor mismatch rejects the entire batch
+without changing source or its revision.
+
 These handlers currently project `linked` against Studio's default static
 predicate catalog. An embedding application that adds
 `host.Config.PredicatePackages` still needs that catalog injected into its

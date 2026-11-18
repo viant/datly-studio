@@ -162,7 +162,7 @@ func invoke(ctx context.Context, session xhandler.Session, claims *jwt.Claims, n
 	if err != nil {
 		return err
 	}
-	transport := &sqltransport.Transport{Predicates: authoring.PredicateCatalog(), RuntimeTypes: runtimeTypes, AuthoringModule: authoring.ModulePath(), DB: db, Authorizer: &authorization.SDKAuthorizer{DB: db}, Activator: admin}
+	transport := &sqltransport.Transport{ReaderCaches: authoring.ReaderCaches(), Predicates: authoring.PredicateCatalog(), RuntimeTypes: runtimeTypes, AuthoringModule: authoring.ModulePath(), DB: db, Authorizer: &authorization.SDKAuthorizer{DB: db}, Activator: admin}
 	defer transport.Close(context.WithoutCancel(ctx))
 	// Publication is a staged lifecycle: its first database transaction must
 	// commit before the external runtime reload, followed by activation or
