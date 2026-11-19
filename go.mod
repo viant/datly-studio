@@ -12,15 +12,15 @@ require (
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/stretchr/testify v1.12.1
 	github.com/viant/bigquery v0.5.5-0.20261112202235-311cfdbb627f
-	github.com/viant/bindly v0.5.1-0.20261113195222-531abbb2409d
-	github.com/viant/datly v1.1.1-0.20261117190951-d46387b90d6a
+	github.com/viant/bindly v0.5.1-0.20261118030149-d9141ec9af96
+	github.com/viant/datly v1.1.1-0.20261119180304-bbbaacaa2e78
 	github.com/viant/jsonrpc v0.25.2-0.20261113180529-6b4100cf455d
 	github.com/viant/mcp v0.24.2-0.20261116165220-428f5da35f09
 	github.com/viant/mcp-protocol v0.19.2-0.20261114220942-9489f5fccb2b
 	github.com/viant/scy v0.35.1-0.20260914041206-699e6c909726
 	github.com/viant/sqlx v0.26.2-0.20261113035407-72a9f0c3efba
 	github.com/viant/x v0.6.1-0.20261106041415-0487ec66884b
-	github.com/viant/xdatly v1.0.1-0.20261113190124-9ad673c8f3b5
+	github.com/viant/xdatly v1.0.1-0.20261119180022-ca086e831377
 	github.com/viant/xunsafe v0.11.1
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/mod v0.38.0
@@ -125,7 +125,7 @@ require (
 	github.com/viant/sqlparser v0.13.2-0.20261116181906-966687e8c8a7
 	github.com/viant/structology v0.10.2-0.20261116121336-d1368d5fc29c // indirect
 	github.com/viant/structql v0.5.5-0.20261012183420-6a47e96ff5b5 // indirect
-	github.com/viant/tagly v0.4.2-0.20261116201554-3f045edeac17
+	github.com/viant/tagly v0.4.2-0.20261118043522-59b70f8850c5
 	github.com/viant/toolbox v0.39.0 // indirect
 	github.com/viant/velty v0.4.1-0.20260915052314-fca47c0595f8 // indirect
 	github.com/viant/xlsy v0.3.2-0.20261116092351-baa9ff16d7d4 // indirect
