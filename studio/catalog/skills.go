@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"reflect"
 	"sort"
@@ -13,8 +14,10 @@ import (
 	"github.com/viant/datly-studio/internal/runtimeadmin"
 	"github.com/viant/datly-studio/sdk"
 	studioauth "github.com/viant/datly-studio/studio/auth/reader"
+	stored "github.com/viant/datly-studio/studio/namespaces/store_read"
 	rhandler "github.com/viant/datly/runtime/handler"
 	"github.com/viant/datly/runtime/handler/custom"
+	identity "github.com/viant/forge/backend/resource"
 	namespaceext "github.com/viant/mcp-protocol/extension/namespaces"
 	"github.com/viant/mcp-protocol/schema"
 	"github.com/viant/scy/auth/jwt"
@@ -112,11 +115,14 @@ func catalogBearer(ctx context.Context, session xhandler.Session) (string, error
 }
 func skillNamespace(value string) (string, error) {
 	parsed, err := url.Parse(value)
-	if err != nil || parsed.Scheme != "skill" || parsed.User != nil || parsed.RawQuery != "" || parsed.ForceQuery || parsed.Fragment != "" || parsed.Path == "" || parsed.Path == "/" || parsed.String() != value || namespaceaccess.ValidateResourceOwnership(parsed.Host, "") != nil {
+	if err != nil || parsed.Scheme != "skill" || parsed.User != nil || parsed.RawQuery != "" || parsed.ForceQuery || parsed.Fragment != "" || parsed.RawPath != "" || parsed.Path == "" || parsed.Path == "/" || parsed.String() != value {
 		return "", fail(400, "namespace skill URI is required")
 	}
-	for _, part := range strings.Split(parsed.Path, "/") {
-		if part == "." || part == ".." {
+	if namespaceaccess.ValidateResourceOwnership(parsed.Host, "") != nil && !(identity.ResourceURI{Kind: "skill", Namespace: parsed.Host, Name: "validate"}).Valid() {
+		return "", fail(400, "namespace skill URI is required")
+	}
+	for _, part := range strings.Split(strings.TrimPrefix(parsed.Path, "/"), "/") {
+		if part == "" || part == "." || part == ".." {
 			return "", fail(400, "invalid skill URI")
 		}
 	}
@@ -158,15 +164,21 @@ func runSkillList(ctx context.Context, session xhandler.Session, input *SkillLis
 					break
 				}
 				if err != nil {
-					return fail(503, "namespace skill catalog is unavailable")
+					if ctx.Err() != nil {
+						return ctx.Err()
+					}
+					if errors.Is(err, context.DeadlineExceeded) {
+						return errors.Join(fail(504, "Namespace skill catalog deadline expired."), err)
+					}
+					return errors.Join(fail(503, "Namespace skills could not be loaded."), fmt.Errorf("read namespace %s skill catalog: %w", row.NamespaceId, err))
 				}
 				var page schema.ListSkillsResult
-				if json.Unmarshal(raw, &page) != nil {
-					return fail(503, "invalid namespace skill catalog")
+				if err := json.Unmarshal(raw, &page); err != nil {
+					return errors.Join(fail(503, "The namespace returned an invalid skill catalog."), err)
 				}
 				for _, skill := range page.Skills {
 					id, err := skillNamespace(skill.Uri)
-					if err != nil || id != row.NamespaceId || seen[skill.Uri] {
+					if err != nil || (id != row.NamespaceId && id != row.Name) || seen[skill.Uri] {
 						return fail(503, "namespace skill identity does not match")
 					}
 					seen[skill.Uri] = true
@@ -206,7 +218,25 @@ func runSkillGet(ctx context.Context, session xhandler.Session, input *SkillGetI
 	if err != nil {
 		return err
 	}
-	row, err := visible(ctx, session, input.Jwt, input.Auth, id)
+	var row *stored.StoredNamespace
+	if namespaceaccess.ValidateResourceOwnership(id, "") == nil {
+		row, err = visible(ctx, session, input.Jwt, input.Auth, id)
+	} else {
+		// Resolve a named URI through the same scoped graph as namespace/tool
+		// selection. A URI's authority is a selector, never an access grant.
+		var rows []*stored.StoredNamespace
+		rows, err = directoryPage(ctx, session, input.Jwt, input.Auth, "", id, "", false, 2, 0)
+		if err == nil {
+			switch {
+			case len(rows) == 0:
+				err = fail(404, "namespace not found or access denied")
+			case len(rows) != 1 || rows[0].Name != id:
+				err = fail(409, "namespace name is ambiguous")
+			default:
+				row = rows[0]
+			}
+		}
+	}
 	if err != nil {
 		return err
 	}
@@ -221,16 +251,25 @@ func runSkillGet(ctx context.Context, session xhandler.Session, input *SkillGetI
 	if err != nil {
 		return err
 	}
-	raw, err := client.ReadCatalog(sdk.WithNamespaceSelection(ctx, id), bearer, "skills/get", input.Request.Uri, nil)
+	raw, err := client.ReadCatalog(sdk.WithNamespaceSelection(ctx, row.NamespaceId), bearer, "skills/get", input.Request.Uri, nil)
+	if err != nil && ctx.Err() != nil {
+		return ctx.Err()
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return errors.Join(fail(504, "Namespace skill retrieval deadline expired."), err)
+	}
 	var rpc *runtimeadmin.CatalogError
 	if errors.Is(err, runtimeadmin.ErrNamespaceUnavailable) || errors.As(err, &rpc) {
-		return fail(404, "skill not found or access denied")
+		return errors.Join(fail(404, "skill not found or access denied"), err)
 	}
 	if err != nil {
-		return fail(503, "namespace skill is unavailable")
+		return errors.Join(fail(503, "namespace skill is unavailable"), err)
 	}
 	var result schema.GetSkillResult
-	if json.Unmarshal(raw, &result) != nil || result.Skill.Uri != input.Request.Uri {
+	if err := json.Unmarshal(raw, &result); err != nil {
+		return errors.Join(fail(503, "The namespace returned an invalid skill."), err)
+	}
+	if result.Skill.Uri != input.Request.Uri {
 		return fail(503, "namespace skill identity does not match")
 	}
 	zero := 0

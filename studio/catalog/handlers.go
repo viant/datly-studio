@@ -27,7 +27,9 @@ import (
 )
 
 func fail(code int, message string) error {
-	return &xresponse.Error{Code: code, Cause: errors.New(message)}
+	// Datly treats a nil error payload as an explicit JSON null. Keep the
+	// public explanation independent of wrapped runtime and storage errors.
+	return &xresponse.Error{Code: code, Payload: map[string]string{"message": message}, Cause: errors.New(message)}
 }
 func directory(ctx context.Context, session xhandler.Session, claims *jwt.Claims, auth *studioauth.Output, id, query string, limit, offset int) ([]*stored.StoredNamespace, error) {
 	return directoryPage(ctx, session, claims, auth, id, "", query, false, limit, offset)
