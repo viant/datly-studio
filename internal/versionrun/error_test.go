@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/viant/bindly"
 	"github.com/viant/datly-studio/sdk"
 	xresponse "github.com/viant/xdatly/response"
 	"strings"
@@ -59,5 +60,21 @@ func TestPublicErrorPreservesWrappedNativeCategory(t *testing.T) {
 	var result *xresponse.Error
 	if !errors.As(public, &result) || result.Code != 502 || !errors.Is(public, context.Canceled) {
 		t.Fatal("cancellation misclassified")
+	}
+}
+
+func TestPublicErrorPreservesNativeBindingStatus(t *testing.T) {
+	cause := errors.New("PRIVATE_BINDING_CANARY")
+	for _, code := range []int{400, 401, 403, 404, 409, 503} {
+		binding := &bindly.BindingError{Path: "IDs", Code: code, Cause: cause}
+		wrapped := &sdk.Error{Code: sdk.ErrorInternal, Message: "private wrapper", Cause: binding}
+		public := PublicError(wrapped, "reader preview")
+		var result *xresponse.Error
+		if !errors.As(public, &result) || result.Code != code || !errors.Is(public, cause) {
+			t.Fatalf("lost status %d or cause: %v", code, public)
+		}
+		if strings.Contains(public.Error(), "CANARY") {
+			t.Fatal("private binding detail exposed")
+		}
 	}
 }

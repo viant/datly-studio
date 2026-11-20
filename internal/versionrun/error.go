@@ -39,9 +39,8 @@ func PublicError(err error, operation string) error {
 	}
 	// Runtime input lifecycle errors retain their typed response cause inside an
 	// internal SDK wrapper. Preserve the category without exposing its payload.
-	var native *xresponse.Error
-	if !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) && errors.As(err, &native) {
-		switch native.Code {
+	if !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
+		switch xresponse.ErrorStatusCode(err, 0) {
 		case 400:
 			return publisherguard.PublicError(400, operation+" input or reader contract is invalid", err)
 		case 401:
