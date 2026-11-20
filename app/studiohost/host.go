@@ -90,8 +90,10 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 	}
 	issuer, audience := "", ""
 	var audiences []string
+	var skipAudienceCheck bool
 	if config.JWTClaims != nil {
 		issuer, audience = config.JWTClaims.Issuer, config.JWTClaims.Audience
+		skipAudienceCheck = config.JWTClaims.SkipAudienceCheck
 		audiences = append([]string(nil), config.JWTClaims.Audiences...)
 	}
 	policyTenant := config.Tenant
@@ -146,7 +148,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		}
 	}
 
-	authorityConfig := accessprovider.Config{Issuer: issuer, Audience: audience, Audiences: audiences, JWTValidator: config.JWTValidator, Tenant: policyTenant}
+	authorityConfig := accessprovider.Config{Issuer: issuer, Audience: audience, Audiences: audiences, SkipAudienceCheck: skipAudienceCheck, JWTValidator: config.JWTValidator, Tenant: policyTenant}
 	var provider authz.Provider
 	if config.Identity != nil && options.Native.AccessProviderFactory == nil {
 		providers, resolveErr := accessprovider.HTTPProviders(ctx, authorityConfig, *config.Identity, config.EntityEvaluation)
@@ -316,7 +318,7 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		CodecFactory:     studiocodecs.New(readerJWT),
 		NamespaceMCPMode: "shared", HTTP: runtimehost.Listener{Address: "127.0.0.1:0"}, MCP: runtimehost.Listener{Address: namespaceAddress},
 		Studio:         runtimehost.Studio{Driver: catalog.Driver, DSN: catalog.DSN},
-		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, Audiences: audiences, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
+		Authentication: runtimehost.Authentication{DefaultMode: "required", Issuer: issuer, Audience: audience, Audiences: audiences, SkipAudienceCheck: skipAudienceCheck, ConnectionExport: config.NamespaceConnectionExport, Providers: config.NamespaceOAuthProviders},
 		Access:         &runtimehost.ResourceAccessConfig{Tenant: tenant, Provider: provider}, ReaderCaches: config.Caches}
 	// PublicURL already defines the trusted reverse-proxy origin for this host.
 	// Local deployments without it retain the namespace listener's loopback URL.

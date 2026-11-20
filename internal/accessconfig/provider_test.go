@@ -115,3 +115,9 @@ func TestUserInfoProviderRequiresExplicitHostBinding(t *testing.T) {
 type fixedProvider struct{}
 
 func (fixedProvider) Resolve(context.Context) (access.Facts, error) { return access.Facts{}, nil }
+
+func TestAudienceOptOutRequiresAuthority(t *testing.T) {
+	if _, err := New(Config{SkipAudienceCheck: true}); err == nil {
+		t.Fatal("explicit audience policy accepted absent authority")
+	}
+}

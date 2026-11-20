@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -22,6 +23,11 @@ import (
 )
 
 func TestHTTPProvidersReuseSharedVerifierAndReadFreshFacts(t *testing.T) {
+	for _, skip := range []bool{false, true} {
+		t.Run(fmt.Sprint(skip), func(t *testing.T) { testHTTPProvidersAudiencePolicy(t, skip) })
+	}
+}
+func testHTTPProvidersAudiencePolicy(t *testing.T, skip bool) {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +51,7 @@ func TestHTTPProvidersReuseSharedVerifierAndReadFreshFacts(t *testing.T) {
 		json.NewEncoder(w).Encode(map[string]any{"subject": "synthetic", "accountId": "42"})
 	}))
 	defer endpoint.Close()
-	settings := Config{Issuer: endpoint.URL, Audience: "studio", JWTValidator: &verifier.Config{RSA: []*scy.Resource{{URL: path}}}}
+	settings := Config{Issuer: endpoint.URL, Audience: "studio", SkipAudienceCheck: skip, JWTValidator: &verifier.Config{RSA: []*scy.Resource{{URL: path}}}}
 	identity := oauth.HTTPIdentityConfig{UserInfoURL: endpoint.URL, TenantForAllAccounts: "studio", Mapping: oauth.HTTPIdentityMapping{Subject: "subject", AccountID: "accountId", JWTAccountID: "accountId"}}
 	providers, err := HTTPProviders(context.Background(), settings, identity, nil)
 	if err != nil {
@@ -64,6 +70,39 @@ func TestHTTPProvidersReuseSharedVerifierAndReadFreshFacts(t *testing.T) {
 	if reads.Load() != 2 {
 		t.Fatal("mutable facts were cached by default")
 	}
+	resourceToken, err := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{"iss": endpoint.URL, "aud": "https://resource.example/mcp", "sub": "synthetic", "accountId": "42", "exp": time.Now().Add(time.Minute).Unix()}).SignedString(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = providers.Identity.Resolve(oauth.WithBearer(context.Background(), resourceToken))
+	if (err == nil) != skip {
+		t.Fatalf("HTTP audience policy skip=%v: %v", skip, err)
+	}
+	claimsVerifier, err := NewClaimsVerifier(settings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = claimsVerifier.Verify(oauth.WithBearer(context.Background(), resourceToken))
+	if (err == nil) != skip {
+		t.Fatalf("claims audience policy skip=%v: %v", skip, err)
+	}
+	standalone, err := New(context.Background(), settings, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	standaloneToken, err := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{"iss": endpoint.URL, "aud": "https://resource.example/mcp", "sub": "synthetic", "accountId": "42", "tenant": "studio", "exp": time.Now().Add(time.Minute).Unix()}).SignedString(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = standalone.Resolve(oauth.WithBearer(context.Background(), standaloneToken))
+	if (err == nil) != skip {
+		t.Fatalf("provider audience policy skip=%v: %v", skip, err)
+	}
+	identity.SkipAudienceCheck = true
+	if _, err = HTTPProviders(context.Background(), settings, identity, nil); err == nil {
+		t.Fatal("separate identity audience policy accepted")
+	}
+	identity.SkipAudienceCheck = false
 	identity.Issuer = "repeated-source"
 	if _, err = HTTPProviders(context.Background(), settings, identity, nil); err == nil {
 		t.Fatal("separate identity verifier configuration accepted")

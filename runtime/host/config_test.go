@@ -32,6 +32,15 @@ func TestRuntimeDefaultIdentityRequiresIssuerAndAudienceTogether(t *testing.T) {
 	if err := config.Validate(); err != nil {
 		t.Fatalf("bound identity rejected: %v", err)
 	}
+	config.Authentication.Audience = ""
+	config.Authentication.SkipAudienceCheck = true
+	if err := config.Validate(); err != nil {
+		t.Fatalf("explicit audience opt-out rejected: %v", err)
+	}
+	config.Authentication.Issuer = ""
+	if err := config.Validate(); err == nil {
+		t.Fatal("audience opt-out accepted missing issuer")
+	}
 }
 
 func TestRuntimeConfigRejectsDefaultAdminTokenOffLoopback(t *testing.T) {

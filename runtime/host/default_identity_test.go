@@ -52,19 +52,27 @@ func TestDefaultRuntimeIdentityBindsIssuerAudienceOnHTTPAndComponentPaths(t *tes
 			if err != nil {
 				t.Fatal(err)
 			}
-			for name, middleware := range map[string]func(http.Handler) http.Handler{
-				"default": service.authenticated, "component": component.componentAuthenticated,
-			} {
-				t.Run(name, func(t *testing.T) {
-					next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
-					request := httptest.NewRequest(http.MethodGet, "/records", nil)
-					request.Header.Set("Authorization", "Bearer "+token)
-					response := httptest.NewRecorder()
-					middleware(next).ServeHTTP(response, request)
-					if response.Code != candidate.status {
-						t.Fatalf("status=%d want=%d", response.Code, candidate.status)
-					}
-				})
+			for _, skip := range []bool{false, true} {
+				service.config.Authentication.SkipAudienceCheck = skip
+				component.config.Authentication.SkipAudienceCheck = skip
+				want := candidate.status
+				if skip && candidate.name == "other audience" {
+					want = http.StatusNoContent
+				}
+				for name, middleware := range map[string]func(http.Handler) http.Handler{
+					"default": service.authenticated, "component": component.componentAuthenticated,
+				} {
+					t.Run(name, func(t *testing.T) {
+						next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
+						request := httptest.NewRequest(http.MethodGet, "/records", nil)
+						request.Header.Set("Authorization", "Bearer "+token)
+						response := httptest.NewRecorder()
+						middleware(next).ServeHTTP(response, request)
+						if response.Code != want {
+							t.Fatalf("skip=%v status=%d want=%d", skip, response.Code, want)
+						}
+					})
+				}
 			}
 		})
 	}

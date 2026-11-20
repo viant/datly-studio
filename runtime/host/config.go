@@ -39,15 +39,16 @@ type Listener struct {
 type Authentication struct {
 	// ConnectionExport describes the Agently OAuth client registration. Secrets
 	// remain in SCY; nil selects the existing consumer BFF for protected namespaces.
-	ConnectionExport *MCPConnectionExport               `yaml:"ConnectionExport,omitempty"`
-	PublicMCPURL     string                             `yaml:"PublicMCPURL"`
-	Providers        map[string]OAuthProvider           `yaml:"Providers"`
-	Components       map[string]ComponentAuthentication `yaml:"Components"`
-	DefaultMode      string                             `yaml:"DefaultMode"`
-	CertURL          string                             `yaml:"CertURL"`
-	Issuer           string                             `yaml:"Issuer"`
-	Audience         string                             `yaml:"Audience"`
-	Audiences        []string                           `yaml:"Audiences,omitempty"`
+	ConnectionExport  *MCPConnectionExport               `yaml:"ConnectionExport,omitempty"`
+	PublicMCPURL      string                             `yaml:"PublicMCPURL"`
+	Providers         map[string]OAuthProvider           `yaml:"Providers"`
+	Components        map[string]ComponentAuthentication `yaml:"Components"`
+	DefaultMode       string                             `yaml:"DefaultMode"`
+	CertURL           string                             `yaml:"CertURL"`
+	Issuer            string                             `yaml:"Issuer"`
+	Audience          string                             `yaml:"Audience"`
+	Audiences         []string                           `yaml:"Audiences,omitempty"`
+	SkipAudienceCheck bool                               `yaml:"SkipAudienceCheck,omitempty"`
 }
 
 type MCPConnectionExport struct {
@@ -174,15 +175,16 @@ type Config struct {
 type ResourceAccessConfig struct {
 	// Provider is a trusted embedding-host identity binding, never YAML input.
 	// When supplied, it owns verification and overrides file verifier settings.
-	Provider         access.Provider            `yaml:"-"`
-	Tenant           string                     `yaml:"Tenant"`
-	Issuer           string                     `yaml:"Issuer"`
-	Audience         string                     `yaml:"Audience"`
-	Audiences        []string                   `yaml:"Audiences,omitempty"`
-	PublicKeyFile    string                     `yaml:"PublicKeyFile"`
-	CertURL          string                     `yaml:"CertURL,omitempty"`
-	UserInfoURL      string                     `yaml:"UserInfoURL,omitempty"`
-	ResourceBindings map[string]access.Resource `yaml:"ResourceBindings"`
+	Provider          access.Provider            `yaml:"-"`
+	Tenant            string                     `yaml:"Tenant"`
+	Issuer            string                     `yaml:"Issuer"`
+	Audience          string                     `yaml:"Audience"`
+	Audiences         []string                   `yaml:"Audiences,omitempty"`
+	SkipAudienceCheck bool                       `yaml:"SkipAudienceCheck,omitempty"`
+	PublicKeyFile     string                     `yaml:"PublicKeyFile"`
+	CertURL           string                     `yaml:"CertURL,omitempty"`
+	UserInfoURL       string                     `yaml:"UserInfoURL,omitempty"`
+	ResourceBindings  map[string]access.Resource `yaml:"ResourceBindings"`
 }
 
 func Load(path string) (*Config, error) {
@@ -218,7 +220,7 @@ func (c *Config) Validate() error {
 	if c.ReleaseSyncInterval < 0 {
 		return fmt.Errorf("release reconciliation interval must not be negative")
 	}
-	if (strings.TrimSpace(c.Authentication.Issuer) == "") != (strings.TrimSpace(c.Authentication.Audience) == "" && len(c.Authentication.Audiences) == 0) {
+	if (strings.TrimSpace(c.Authentication.Issuer) == "") != (!c.Authentication.SkipAudienceCheck && strings.TrimSpace(c.Authentication.Audience) == "" && len(c.Authentication.Audiences) == 0) {
 		return fmt.Errorf("default runtime identity requires both Issuer and Audience")
 	}
 	for name, provider := range c.Authentication.Providers {
@@ -280,7 +282,7 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("unsupported dynamic authentication mode %q", c.Authentication.DefaultMode)
 	}
 	if c.Access != nil {
-		if c.Access.Tenant == "" || c.Access.Provider == nil && (c.Access.Issuer == "" || (c.Access.Audience == "" && len(c.Access.Audiences) == 0) || (c.Access.PublicKeyFile == "") == (c.Access.CertURL == "")) {
+		if c.Access.Tenant == "" || c.Access.Provider == nil && (c.Access.Issuer == "" || (!c.Access.SkipAudienceCheck && c.Access.Audience == "" && len(c.Access.Audiences) == 0) || (c.Access.PublicKeyFile == "") == (c.Access.CertURL == "")) {
 			return fmt.Errorf("resource access requires Tenant, Issuer, Audience and one public key file or CertURL")
 		}
 		for prefix, r := range c.Access.ResourceBindings {

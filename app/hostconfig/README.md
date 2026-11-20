@@ -277,3 +277,11 @@ Existing single-`Audience` configurations retain their behavior. Applications
 embedding the host must also pass `Audiences` to their shared access-provider
 configuration. The legacy string-only user-info factory cannot represent this
 list; use the existing shared HTTP identity provider for multiple audiences.
+
+`JWTClaims.SkipAudienceCheck: true` explicitly disables audience matching for
+shared access-provider identity, namespace runtime authentication and reader
+claims. Its default is false. Issuer, signature, expiry, subject, verified
+user-info facts and resource permissions still apply. Embedders must forward
+`SkipAudienceCheck` with the other shared access-provider settings. The existing
+browser ID-token client binding and separately configured namespace OAuth
+provider audiences retain their own validation.

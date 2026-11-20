@@ -42,15 +42,20 @@ func TestOneProcessHost(t *testing.T) {
 	t.Setenv("STUDIO_NAMESPACE_ADMIN_ROLE", "NAMESPACE_ADMIN")
 	t.Setenv("STUDIO_NAMESPACE_CREATE_ROLES", "NAMESPACE_ADMIN")
 	if os.Getenv("STUDIO_UNIFIED_HOST_TEST") == "" && os.Getenv("STUDIO_UNIFIED_BINARY") == "" {
-		cmd := exec.Command(os.Args[0], "-test.run=^TestOneProcessHost$", "-test.v")
-		cmd.Env = append(os.Environ(), "STUDIO_UNIFIED_HOST_TEST=1")
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			t.Fatalf("%v\n%s", err, out)
+		for _, skipAudience := range []string{"false", "true"} {
+			t.Run("skip-audience="+skipAudience, func(t *testing.T) {
+				cmd := exec.Command(os.Args[0], "-test.run=^TestOneProcessHost$", "-test.v")
+				cmd.Env = append(os.Environ(), "STUDIO_UNIFIED_HOST_TEST=1", "STUDIO_TEST_SKIP_AUDIENCE="+skipAudience)
+				out, err := cmd.CombinedOutput()
+				if err != nil {
+					t.Fatalf("%v\n%s", err, out)
+				}
+				t.Log(string(out))
+			})
 		}
-		t.Log(string(out))
 		return
 	}
+	skipAudience := os.Getenv("STUDIO_TEST_SKIP_AUDIENCE") == "true"
 	dir := t.TempDir()
 	dsn := filepath.Join(dir, "fresh-store", "storage.db")
 	if err := os.MkdirAll(filepath.Dir(dsn), 0700); err != nil {
@@ -78,6 +83,7 @@ func TestOneProcessHost(t *testing.T) {
 		t.Fatal(err)
 	}
 	document := map[string]any{"BaseDir": dir, "Endpoint": map[string]any{"Address": "127.0.0.1:0"}, "MCP": map[string]any{"Address": "127.0.0.1:0"}, "NamespaceMCP": map[string]any{"Address": "127.0.0.1:0"}, "Store": map[string]any{"Driver": "sqlite", "DSN": dsn}, "JWTValidator": map[string]any{"RSA": []any{map[string]any{"URL": publicPath}}}, "JWTClaims": map[string]any{"Issuer": "https://synthetic.example", "Audience": "studio", "RequireSubject": true}}
+	document["JWTClaims"].(map[string]any)["SkipAudienceCheck"] = skipAudience
 	// Connection export must never decrypt or read its SCY reference. This
 	// deliberately absent file is unrelated to the browser's login client.
 	document["Audit"] = map[string]any{"ViewerRole": "E2E_AUDIT_VIEWER"}
@@ -94,8 +100,12 @@ func TestOneProcessHost(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	credentialAudience := "studio"
+	if skipAudience {
+		credentialAudience = "https://resource.example/mcp"
+	}
 	bearer, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{
-		"iss": "https://synthetic.example", "aud": "studio", "sub": "synthetic-owner", "exp": time.Now().Add(time.Minute).Unix(), "tenant": "studio", "user_id": 1, "scope": "studio:read", "roles": []string{"NAMESPACE_ADMIN"},
+		"iss": "https://synthetic.example", "aud": credentialAudience, "sub": "synthetic-owner", "exp": time.Now().Add(time.Minute).Unix(), "tenant": "studio", "user_id": 1, "scope": "studio:read", "roles": []string{"NAMESPACE_ADMIN"},
 	}).SignedString(private)
 	if err != nil {
 		t.Fatal(err)
@@ -170,6 +180,9 @@ func TestOneProcessHost(t *testing.T) {
 	} else {
 		go func() {
 			done <- studiohost.Serve(ctx, config, studiohost.Options{Diagnostics: os.Stderr, Browser: studioapi.Options{StaticFS: fstest.MapFS{"index.html": &fstest.MapFile{Data: []byte("<html>synthetic unified Studio</html>")}}}, ConfigureRuntime: func(runtime *runtimehost.Config) error {
+				if runtime.Authentication.SkipAudienceCheck != skipAudience {
+					return fmt.Errorf("runtime audience policy was not propagated")
+				}
 				if runtime.CodecFactory == nil {
 					return fmt.Errorf("namespace readers have no deployment JWT codec factory")
 				}
@@ -192,6 +205,12 @@ func TestOneProcessHost(t *testing.T) {
 					token, err := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, jwtlib.MapClaims{"iss": invalid.issuer, "aud": invalid.audience, "sub": invalid.subject, "exp": invalid.expiry.Unix()}).SignedString(private)
 					if err != nil {
 						return err
+					}
+					if skipAudience && invalid.audience == "wrong" {
+						if _, err := codec.Value(ctx, token); err != nil {
+							return fmt.Errorf("explicit audience policy rejected credential: %w", err)
+						}
+						continue
 					}
 					if _, err := codec.Value(ctx, token); err == nil {
 						return fmt.Errorf("reader accepted credential outside the deployment claim policy")
@@ -373,6 +392,18 @@ func TestOneProcessHost(t *testing.T) {
 	}
 	if !discovered {
 		t.Fatal("database-enabled namespace did not become available on the shared listener")
+	}
+	if skipAudience {
+		request, _ := http.NewRequest("POST", strings.TrimSuffix(namespaceURL, "/mcp")+"/oauth/synthetic/mcp", strings.NewReader(`{"jsonrpc":"2.0","id":11,"method":"initialize","params":{}}`))
+		request.Header.Set("Authorization", "Bearer "+bearer)
+		response, err := client.Do(request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		response.Body.Close()
+		if response.StatusCode != http.StatusUnauthorized {
+			t.Fatalf("named provider audience policy was bypassed: %d", response.StatusCode)
+		}
 	}
 	// The ordinary post-login flow discovers connection metadata without
 	// calling the namespace-administration get tool.

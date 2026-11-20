@@ -53,6 +53,7 @@ type Config struct {
 	JWTValidator                                          *verifier.Config
 	Issuer, Audience, PublicKeyFile, CertURL, UserInfoURL string
 	Audiences                                             []string
+	SkipAudienceCheck                                     bool
 	Tenant                                                string
 }
 
@@ -73,10 +74,10 @@ func newProvider(config Config, factory UserInfoProviderFactory) (access.Provide
 	keyPath := strings.TrimSpace(config.PublicKeyFile)
 	certURL := strings.TrimSpace(config.CertURL)
 	userInfoURL := strings.TrimSpace(config.UserInfoURL)
-	if issuer == "" && audience == "" && len(config.Audiences) == 0 && keyPath == "" && certURL == "" && userInfoURL == "" && config.JWTValidator == nil {
+	if !config.SkipAudienceCheck && issuer == "" && audience == "" && len(config.Audiences) == 0 && keyPath == "" && certURL == "" && userInfoURL == "" && config.JWTValidator == nil {
 		return nil, nil
 	}
-	if issuer == "" || (audience == "" && len(config.Audiences) == 0) {
+	if issuer == "" || (!config.SkipAudienceCheck && audience == "" && len(config.Audiences) == 0) {
 		if config.JWTValidator != nil && userInfoURL == "" {
 			return newVerifiedIdentity(config)
 		}
@@ -87,8 +88,8 @@ func newProvider(config Config, factory UserInfoProviderFactory) (access.Provide
 		return nil, err
 	}
 	if userInfoURL != "" {
-		if len(config.Audiences) > 0 {
-			return nil, fmt.Errorf("multiple audiences require the shared HTTP identity provider")
+		if len(config.Audiences) > 0 || config.SkipAudienceCheck {
+			return nil, fmt.Errorf("audience policy requires the shared HTTP identity provider")
 		}
 		if factory == nil {
 			return nil, fmt.Errorf("ACL user-info URL requires an explicitly configured identity provider")
@@ -102,5 +103,5 @@ func newProvider(config Config, factory UserInfoProviderFactory) (access.Provide
 		}
 		return provider, nil
 	}
-	return accessoauth.New(accessoauth.Config{Issuer: issuer, Audience: audience, Audiences: config.Audiences, Algorithms: []string{"RS256"}, Keyfunc: keyfunc})
+	return accessoauth.New(accessoauth.Config{Issuer: issuer, Audience: audience, Audiences: config.Audiences, SkipAudienceCheck: config.SkipAudienceCheck, Algorithms: []string{"RS256"}, Keyfunc: keyfunc})
 }

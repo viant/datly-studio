@@ -17,9 +17,10 @@ import (
 // ClaimsVerifier authenticates with the configured keys before exposing claims.
 // Issuer/audience restrictions are optional; expiry, signature and subject are not.
 type ClaimsVerifier struct {
-	key              jwtlib.Keyfunc
-	issuer, audience string
-	audiences        []string
+	key               jwtlib.Keyfunc
+	issuer, audience  string
+	audiences         []string
+	skipAudienceCheck bool
 }
 
 func NewClaimsVerifier(config Config) (*ClaimsVerifier, error) {
@@ -36,7 +37,7 @@ func NewClaimsVerifier(config Config) (*ClaimsVerifier, error) {
 	if config.Audience != "" {
 		audiences = append(audiences, config.Audience)
 	}
-	return &ClaimsVerifier{key: key, issuer: config.Issuer, audience: config.Audience, audiences: audiences}, nil
+	return &ClaimsVerifier{key: key, issuer: config.Issuer, audience: config.Audience, audiences: audiences, skipAudienceCheck: config.SkipAudienceCheck}, nil
 }
 func (v *ClaimsVerifier) Verify(ctx context.Context) (jwtlib.MapClaims, error) {
 	if v == nil || ctx == nil || ctx.Err() != nil {
@@ -46,7 +47,7 @@ func (v *ClaimsVerifier) Verify(ctx context.Context) (jwtlib.MapClaims, error) {
 	if v.issuer != "" {
 		options = append(options, jwtlib.WithIssuer(v.issuer))
 	}
-	if len(v.audiences) > 0 {
+	if !v.skipAudienceCheck && len(v.audiences) > 0 {
 		options = append(options, jwtlib.WithAudience(v.audiences...))
 	}
 	claims := jwtlib.MapClaims{}

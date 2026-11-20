@@ -23,7 +23,7 @@ func matchesDefaultIdentity(claims *jwt.Claims, config Authentication) bool {
 	if config.Issuer != "" && claims.Issuer != config.Issuer {
 		return false
 	}
-	return config.Audience == "" || claims.VerifyAudience(config.Audience, true)
+	return config.SkipAudienceCheck || config.Audience == "" || claims.VerifyAudience(config.Audience, true)
 }
 
 func hasScopes(claims *jwt.Claims, required []string) bool {
