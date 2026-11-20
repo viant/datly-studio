@@ -116,13 +116,14 @@ pipeline:
         - |
           (
           set -eu
-          chrome_build='${webdriverChromeBuild}'
+          export STUDIO_CHROMEDRIVER_BUILD='${webdriverChromeBuild}'
           chrome_platform='${webdriverChromePlatform}'
+          export STUDIO_CHROMEDRIVER_PLATFORM="$chrome_platform"
           chrome_temp=$(mktemp -d '${webdriverDirectory}/download.XXXXXX')
           trap 'rm -rf "$chrome_temp"' EXIT
           curl --fail --silent --show-error --location --max-time 30 https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build-with-downloads.json -o "$chrome_temp/releases.json"
-          chrome_release=$(jq -er --arg build "$chrome_build" '.builds[$build].version' "$chrome_temp/releases.json")
-          chrome_url=$(jq -er --arg build "$chrome_build" --arg platform "$chrome_platform" '.builds[$build].downloads.chromedriver[] | select(.platform == $platform) | .url' "$chrome_temp/releases.json")
+          chrome_release=$(jq -er '.builds[env.STUDIO_CHROMEDRIVER_BUILD].version' "$chrome_temp/releases.json")
+          chrome_url=$(jq -er '.builds[env.STUDIO_CHROMEDRIVER_BUILD].downloads.chromedriver[] | select(.platform == env.STUDIO_CHROMEDRIVER_PLATFORM) | .url' "$chrome_temp/releases.json")
           curl --fail --silent --show-error --location --max-time 60 "$chrome_url" -o "$chrome_temp/driver.zip"
           unzip -q "$chrome_temp/driver.zip" -d "$chrome_temp"
           chmod 755 "$chrome_temp/chromedriver-$chrome_platform/chromedriver"
