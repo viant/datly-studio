@@ -1375,6 +1375,8 @@ github.com/viant/authz v0.1.2-0.20261112184253-02e92dcfc66b h1:YwG7D7z3wWi+pHAtG
 github.com/viant/authz v0.1.2-0.20261112184253-02e92dcfc66b/go.mod h1:iazfsC9LZkGsbZY2o/9Aq3p8eHaD09tWudyRN5vQ9eI=
 github.com/viant/authz v0.1.2-0.20261117163719-2344044d1a9f h1:t77GLuIBGZ5fZKyeau7EVPMLBDdry7rqxZ5RIqvYlv0=
 github.com/viant/authz v0.1.2-0.20261117163719-2344044d1a9f/go.mod h1:iFwUegvPiOLA/j9shvzculpGNehPFvdxd55eXN+kSFI=
+github.com/viant/authz v0.1.2-0.20261120021755-0f9133fa20f0 h1:vxkmCT7kFx5Ty1OkcHgn2chN0TemZaf6ETT2N1c/uVo=
+github.com/viant/authz v0.1.2-0.20261120021755-0f9133fa20f0/go.mod h1:iFwUegvPiOLA/j9shvzculpGNehPFvdxd55eXN+kSFI=
 github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4 h1:IxngNqqpHBoCo7/FDaZsatuYckvYY1cqggVyzT3wZM0=
 github.com/viant/authz/component v0.0.0-20261017195827-09176e9405c4/go.mod h1:ox0oA/j5NmjymzPlxbFZXl64tnZmnLEIsqCkO8UF2KM=
 github.com/viant/authz/component v0.0.0-20261022145739-e618ce6d35c6 h1:xL9BUIAtyOYV64a7c1lnYahOqOU2pigYrPmRKan/meE=
