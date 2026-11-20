@@ -30,8 +30,22 @@ func TestManagementWindowReadValidatesPresentationTarget(t *testing.T) {
 		t.Fatal("target validation changed immutable definition")
 	}
 	in.Target.FormFactor = "unsupported"
+	// The pinned producer contract selects its published default for a valid
+	// presentation hint without an exact binding; it does not grant access.
+	defaultVariant, err := types.SelectWindowResourceWithReferences(original.Response, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fallback, err := types.SelectWindowResourceWithReferences(original.Response, in.Target)
+	if err != nil || fallback.Fingerprint != defaultVariant.Fingerprint {
+		t.Fatalf("native published-default selection changed: %v", err)
+	}
+	if err := runResource(context.Background(), nil, in, out); err != nil || string(out.Response) != string(original.Response) {
+		t.Fatalf("presentation fallback changed immutable definition: %v", err)
+	}
+	in.Target.FormFactor = "invalid/target"
 	if err := runResource(context.Background(), nil, in, &ResourceOutput{}); err == nil {
-		t.Fatal("unsupported target accepted")
+		t.Fatal("malformed target accepted")
 	}
 	in.Target = &types.WindowTarget{SelectionToken: "caller-proof"}
 	if err := runResource(context.Background(), nil, in, &ResourceOutput{}); err == nil {
