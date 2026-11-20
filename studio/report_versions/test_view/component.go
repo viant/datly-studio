@@ -69,7 +69,7 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 	defer cancel()
 	result, err := engine.TestView(executionCtx, input.ReportID, input.VersionNo, input.View, input.Input)
 	if err != nil {
-		return versionrun.PublicError(err, "view test")
+		return versionrun.ExecutionError(executionCtx, err, "view test", input.ReportID, input.VersionNo)
 	}
 	if result == nil || result.Evidence.ReportID != input.ReportID || result.Evidence.VersionNo != input.VersionNo {
 		return fmt.Errorf("view test returned mismatched execution evidence")

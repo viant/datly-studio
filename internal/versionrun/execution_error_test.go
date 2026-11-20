@@ -78,7 +78,8 @@ func TestExecutionErrorUnknownCauseLogsOnlyType(t *testing.T) {
 }
 
 func TestPreviewExecutionPublicMessages(t *testing.T) {
-	const interruption = "Preview was interrupted before results were returned. Check server logs to identify the cause."
+	const interruption = "Reader preview was canceled before results were returned. Check server logs to identify the cause."
+	const failure = "Reader preview failed before results were returned. Check server logs to identify the cause."
 	const deadline = "Reader preview exceeded its execution deadline. Review query scope, filters, and query limits before retrying."
 	expired, expire := context.WithCancelCause(context.Background())
 	expire(context.DeadlineExceeded)
@@ -98,7 +99,7 @@ func TestPreviewExecutionPublicMessages(t *testing.T) {
 		{"wrapped cancellation", context.Background(), fmt.Errorf("private wrapper: %w", context.Canceled), interruption},
 		{"unknown cancellation cause", canceled, errors.New("private driver error"), interruption},
 		{"deadline cancellation cause", expired, context.Canceled, deadline},
-		{"unknown", context.Background(), errors.New("unknown PASSWORD_CANARY"), interruption},
+		{"unknown", context.Background(), errors.New("unknown PASSWORD_CANARY"), failure},
 		{"mysql", context.Background(), &mysql.MySQLError{Number: 1146, Message: "SELECT SQL_CANARY PASSWORD_CANARY"}, "Reader preview failed with MySQL error 1146."},
 		{"provider status", context.Background(), &googleapi.Error{Code: 403, Message: "PASSWORD_CANARY", Errors: []googleapi.ErrorItem{{Reason: "accessDenied"}}}, "Reader preview failed with Google API error 403 (accessDenied)."},
 		{"unrecognized provider reason", context.Background(), &googleapi.Error{Code: 400, Message: "PASSWORD_CANARY", Errors: []googleapi.ErrorItem{{Reason: "SQL_CANARY"}}}, "Reader preview failed with Google API error 400."},
@@ -126,6 +127,40 @@ func TestPreviewExecutionPreservesExistingCategories(t *testing.T) {
 		got := ExecutionError(context.Background(), err, "reader preview", "synthetic-reader", 1)
 		if got.Error() != want.Error() {
 			t.Fatalf("category %s changed: got %v, want %v", code, got, want)
+		}
+	}
+}
+
+func TestViewTestUsesCorrelatedProviderDiagnostics(t *testing.T) {
+	ctx := xexec.WithContext(context.Background(), &xexec.Context{TraceID: "view-test-trace"})
+	cause := &mysql.MySQLError{Number: 1146, Message: "TABLE_CANARY"}
+	original := &sdk.Error{Code: sdk.ErrorInternal, Message: "WRAPPER_CANARY", Cause: cause}
+	public := ExecutionError(ctx, original, "view test", "synthetic", 2)
+	var response *xresponse.Error
+	if !errors.As(public, &response) || response.Code != 502 || !errors.Is(public, cause) {
+		t.Fatalf("lost category/cause: %v", public)
+	}
+	message := response.Payload.(map[string]string)["message"]
+	if message != "View test failed with MySQL error 1146. Check server logs using request ID view-test-trace to identify the cause." {
+		t.Fatal(message)
+	}
+	if strings.Contains(message, "CANARY") {
+		t.Fatal("private detail exposed")
+	}
+}
+
+func TestExecutionErrorCorrelatesValidationAndDenial(t *testing.T) {
+	ctx := xexec.WithContext(context.Background(), &xexec.Context{TraceID: "category-trace"})
+	for _, code := range []sdk.ErrorCode{sdk.ErrorInvalidArgument, sdk.ErrorForbidden, sdk.ErrorUnavailable} {
+		original := &sdk.Error{Code: code, Message: "PRIVATE_CANARY"}
+		result := ExecutionError(ctx, original, "view test", "synthetic", 1)
+		var response *xresponse.Error
+		if !errors.As(result, &response) || !errors.Is(result, original) {
+			t.Fatal("lost typed error")
+		}
+		payload := response.Payload.(map[string]string)
+		if payload["requestId"] != "category-trace" || strings.Contains(payload["message"], "CANARY") {
+			t.Fatal(payload)
 		}
 	}
 }
