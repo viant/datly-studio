@@ -1,0 +1,28 @@
+#package('studio/report_warmup_schedules/store_admit')
+#import('encoding/json')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/warmup-schedule/store_admit','PATCH'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('schedule','sql/read.sql'))
+#define($_ = $Schedules<[]*StoredSchedule>(body/data))
+SELECT schedule.*, run.*, type(schedule,'StoredSchedule'),
+CAST(schedule.schedule_id AS string),
+CAST(schedule.namespace_id AS string),
+CAST(schedule.report_id AS string),
+CAST(schedule.version_no AS int),
+CAST(schedule.interval_seconds AS int64),
+CAST(schedule.first_run_at AS time.Time),
+CAST(schedule.next_due_at AS time.Time),
+CAST(schedule.enabled AS bool),
+CAST(schedule.revision AS *int64),
+CAST(schedule.last_run_id AS *string),
+CAST(schedule.created_at AS time.Time),
+CAST(schedule.created_by AS string),
+CAST(schedule.updated_at AS time.Time),
+CAST(schedule.updated_by AS string), tag(schedule.schedule_id,'sqlx:"schedule_id,primaryKey"'), concurrency_token(schedule.revision), lifecycle_type(schedule,'ScheduleRules'), type(run,'AcceptedRun'), lifecycle_type(run,'AcceptedRunRules'), tag(run.run_id,'sqlx:"run_id,primaryKey"'), CAST(run.namespace_id AS string), CAST(run.run_id AS string), CAST(run.report_id AS string), CAST(run.version_no AS int), CAST(run.source_revision AS int64), CAST(run.spec_hash AS string), CAST(run.plan_key AS string), CAST(run.status AS string), CAST(run.requested_by AS string), CAST(run.target_json AS json.RawMessage), CAST(run.requested_at AS time.Time), CAST(run.deadline_at AS *time.Time), CAST(run.created_at AS *time.Time), CAST(run.updated_at AS *time.Time), set_limit(run,0), set_limit(schedule,0)
+FROM (${embed:sql/read.sql}) schedule
+LEFT JOIN (${embed:sql/runs.sql}) run ON run.report_id=schedule.report_id AND run.version_no=schedule.version_no AND run.namespace_id=schedule.namespace_id
+WHERE 1=1

@@ -18,6 +18,8 @@ var _anchorVersionRules_ReportComponent = reflect.TypeFor[VersionRules]()
 
 var _anchorWarmupRules_ReportComponent = reflect.TypeFor[WarmupRules]()
 
+var _anchorScheduleRules_ReportComponent = reflect.TypeFor[ScheduleRules]()
+
 var _anchorReceiptRules_ReportComponent = reflect.TypeFor[ReceiptRules]()
 
 // Component is the generated component scaffold for report.

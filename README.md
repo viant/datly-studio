@@ -412,6 +412,7 @@ environment-specific configuration.
 - [Authorization and identity](docs/authorization.md)
 - [Namespace MCP publication](docs/dynamic-mcp.md)
 - [Cubes and cube composition](docs/cubes.md)
+- [Recurring warmup scheduling](docs/warmup-scheduling.md)
 - [Linked custom predicates and embedding](docs/custom-predicates.md)
 - [UI and interaction contract](ui.md)
 - [Current architecture and engineering handoff](handoff.md)

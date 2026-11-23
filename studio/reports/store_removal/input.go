@@ -15,6 +15,7 @@ type Input struct {
 	ReportKeys                []ReportKeysRow           `codec:"structql,'uri=studio_reports_store_removal_report:sql/report_keys.sql'" parameter:"ReportKeys,kind=param,in=Reports,cardinality=Many"`
 	CurrentReport             []*CurrentReportView      `parameter:"CurrentReport,kind=view,in=CurrentReport,cardinality=Many" sql:"uri=studio_reports_store_removal_report:sql/current_report.sql" view:"CurrentReport,table=components,limit=1"`
 	CurrentVersion            []*CurrentVersionView     `parameter:"CurrentVersion,kind=view,in=CurrentVersion,cardinality=Many" sql:"uri=studio_reports_store_removal_report:sql/current_version.sql" view:"CurrentVersion,table=component_versions,selectorNoLimit=true"`
+	CurrentSchedule           []*CurrentScheduleView    `parameter:"CurrentSchedule,kind=view,in=CurrentSchedule,cardinality=Many" sql:"uri=studio_reports_store_removal_report:sql/current_schedule.sql" view:"CurrentSchedule,table=component_warmup_schedules,selectorNoLimit=true"`
 	CurrentDeletion           []*CurrentDeletionView    `parameter:"CurrentDeletion,kind=view,in=CurrentDeletion,cardinality=Many" sql:"uri=studio_reports_store_removal_report:sql/current_deletion.sql" view:"CurrentDeletion,table=component_deletions"`
 	_reportHandlerReadIndexes *ReportHandlerReadIndexes `json:"-" sqlx:"-"`
 	Has                       *InputHas                 `json:"-" setMarker:"true" sqlx:"-" typeName:"InputHas"`
@@ -32,5 +33,6 @@ type InputHas struct {
 	ReportKeys      bool
 	CurrentReport   bool
 	CurrentVersion  bool
+	CurrentSchedule bool
 	CurrentDeletion bool
 }

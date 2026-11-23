@@ -344,6 +344,9 @@ type WarmupRunPage struct {
 }
 
 type VersionService interface {
+	GetWarmupSchedule(context.Context, string, int) (*WarmupScheduleResult, error)
+	SaveWarmupSchedule(context.Context, string, int, SaveWarmupScheduleInput) (*WarmupScheduleResult, error)
+	DeleteWarmupSchedule(context.Context, string, int, DeleteWarmupScheduleInput) (*WarmupScheduleResult, error)
 	Delete(context.Context, string, int, DeleteVersionInput) (*DeletionResult, error)
 	Clone(context.Context, string, CloneVersionInput) (*ReportVersion, error)
 	Download(context.Context, string, int) (*ComponentDownload, error)

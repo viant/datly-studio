@@ -24,7 +24,7 @@ WHERE w.report_id = $ReportId
 */)
 #define($_ = $Reports<[]*RemovalReport>(body/data))
 
-SELECT report.*, version.*, warmup.*, deletion.*,
+SELECT report.*, version.*, warmup.*, schedule.*, deletion.*,
        type(report,'RemovalReport'), set_limit(report,1), set_limit(version,0), set_limit(warmup,0), type(version,'RemovalVersion'), type(warmup,'RemovalWarmup'),
        CAST(report.id AS string), CAST(report.namespace_id AS string), CAST(report.owner_id AS string),
        CAST(report.etag AS *int64), CAST(report.current_draft_version AS *int), CAST(report.updated_at AS *time.Time),
@@ -43,9 +43,11 @@ SELECT report.*, version.*, warmup.*, deletion.*,
        lifecycle_type(report,'RemovalRules'), lifecycle_type(version,'VersionRules'),
        lifecycle_type(warmup,'WarmupRules'), lifecycle_type(deletion,'ReceiptRules'),
        concurrency_token(report.etag), concurrency_token(version.source_revision), concurrency_token(warmup.status),
-       delete_marker(report.should_delete), delete_marker(version.should_delete), delete_marker(warmup.should_delete)
+       delete_marker(report.should_delete), delete_marker(version.should_delete), delete_marker(warmup.should_delete),
+ type(schedule,'RemovalSchedule'), CAST(schedule.schedule_id AS string), CAST(schedule.namespace_id AS string), CAST(schedule.report_id AS string), CAST(schedule.version_no AS int), CAST(schedule.revision AS *int64), CAST(schedule.should_delete AS bool), set_limit(schedule,0), tag(schedule.schedule_id,'sqlx:"schedule_id,primaryKey"'), concurrency_token(schedule.revision), delete_marker(schedule.should_delete), lifecycle_type(schedule,'ScheduleRules')
 FROM (${embed:sql/read.sql}) report
 LEFT JOIN (${embed:sql/versions.sql}) version ON version.report_id = report.id AND version.namespace_id = report.namespace_id
 LEFT JOIN (${embed:sql/warmups.sql}) warmup ON warmup.report_id = version.report_id AND warmup.version_no = version.version_no
+LEFT JOIN (${embed:sql/schedules.sql}) schedule ON schedule.report_id=version.report_id AND schedule.version_no=version.version_no AND schedule.namespace_id=version.namespace_id
 LEFT JOIN (${embed:sql/deletion.sql}) deletion ON deletion.component_id = report.id
 WHERE 1=1

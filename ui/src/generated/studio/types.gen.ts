@@ -269,6 +269,13 @@ export type Input67A6C41B53B420074072Fda4F537183A1752B07F36458625612Ede362Fd6Ed2
     version?: string;
 };
 
+export type Input6852A546610B3666465782Addfd94D4137A3222A1Fe550A71816B7Cbc70Fd233 = {
+    enabled?: boolean;
+    expectedRevision?: number;
+    firstRunAt?: string;
+    intervalSeconds?: number;
+};
+
 export type Input71F300E4492Dfb2E7896F28Bb40Eda0284261Da644Ef97B9256Cae2Ba1742Eee = {
     beforeId?: number;
     from?: string;
@@ -348,6 +355,10 @@ export type Input8D6956B33904910Eb5C98596261B238032C1D60Ec4985440C7C370Ac9E4Ab54
     } | null;
     resource?: InputB1C1E89E6619Cb826E546Ecf8347Ad7B1464C14D32806B70E5E920Cf5D1D5578;
     revision?: number;
+};
+
+export type Input8Ffbe5D1C054B261C896F089118618013Bde63Cf883B10712Aca6Ec3F6Da9Db8 = {
+    expectedRevision?: number;
 };
 
 export type Input92Babcabef72E30Fbb57Dc0D846D94Ab3444A80B93279Fb26Ff7A884Ac2Fffb8 = {
@@ -856,6 +867,23 @@ export type Output41C3B19Ac03C771407Eb0E4C05284C0E7C1997324Fd4198Bdf3Fd31Fa8D96C
     viewerRole?: string;
 };
 
+export type Output425499D46119A41D3D8B3213212Df77A09654122A5763508E77C69040Bdd9C54 = {
+    createdAt?: string;
+    createdBy?: string;
+    enabled?: boolean;
+    firstRunAt?: string;
+    intervalSeconds?: number;
+    lastRunId?: string | null;
+    namespaceId?: string;
+    nextDueAt?: string;
+    reportId?: string;
+    revision?: number;
+    scheduleId?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+    versionNo?: number;
+};
+
 export type Output449A47A8E9Ea6Ae974F687Ac5B55486E7E726Cc8043Ed75E896C8B78C8B99391 = {
     cacheName?: string;
     cacheProvider?: string;
@@ -870,6 +898,10 @@ export type Output4767292Ff45Ca739Fbde17Dcfac16967B1B00630Ad105De675C19514080628
     entity?: Output2554Cffa5D52275Ed88Bc66799A2F7C47Bac9Cf0E050075987Cbda8Ba8D24268 | null;
     id?: string;
     label?: string;
+};
+
+export type Output48E3C2284Cd7Ee4Ee0Fc2A5Ae16B582A5Fb879D1B81D31A724501410Ae7051E8 = {
+    schedule?: OutputA91600A660B2Dab58Eb22Cb43E342D31080469F0A247Ad4D303Ccaa3D831Ca9b | null;
 };
 
 export type Output4Cf988A4800A68Fa7Db9D130C60Eed0B35369D4C3Fc9465E70D61B648Bd34B6d = {
@@ -980,6 +1012,23 @@ export type Output644E4D09Ac406B19E7277668F0Cfaf1136C2F29C1D92A8E6Af44Cadd8Ca60C
     viewerRole?: string;
 };
 
+export type Output6Aee4788Dadfdfc23B2234504C2B03C70227Ad05253Dad7018Bb94773392B806 = {
+    createdAt?: string;
+    createdBy?: string;
+    enabled?: boolean;
+    firstRunAt?: string;
+    intervalSeconds?: number;
+    lastRunId?: string | null;
+    namespaceId?: string;
+    nextDueAt?: string;
+    reportId?: string;
+    revision?: number;
+    scheduleId?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+    versionNo?: number;
+};
+
 export type Output6E81E11A33076E68Bb3D8B58Da936317E65E2Cb7C08F61Adc82433C8705924B4 = {
     archive?: string | null;
     canManage?: boolean;
@@ -1015,6 +1064,10 @@ export type Output73A8618E3Debe1667F7Aafcc74Ab58Dec2Fbd11494Bb2E579Aae6D2B58F205
     secretConfigured?: boolean;
     status?: string;
     updatedAt?: string;
+};
+
+export type Output7Aa496Cd97C17B771884Aede33Cfa5Ea7911Baa4Bf67722Cd150158F4D483084 = {
+    schedule?: Output6Aee4788Dadfdfc23B2234504C2B03C70227Ad05253Dad7018Bb94773392B806 | null;
 };
 
 export type Output7B381D62F3Badad104E139473Ebed24D20B65D0E87860A76A09801383C4E928f = {
@@ -1155,6 +1208,10 @@ export type OutputA2A90743713296048071979D14B3Abdfc10B4Ee77E446Ab9Dbd7F2C07Bbe72
     status?: string;
 };
 
+export type OutputA32Ef5Ac0552E8E93E6757A06E1Cf92E3C56C6678C58Bd96E576Fefc38207931 = {
+    schedule?: Output425499D46119A41D3D8B3213212Df77A09654122A5763508E77C69040Bdd9C54 | null;
+};
+
 export type OutputA620C9Cdb7932D674689Ffd84Ac85Dbcb429685Fe710C1877Cda1038De84D261 = {
     cacheName?: string;
     cacheProvider?: string;
@@ -1201,6 +1258,23 @@ export type OutputA81D693Fd6E1Ff78672B05458A01513D11113731358Ae9Bfeaca4Fd73D9C72
     kind?: string;
     tenant?: string;
     version?: string;
+};
+
+export type OutputA91600A660B2Dab58Eb22Cb43E342D31080469F0A247Ad4D303Ccaa3D831Ca9b = {
+    createdAt?: string;
+    createdBy?: string;
+    enabled?: boolean;
+    firstRunAt?: string;
+    intervalSeconds?: number;
+    lastRunId?: string | null;
+    namespaceId?: string;
+    nextDueAt?: string;
+    reportId?: string;
+    revision?: number;
+    scheduleId?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+    versionNo?: number;
 };
 
 export type OutputAd75631E8D2823498E11Cfcb0D44Fbcce2C8Be956B896Ed2Be7B2D56Acb36688 = {
@@ -5798,3 +5872,71 @@ export type PostV1StudioSdkVersionsWarmupListResponses = {
 };
 
 export type PostV1StudioSdkVersionsWarmupListResponse = PostV1StudioSdkVersionsWarmupListResponses[keyof PostV1StudioSdkVersionsWarmupListResponses];
+
+export type PostV1StudioSdkVersionsWarmupScheduleDeleteData = {
+    body: {
+        input: Input8Ffbe5D1C054B261C896F089118618013Bde63Cf883B10712Aca6Ec3F6Da9Db8;
+        reportId: string;
+        versionNo: number;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.warmup_schedule_delete';
+};
+
+export type PostV1StudioSdkVersionsWarmupScheduleDeleteResponses = {
+    /**
+     * Success response
+     */
+    200: Output7Aa496Cd97C17B771884Aede33Cfa5Ea7911Baa4Bf67722Cd150158F4D483084;
+};
+
+export type PostV1StudioSdkVersionsWarmupScheduleDeleteResponse = PostV1StudioSdkVersionsWarmupScheduleDeleteResponses[keyof PostV1StudioSdkVersionsWarmupScheduleDeleteResponses];
+
+export type PostV1StudioSdkVersionsWarmupScheduleGetData = {
+    body: {
+        reportId: string;
+        versionNo: number;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.warmup_schedule_get';
+};
+
+export type PostV1StudioSdkVersionsWarmupScheduleGetResponses = {
+    /**
+     * Success response
+     */
+    200: OutputA32Ef5Ac0552E8E93E6757A06E1Cf92E3C56C6678C58Bd96E576Fefc38207931;
+};
+
+export type PostV1StudioSdkVersionsWarmupScheduleGetResponse = PostV1StudioSdkVersionsWarmupScheduleGetResponses[keyof PostV1StudioSdkVersionsWarmupScheduleGetResponses];
+
+export type PostV1StudioSdkVersionsWarmupScheduleSaveData = {
+    body: {
+        input: Input6852A546610B3666465782Addfd94D4137A3222A1Fe550A71816B7Cbc70Fd233;
+        reportId: string;
+        versionNo: number;
+    };
+    headers?: {
+        'X-Studio-Namespace'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v1/studio/sdk/versions.warmup_schedule_save';
+};
+
+export type PostV1StudioSdkVersionsWarmupScheduleSaveResponses = {
+    /**
+     * Success response
+     */
+    200: Output48E3C2284Cd7Ee4Ee0Fc2A5Ae16B582A5Fb879D1B81D31A724501410Ae7051E8;
+};
+
+export type PostV1StudioSdkVersionsWarmupScheduleSaveResponse = PostV1StudioSdkVersionsWarmupScheduleSaveResponses[keyof PostV1StudioSdkVersionsWarmupScheduleSaveResponses];

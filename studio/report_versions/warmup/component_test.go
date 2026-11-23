@@ -47,7 +47,7 @@ type identityInput struct {
 type identityHandler struct{}
 
 func (identityHandler) Exec(_ context.Context, _ xhandler.Session, input *identityInput, output *jwt.Claims) error {
-	if input.JWT == nil || input.JWT.Subject != "alice" {
+	if input.JWT == nil || input.JWT.Subject != "alice" && input.JWT.Subject != sdk.SystemPrincipal().Subject {
 		return fmt.Errorf("identity rejected")
 	}
 	*output = *input.JWT
@@ -213,7 +213,7 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 			return nil, fmt.Errorf("authorized namespace lost")
 		}
 		principal, ok := sdk.PrincipalFromContext(ctx)
-		if !ok || principal.Subject != "alice" {
+		if !ok || (principal.Subject != "alice" && principal.Subject != sdk.SystemPrincipal().Subject) {
 			return nil, fmt.Errorf("verified principal lost")
 		}
 		credential, ok := sdk.VerifiedCredentialFromContext(ctx)
@@ -779,6 +779,9 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 			t.Fatal("timed out job retained its active key")
 		}
 	})
+	t.Run("recurring warmup management and service authorization", func(t *testing.T) {
+		testWarmupSchedules(ctx, t, db, namespace, bearer, addresses[0], authoring, jwtFixture, callRaw)
+	})
 	// Two indexed entries prove warmup used batch: main has only one authorized
 	// row. Ordinary preview must still use main without requiring batch.
 	if _, err = db.ExecContext(ctx, "UPDATE connectors SET status='disabled' WHERE name='batch'"); err != nil {
@@ -790,7 +793,7 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 		t.Fatalf("ordinary preview required a warmup-only source or changed its native identity scope: %s", raw)
 	}
 
-	if cleaned.Load() != int32(len(ids)+1) {
+	if cleaned.Load() != int32(len(ids)+2) {
 		t.Fatalf("dependency cleanup count=%d", cleaned.Load())
 	}
 }

@@ -1,0 +1,27 @@
+#package('studio/report_warmup_schedules/store_write')
+#import('encoding/json')
+#setting($_ = $input_type('Input'))
+#setting($_ = $output_type('Output'))
+#setting($_ = $case_format('lc'))
+#setting($_ = $route('/_studio/warmup-schedule/store_write','PATCH'))
+#setting($_ = $internal(true))
+#setting($_ = $connector('studio'))
+#setting($_ = $sql_dest('schedule','sql/read.sql'))
+#define($_ = $Schedules<[]*StoredSchedule>(body/data))
+SELECT schedule.*, type(schedule,'StoredSchedule'),
+CAST(schedule.schedule_id AS string),
+CAST(schedule.namespace_id AS string),
+CAST(schedule.report_id AS string),
+CAST(schedule.version_no AS int),
+CAST(schedule.interval_seconds AS int64),
+CAST(schedule.first_run_at AS time.Time),
+CAST(schedule.next_due_at AS time.Time),
+CAST(schedule.enabled AS bool),
+CAST(schedule.revision AS *int64),
+CAST(schedule.last_run_id AS *string),
+CAST(schedule.created_at AS time.Time),
+CAST(schedule.created_by AS string),
+CAST(schedule.updated_at AS time.Time),
+CAST(schedule.updated_by AS string), tag(schedule.schedule_id,'sqlx:"schedule_id,primaryKey"'), concurrency_token(schedule.revision), lifecycle_type(schedule,'ScheduleRules'), CAST(schedule.should_delete AS bool), delete_marker(schedule.should_delete), set_limit(schedule,0)
+FROM (${embed:sql/read.sql}) schedule
+WHERE 1=1

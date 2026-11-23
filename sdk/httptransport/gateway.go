@@ -282,6 +282,8 @@ func outputFor(operation string) (any, bool) {
 		return new(sdk.RelationTestResult), true
 	case sdk.OperationVersionTestCompose:
 		return new(sdk.CubeComposeTestResult), true
+	case sdk.OperationWarmupScheduleGet, sdk.OperationWarmupScheduleSave, sdk.OperationWarmupScheduleDelete:
+		return new(sdk.WarmupScheduleResult), true
 	case sdk.OperationVersionWarmup:
 		return new(sdk.WarmupResult), true
 	case sdk.OperationVersionInvalidateCache:

@@ -156,6 +156,16 @@ func (entity *RemovalVersion) SetWarmup(value []*RemovalWarmup) {
 	}
 	entity.Has.Warmup = true
 }
+func (entity *RemovalVersion) GetSchedule() []*RemovalSchedule {
+	return entity.Schedule
+}
+func (entity *RemovalVersion) SetSchedule(value []*RemovalSchedule) {
+	entity.Schedule = value
+	if entity.Has == nil {
+		entity.Has = &RemovalVersionHas{}
+	}
+	entity.Has.Schedule = true
+}
 func (entity *RemovalWarmup) GetRunId() string {
 	return entity.RunId
 }
@@ -203,6 +213,66 @@ func (entity *RemovalWarmup) SetShouldDelete(value bool) {
 	entity.ShouldDelete = value
 	if entity.Has == nil {
 		entity.Has = &RemovalWarmupHas{}
+	}
+	entity.Has.ShouldDelete = true
+}
+func (entity *RemovalSchedule) GetScheduleId() string {
+	return entity.ScheduleId
+}
+func (entity *RemovalSchedule) SetScheduleId(value string) {
+	entity.ScheduleId = value
+	if entity.Has == nil {
+		entity.Has = &RemovalScheduleHas{}
+	}
+	entity.Has.ScheduleId = true
+}
+func (entity *RemovalSchedule) GetNamespaceId() string {
+	return entity.NamespaceId
+}
+func (entity *RemovalSchedule) SetNamespaceId(value string) {
+	entity.NamespaceId = value
+	if entity.Has == nil {
+		entity.Has = &RemovalScheduleHas{}
+	}
+	entity.Has.NamespaceId = true
+}
+func (entity *RemovalSchedule) GetReportId() string {
+	return entity.ReportId
+}
+func (entity *RemovalSchedule) SetReportId(value string) {
+	entity.ReportId = value
+	if entity.Has == nil {
+		entity.Has = &RemovalScheduleHas{}
+	}
+	entity.Has.ReportId = true
+}
+func (entity *RemovalSchedule) GetVersionNo() int {
+	return entity.VersionNo
+}
+func (entity *RemovalSchedule) SetVersionNo(value int) {
+	entity.VersionNo = value
+	if entity.Has == nil {
+		entity.Has = &RemovalScheduleHas{}
+	}
+	entity.Has.VersionNo = true
+}
+func (entity *RemovalSchedule) GetRevision() *int64 {
+	return entity.Revision
+}
+func (entity *RemovalSchedule) SetRevision(value *int64) {
+	entity.Revision = value
+	if entity.Has == nil {
+		entity.Has = &RemovalScheduleHas{}
+	}
+	entity.Has.Revision = true
+}
+func (entity *RemovalSchedule) GetShouldDelete() bool {
+	return entity.ShouldDelete
+}
+func (entity *RemovalSchedule) SetShouldDelete(value bool) {
+	entity.ShouldDelete = value
+	if entity.Has == nil {
+		entity.Has = &RemovalScheduleHas{}
 	}
 	entity.Has.ShouldDelete = true
 }
@@ -290,4 +360,109 @@ func (input *Input) ProjectCurrentDeletionParentKeys(previous []*CurrentReportVi
 		}{ComponentId: row.Id})
 	}
 	return result, nil
+}
+func (input *Input) ProjectCurrentScheduleParentKeys(previous []*CurrentVersionView) ([]struct {
+	ReportId    string `sqlx:"report_id"`
+	VersionNo   int    `sqlx:"version_no"`
+	NamespaceId string `sqlx:"namespace_id"`
+}, error) {
+	result := []struct {
+		ReportId    string `sqlx:"report_id"`
+		VersionNo   int    `sqlx:"version_no"`
+		NamespaceId string `sqlx:"namespace_id"`
+	}{}
+	for _, row := range previous {
+		if row == nil {
+			continue
+		}
+		result = append(result, struct {
+			ReportId    string `sqlx:"report_id"`
+			VersionNo   int    `sqlx:"version_no"`
+			NamespaceId string `sqlx:"namespace_id"`
+		}{ReportId: row.ReportId, VersionNo: row.VersionNo, NamespaceId: row.NamespaceId})
+	}
+	return result, nil
+}
+func (r *RemovalReport) SynchronizePresentMarker(prev *RemovalReport) {
+	if r == nil || prev == nil || r.Has == nil {
+		return
+	}
+	present := *r.Has
+	has := &present
+	r.Has = nil
+	has.Id = present.Id
+	has.Etag = present.Etag
+	has.ShouldDelete = present.ShouldDelete
+	has.NamespaceId = present.NamespaceId && r.NamespaceId != prev.NamespaceId
+	has.OwnerId = present.OwnerId && r.OwnerId != prev.OwnerId
+	has.CurrentDraftVersion = present.CurrentDraftVersion && !(r.CurrentDraftVersion == prev.CurrentDraftVersion || (r.CurrentDraftVersion != nil && prev.CurrentDraftVersion != nil && *r.CurrentDraftVersion == *prev.CurrentDraftVersion))
+	has.UpdatedAt = present.UpdatedAt && !(r.UpdatedAt == prev.UpdatedAt || (r.UpdatedAt != nil && prev.UpdatedAt != nil && r.UpdatedAt.Equal(*prev.UpdatedAt)))
+	if *has != (RemovalReportHas{}) {
+		r.Has = has
+	}
+}
+func (r *RemovalVersion) SynchronizePresentMarker(prev *RemovalVersion) {
+	if r == nil || prev == nil || r.Has == nil {
+		return
+	}
+	present := *r.Has
+	has := &present
+	r.Has = nil
+	has.ReportId = present.ReportId
+	has.VersionNo = present.VersionNo
+	has.SourceRevision = present.SourceRevision
+	has.ShouldDelete = present.ShouldDelete
+	has.NamespaceId = present.NamespaceId && r.NamespaceId != prev.NamespaceId
+	if *has != (RemovalVersionHas{}) {
+		r.Has = has
+	}
+}
+func (r *RemovalWarmup) SynchronizePresentMarker(prev *RemovalWarmup) {
+	if r == nil || prev == nil || r.Has == nil {
+		return
+	}
+	present := *r.Has
+	has := &present
+	r.Has = nil
+	has.RunId = present.RunId
+	has.Status = present.Status
+	has.ShouldDelete = present.ShouldDelete
+	has.ReportId = present.ReportId && r.ReportId != prev.ReportId
+	has.VersionNo = present.VersionNo && r.VersionNo != prev.VersionNo
+	if *has != (RemovalWarmupHas{}) {
+		r.Has = has
+	}
+}
+func (r *RemovalSchedule) SynchronizePresentMarker(prev *RemovalSchedule) {
+	if r == nil || prev == nil || r.Has == nil {
+		return
+	}
+	present := *r.Has
+	has := &present
+	r.Has = nil
+	has.ScheduleId = present.ScheduleId
+	has.Revision = present.Revision
+	has.ShouldDelete = present.ShouldDelete
+	has.NamespaceId = present.NamespaceId && r.NamespaceId != prev.NamespaceId
+	has.ReportId = present.ReportId && r.ReportId != prev.ReportId
+	has.VersionNo = present.VersionNo && r.VersionNo != prev.VersionNo
+	if *has != (RemovalScheduleHas{}) {
+		r.Has = has
+	}
+}
+func (r *RemovalReceipt) SynchronizePresentMarker(prev *RemovalReceipt) {
+	if r == nil || prev == nil || r.Has == nil {
+		return
+	}
+	present := *r.Has
+	has := &present
+	r.Has = nil
+	has.ComponentId = present.ComponentId
+	has.NamespaceId = present.NamespaceId && r.NamespaceId != prev.NamespaceId
+	has.OwnerId = present.OwnerId && r.OwnerId != prev.OwnerId
+	has.DeletedAt = present.DeletedAt && !r.DeletedAt.Equal(prev.DeletedAt)
+	has.DeletedBy = present.DeletedBy && r.DeletedBy != prev.DeletedBy
+	if *has != (RemovalReceiptHas{}) {
+		r.Has = has
+	}
 }

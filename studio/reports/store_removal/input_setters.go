@@ -123,6 +123,17 @@ func (input *Input) SetCurrentVersion(value []*CurrentVersionView) {
 	input.Has.CurrentVersion = true
 }
 
+func (input *Input) SetCurrentSchedule(value []*CurrentScheduleView) {
+	if input == nil {
+		return
+	}
+	input.CurrentSchedule = value
+	if input.Has == nil {
+		input.Has = &InputHas{}
+	}
+	input.Has.CurrentSchedule = true
+}
+
 func (input *Input) SetCurrentDeletion(value []*CurrentDeletionView) {
 	if input == nil {
 		return

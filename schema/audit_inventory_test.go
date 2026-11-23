@@ -22,6 +22,7 @@ func TestCanonicalAuditColumnInventory(t *testing.T) {
 		"resource_policy_revisions":          {},
 		"resource_policy_namespace_bindings": {},
 		"resource_namespace_claims":          {},
+		"component_warmup_schedules": {},
 		"component_warmup_runs":              {},
 		"tool_audit_settings":                {},
 		"namespace_skills":                   {},

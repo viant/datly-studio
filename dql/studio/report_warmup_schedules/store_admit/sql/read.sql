@@ -1,0 +1,1 @@
+SELECT s.schedule_id, s.namespace_id, s.report_id, s.version_no, s.interval_seconds, s.first_run_at, s.next_due_at, s.enabled, s.revision, s.last_run_id, s.created_at, s.created_by, s.updated_at, s.updated_by FROM component_warmup_schedules s

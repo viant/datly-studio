@@ -365,6 +365,14 @@ type Input67a6c41b53b420074072fda4f537183a1752b07f36458625612ede362fd6ed25 struc
 	Version *string `json:"version,omitempty"`
 }
 
+// Input6852a546610b3666465782addfd94d4137a3222a1fe550a71816b7cbc70fd233 defines model for Input_6852a546610b3666465782addfd94d4137a3222a1fe550a71816b7cbc70fd233.
+type Input6852a546610b3666465782addfd94d4137a3222a1fe550a71816b7cbc70fd233 struct {
+	Enabled          *bool      `json:"enabled,omitempty"`
+	ExpectedRevision *int64     `json:"expectedRevision,omitempty"`
+	FirstRunAt       *time.Time `json:"firstRunAt,omitempty"`
+	IntervalSeconds  *int64     `json:"intervalSeconds,omitempty"`
+}
+
 // Input71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee defines model for Input_71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee.
 type Input71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee struct {
 	BeforeId    *int64  `json:"beforeId,omitempty"`
@@ -468,6 +476,11 @@ type Input8d6956b33904910eb5c98596261b238032c1d60ec4985440c7c370ac9e4ab540 struc
 	Policies *map[string]InputB3eeaba5d52fb132e23cb61c540f14953c5fc9c0e0bd74b0748f79995666f4c7 `json:"policies,omitempty"`
 	Resource *InputB1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578            `json:"resource,omitempty"`
 	Revision *int64                                                                            `json:"revision,omitempty"`
+}
+
+// Input8ffbe5d1c054b261c896f089118618013bde63cf883b10712aca6ec3f6da9db8 defines model for Input_8ffbe5d1c054b261c896f089118618013bde63cf883b10712aca6ec3f6da9db8.
+type Input8ffbe5d1c054b261c896f089118618013bde63cf883b10712aca6ec3f6da9db8 struct {
+	ExpectedRevision *int64 `json:"expectedRevision,omitempty"`
 }
 
 // Input92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8 defines model for Input_92babcabef72e30fbb57dc0d846d94ab3444a80b93279fb26ff7a884ac2fffb8.
@@ -1124,6 +1137,24 @@ type Output41c3b19ac03c771407eb0e4c05284c0e7c1997324fd4198bdf3fd31fa8d96c5d stru
 	ViewerRole  *string                                                                   `json:"viewerRole,omitempty"`
 }
 
+// Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54 defines model for Output_425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54.
+type Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54 struct {
+	CreatedAt       *time.Time `json:"createdAt,omitempty"`
+	CreatedBy       *string    `json:"createdBy,omitempty"`
+	Enabled         *bool      `json:"enabled,omitempty"`
+	FirstRunAt      *time.Time `json:"firstRunAt,omitempty"`
+	IntervalSeconds *int64     `json:"intervalSeconds,omitempty"`
+	LastRunId       *string    `json:"lastRunId,omitempty"`
+	NamespaceId     *string    `json:"namespaceId,omitempty"`
+	NextDueAt       *time.Time `json:"nextDueAt,omitempty"`
+	ReportId        *string    `json:"reportId,omitempty"`
+	Revision        *int64     `json:"revision,omitempty"`
+	ScheduleId      *string    `json:"scheduleId,omitempty"`
+	UpdatedAt       *time.Time `json:"updatedAt,omitempty"`
+	UpdatedBy       *string    `json:"updatedBy,omitempty"`
+	VersionNo       *int64     `json:"versionNo,omitempty"`
+}
+
 // Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 defines model for Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391.
 type Output449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391 struct {
 	CacheName        *string                                                                   `json:"cacheName,omitempty"`
@@ -1147,6 +1178,19 @@ type Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9Entit
 
 // Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9_Entity defines model for Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9.Entity.
 type Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9_Entity struct {
+	union json.RawMessage
+}
+
+// Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8 defines model for Output_48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8.
+type Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8 struct {
+	Schedule *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule `json:"schedule,omitempty"`
+}
+
+// Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1 defines model for Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8.Schedule.1.
+type Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1 = map[string]interface{}
+
+// Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule defines model for Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8.Schedule.
+type Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule struct {
 	union json.RawMessage
 }
 
@@ -1281,6 +1325,24 @@ type Output644e4d09ac406b19e7277668f0cfaf1136c2f29c1d92a8e6af44cadd8ca60cd1 stru
 	ViewerRole  *string                                                                   `json:"viewerRole,omitempty"`
 }
 
+// Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806 defines model for Output_6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806.
+type Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806 struct {
+	CreatedAt       *time.Time `json:"createdAt,omitempty"`
+	CreatedBy       *string    `json:"createdBy,omitempty"`
+	Enabled         *bool      `json:"enabled,omitempty"`
+	FirstRunAt      *time.Time `json:"firstRunAt,omitempty"`
+	IntervalSeconds *int64     `json:"intervalSeconds,omitempty"`
+	LastRunId       *string    `json:"lastRunId,omitempty"`
+	NamespaceId     *string    `json:"namespaceId,omitempty"`
+	NextDueAt       *time.Time `json:"nextDueAt,omitempty"`
+	ReportId        *string    `json:"reportId,omitempty"`
+	Revision        *int64     `json:"revision,omitempty"`
+	ScheduleId      *string    `json:"scheduleId,omitempty"`
+	UpdatedAt       *time.Time `json:"updatedAt,omitempty"`
+	UpdatedBy       *string    `json:"updatedBy,omitempty"`
+	VersionNo       *int64     `json:"versionNo,omitempty"`
+}
+
 // Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4 defines model for Output_6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4.
 type Output6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4 struct {
 	Archive     *[]byte                                                                   `json:"archive,omitempty"`
@@ -1318,6 +1380,19 @@ type Output73a8618e3debe1667f7aafcc74ab58dec2fbd11494bb2e579aae6d2b58f205f3 stru
 	SecretConfigured  *bool       `json:"secretConfigured,omitempty"`
 	Status            *string     `json:"status,omitempty"`
 	UpdatedAt         *time.Time  `json:"updatedAt,omitempty"`
+}
+
+// Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084 defines model for Output_7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084.
+type Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084 struct {
+	Schedule *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule `json:"schedule,omitempty"`
+}
+
+// Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1 defines model for Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084.Schedule.1.
+type Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1 = map[string]interface{}
+
+// Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule defines model for Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084.Schedule.
+type Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule struct {
+	union json.RawMessage
 }
 
 // Output7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f defines model for Output_7b381d62f3badad104e139473ebed24d20b65d0e87860a76a09801383c4e928f.
@@ -1479,6 +1554,19 @@ type OutputA2a90743713296048071979d14b3abdfc10b4ee77e446ab9dbd7f2c07bbe7266 stru
 	Status            *string    `json:"status,omitempty"`
 }
 
+// OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931 defines model for Output_a32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931.
+type OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931 struct {
+	Schedule *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule `json:"schedule,omitempty"`
+}
+
+// OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1 defines model for OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931.Schedule.1.
+type OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1 = map[string]interface{}
+
+// OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule defines model for OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931.Schedule.
+type OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule struct {
+	union json.RawMessage
+}
+
 // OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 defines model for Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261.
 type OutputA620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261 struct {
 	CacheName      *string `json:"cacheName,omitempty"`
@@ -1538,6 +1626,24 @@ type OutputA81d693fd6e1ff78672b05458a01513d11113731358ae9bfeaca4fd73d9c722c stru
 	Kind    *string `json:"kind,omitempty"`
 	Tenant  *string `json:"tenant,omitempty"`
 	Version *string `json:"version,omitempty"`
+}
+
+// OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b defines model for Output_a91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b.
+type OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b struct {
+	CreatedAt       *time.Time `json:"createdAt,omitempty"`
+	CreatedBy       *string    `json:"createdBy,omitempty"`
+	Enabled         *bool      `json:"enabled,omitempty"`
+	FirstRunAt      *time.Time `json:"firstRunAt,omitempty"`
+	IntervalSeconds *int64     `json:"intervalSeconds,omitempty"`
+	LastRunId       *string    `json:"lastRunId,omitempty"`
+	NamespaceId     *string    `json:"namespaceId,omitempty"`
+	NextDueAt       *time.Time `json:"nextDueAt,omitempty"`
+	ReportId        *string    `json:"reportId,omitempty"`
+	Revision        *int64     `json:"revision,omitempty"`
+	ScheduleId      *string    `json:"scheduleId,omitempty"`
+	UpdatedAt       *time.Time `json:"updatedAt,omitempty"`
+	UpdatedBy       *string    `json:"updatedBy,omitempty"`
+	VersionNo       *int64     `json:"versionNo,omitempty"`
 }
 
 // OutputAd75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688 defines model for Output_ad75631e8d2823498e11cfcb0d44fbcce2c8be956b896ed2be7b2d56acb36688.
@@ -6111,6 +6217,41 @@ type POSTv1studiosdkversionsWarmupListParams struct {
 	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
 }
 
+// POSTv1studiosdkversionsWarmupScheduleDeleteJSONBody defines parameters for POSTv1studiosdkversionsWarmupScheduleDelete.
+type POSTv1studiosdkversionsWarmupScheduleDeleteJSONBody struct {
+	Input     Input8ffbe5d1c054b261c896f089118618013bde63cf883b10712aca6ec3f6da9db8 `json:"input"`
+	ReportId  string                                                                `json:"reportId"`
+	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsWarmupScheduleDeleteParams defines parameters for POSTv1studiosdkversionsWarmupScheduleDelete.
+type POSTv1studiosdkversionsWarmupScheduleDeleteParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkversionsWarmupScheduleGetJSONBody defines parameters for POSTv1studiosdkversionsWarmupScheduleGet.
+type POSTv1studiosdkversionsWarmupScheduleGetJSONBody struct {
+	ReportId  string `json:"reportId"`
+	VersionNo int64  `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsWarmupScheduleGetParams defines parameters for POSTv1studiosdkversionsWarmupScheduleGet.
+type POSTv1studiosdkversionsWarmupScheduleGetParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
+// POSTv1studiosdkversionsWarmupScheduleSaveJSONBody defines parameters for POSTv1studiosdkversionsWarmupScheduleSave.
+type POSTv1studiosdkversionsWarmupScheduleSaveJSONBody struct {
+	Input     Input6852a546610b3666465782addfd94d4137a3222a1fe550a71816b7cbc70fd233 `json:"input"`
+	ReportId  string                                                                `json:"reportId"`
+	VersionNo int64                                                                 `json:"versionNo"`
+}
+
+// POSTv1studiosdkversionsWarmupScheduleSaveParams defines parameters for POSTv1studiosdkversionsWarmupScheduleSave.
+type POSTv1studiosdkversionsWarmupScheduleSaveParams struct {
+	XStudioNamespace *string `json:"X-Studio-Namespace,omitempty"`
+}
+
 // POSTv1authzsdkauthorizationCheckJSONRequestBody defines body for POSTv1authzsdkauthorizationCheck for application/json ContentType.
 type POSTv1authzsdkauthorizationCheckJSONRequestBody POSTv1authzsdkauthorizationCheckJSONBody
 
@@ -6380,6 +6521,15 @@ type POSTv1studiosdkversionsWarmupGetJSONRequestBody POSTv1studiosdkversionsWarm
 
 // POSTv1studiosdkversionsWarmupListJSONRequestBody defines body for POSTv1studiosdkversionsWarmupList for application/json ContentType.
 type POSTv1studiosdkversionsWarmupListJSONRequestBody POSTv1studiosdkversionsWarmupListJSONBody
+
+// POSTv1studiosdkversionsWarmupScheduleDeleteJSONRequestBody defines body for POSTv1studiosdkversionsWarmupScheduleDelete for application/json ContentType.
+type POSTv1studiosdkversionsWarmupScheduleDeleteJSONRequestBody POSTv1studiosdkversionsWarmupScheduleDeleteJSONBody
+
+// POSTv1studiosdkversionsWarmupScheduleGetJSONRequestBody defines body for POSTv1studiosdkversionsWarmupScheduleGet for application/json ContentType.
+type POSTv1studiosdkversionsWarmupScheduleGetJSONRequestBody POSTv1studiosdkversionsWarmupScheduleGetJSONBody
+
+// POSTv1studiosdkversionsWarmupScheduleSaveJSONRequestBody defines body for POSTv1studiosdkversionsWarmupScheduleSave for application/json ContentType.
+type POSTv1studiosdkversionsWarmupScheduleSaveJSONRequestBody POSTv1studiosdkversionsWarmupScheduleSaveJSONBody
 
 // AsInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7 returns the union data inside the Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits as a Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7
 func (t Input3964c20635e39005827a78b75abbae678d1d425d5e3783ee2cd62983d7fac49f_ResourceLimits) AsInput4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7() (Input4ca0e9f0d091dcbb3ede94d0e1764d347bd31ee37ff82a8f6a07189a2be8d2a7, error) {
@@ -7745,6 +7895,68 @@ func (t *Output4767292ff45ca739fbde17dcfac16967b1b00630ad105de675c19514080628f9_
 	return err
 }
 
+// AsOutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b returns the union data inside the Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule as a OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b
+func (t Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) AsOutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b() (OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b, error) {
+	var body OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b overwrites any union data inside the Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule as the provided OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b
+func (t *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) FromOutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b(v OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b performs a merge with any union data inside the Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule, using the provided OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b
+func (t *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) MergeOutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b(v OutputA91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutput48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1 returns the union data inside the Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule as a Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1
+func (t Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) AsOutput48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1() (Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1, error) {
+	var body Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1 overwrites any union data inside the Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule as the provided Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1
+func (t *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) FromOutput48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1(v Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1 performs a merge with any union data inside the Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule, using the provided Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1
+func (t *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) MergeOutput48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1(v Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8Schedule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8_Schedule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3 returns the union data inside the Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource as a Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3
 func (t Output4e575822fc494cb865728b6bd562f029cb8faec2fa4f5c96efdd7eb001314e68_DefaultResource) AsOutput0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3() (Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3, error) {
 	var body Output0516f5fffdcbf20bb491a3f59d6f0b5efe31353df52913cdf49923b03f6156e3
@@ -7869,6 +8081,68 @@ func (t *Output5ed634d1c74bb010a08c26559915f494ded8d053720f174c362df0724cd84c89_
 	return err
 }
 
+// AsOutput6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806 returns the union data inside the Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule as a Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806
+func (t Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) AsOutput6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806() (Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806, error) {
+	var body Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806 overwrites any union data inside the Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule as the provided Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806
+func (t *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) FromOutput6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806(v Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806 performs a merge with any union data inside the Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule, using the provided Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806
+func (t *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) MergeOutput6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806(v Output6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutput7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1 returns the union data inside the Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule as a Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1
+func (t Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) AsOutput7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1() (Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1, error) {
+	var body Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1 overwrites any union data inside the Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule as the provided Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1
+func (t *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) FromOutput7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1(v Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1 performs a merge with any union data inside the Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule, using the provided Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1
+func (t *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) MergeOutput7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1(v Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084Schedule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084_Schedule) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2 returns the union data inside the Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity as a Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2
 func (t Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) AsOutput5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2() (Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2, error) {
 	var body Output5a32149981358e9db6f11e125b58652c4e124015356f4895daea2d1e38cbc5f2
@@ -7927,6 +8201,68 @@ func (t Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_E
 }
 
 func (t *Output86a66b97d8718a98219f5bea5a2cc298728f5dfba2334ccda5e7a236791aaff7_Entity) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsOutput425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54 returns the union data inside the OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule as a Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54
+func (t OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) AsOutput425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54() (Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54, error) {
+	var body Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutput425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54 overwrites any union data inside the OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule as the provided Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54
+func (t *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) FromOutput425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54(v Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutput425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54 performs a merge with any union data inside the OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule, using the provided Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54
+func (t *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) MergeOutput425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54(v Output425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1 returns the union data inside the OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule as a OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1
+func (t OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) AsOutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1() (OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1, error) {
+	var body OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1 overwrites any union data inside the OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule as the provided OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1
+func (t *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) FromOutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1(v OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1 performs a merge with any union data inside the OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule, using the provided OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1
+func (t *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) MergeOutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1(v OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931Schedule1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931_Schedule) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -15652,6 +15988,30 @@ type ClientInterface interface {
 	// POSTv1studiosdkversionsWarmupList performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 	// Takes a body of the `application/json` content type.
 	POSTv1studiosdkversionsWarmupList(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleDeleteWithBody performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsWarmupScheduleDeleteWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleDelete performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsWarmupScheduleDelete(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, body POSTv1studiosdkversionsWarmupScheduleDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleGetWithBody performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsWarmupScheduleGetWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleGet performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsWarmupScheduleGet(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, body POSTv1studiosdkversionsWarmupScheduleGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleSaveWithBody performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request,
+	// with any type of body and a specified content type.
+	POSTv1studiosdkversionsWarmupScheduleSaveWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleSave performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request.
+	// Takes a body of the `application/json` content type.
+	POSTv1studiosdkversionsWarmupScheduleSave(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, body POSTv1studiosdkversionsWarmupScheduleSaveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 // POSTv1authzsdkauthorizationCheckWithBody performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request,
@@ -18292,6 +18652,90 @@ func (c *Client) POSTv1studiosdkversionsWarmupListWithBody(ctx context.Context, 
 // Takes a body of the `application/json` content type.
 func (c *Client) POSTv1studiosdkversionsWarmupList(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPOSTv1studiosdkversionsWarmupListRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleDeleteWithBody performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsWarmupScheduleDeleteWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupScheduleDeleteRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleDelete performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsWarmupScheduleDelete(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, body POSTv1studiosdkversionsWarmupScheduleDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupScheduleDeleteRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleGetWithBody performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsWarmupScheduleGetWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupScheduleGetRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleGet performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsWarmupScheduleGet(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, body POSTv1studiosdkversionsWarmupScheduleGetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupScheduleGetRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleSaveWithBody performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request,
+// with any type of body and a specified content type.
+func (c *Client) POSTv1studiosdkversionsWarmupScheduleSaveWithBody(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupScheduleSaveRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleSave performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request.
+// Takes a body of the `application/json` content type.
+func (c *Client) POSTv1studiosdkversionsWarmupScheduleSave(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, body POSTv1studiosdkversionsWarmupScheduleSaveJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPOSTv1studiosdkversionsWarmupScheduleSaveRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -22946,6 +23390,171 @@ func NewPOSTv1studiosdkversionsWarmupListRequestWithBody(server string, params *
 	return req, nil
 }
 
+// NewPOSTv1studiosdkversionsWarmupScheduleDeleteRequest calls the generic POSTv1studiosdkversionsWarmupScheduleDelete builder with application/json body
+func NewPOSTv1studiosdkversionsWarmupScheduleDeleteRequest(server string, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, body POSTv1studiosdkversionsWarmupScheduleDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsWarmupScheduleDeleteRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsWarmupScheduleDeleteRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmupScheduleDelete method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsWarmupScheduleDeleteRequestWithBody(server string, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.warmup_schedule_delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsWarmupScheduleGetRequest calls the generic POSTv1studiosdkversionsWarmupScheduleGet builder with application/json body
+func NewPOSTv1studiosdkversionsWarmupScheduleGetRequest(server string, params *POSTv1studiosdkversionsWarmupScheduleGetParams, body POSTv1studiosdkversionsWarmupScheduleGetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsWarmupScheduleGetRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsWarmupScheduleGetRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmupScheduleGet method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsWarmupScheduleGetRequestWithBody(server string, params *POSTv1studiosdkversionsWarmupScheduleGetParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.warmup_schedule_get")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewPOSTv1studiosdkversionsWarmupScheduleSaveRequest calls the generic POSTv1studiosdkversionsWarmupScheduleSave builder with application/json body
+func NewPOSTv1studiosdkversionsWarmupScheduleSaveRequest(server string, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, body POSTv1studiosdkversionsWarmupScheduleSaveJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPOSTv1studiosdkversionsWarmupScheduleSaveRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPOSTv1studiosdkversionsWarmupScheduleSaveRequestWithBody constructs an http.Request for the POSTv1studiosdkversionsWarmupScheduleSave method, with any body, and a specified content type
+func NewPOSTv1studiosdkversionsWarmupScheduleSaveRequestWithBody(server string, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/studio/sdk/versions.warmup_schedule_save")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XStudioNamespace != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Studio-Namespace", *params.XStudioNamespace, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Studio-Namespace", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -23967,6 +24576,36 @@ type ClientWithResponsesInterface interface {
 	// POSTv1studiosdkversionsWarmupListWithResponse performs a POST /v1/studio/sdk/versions.warmup_list (the `POSTv1studiosdkversionsWarmupList` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	POSTv1studiosdkversionsWarmupListWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupListParams, body POSTv1studiosdkversionsWarmupListJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupListResponse, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupScheduleDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleDeleteResponse, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleDeleteWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupScheduleDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, body POSTv1studiosdkversionsWarmupScheduleDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleDeleteResponse, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleGetWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupScheduleGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleGetResponse, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleGetWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupScheduleGetWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, body POSTv1studiosdkversionsWarmupScheduleGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleGetResponse, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleSaveWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request,
+	// with any type of body and a specified content type.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupScheduleSaveWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleSaveResponse, error)
+
+	// POSTv1studiosdkversionsWarmupScheduleSaveWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request.
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	POSTv1studiosdkversionsWarmupScheduleSaveWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, body POSTv1studiosdkversionsWarmupScheduleSaveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleSaveResponse, error)
 }
 
 type POSTv1authzsdkauthorizationCheckResponse struct {
@@ -27723,6 +28362,129 @@ func (r POSTv1studiosdkversionsWarmupListResponse) ContentType() string {
 	return ""
 }
 
+type POSTv1studiosdkversionsWarmupScheduleDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsWarmupScheduleDeleteResponse) GetJSON200() *Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsWarmupScheduleDeleteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsWarmupScheduleDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsWarmupScheduleDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsWarmupScheduleDeleteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsWarmupScheduleGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsWarmupScheduleGetResponse) GetJSON200() *OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsWarmupScheduleGetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsWarmupScheduleGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsWarmupScheduleGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsWarmupScheduleGetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type POSTv1studiosdkversionsWarmupScheduleSaveResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r POSTv1studiosdkversionsWarmupScheduleSaveResponse) GetJSON200() *Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8 {
+	return r.JSON200
+}
+
+// GetBody returns the raw response body bytes
+func (r POSTv1studiosdkversionsWarmupScheduleSaveResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r POSTv1studiosdkversionsWarmupScheduleSaveResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r POSTv1studiosdkversionsWarmupScheduleSaveResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r POSTv1studiosdkversionsWarmupScheduleSaveResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 // POSTv1authzsdkauthorizationCheckWithBodyWithResponse performs a POST /v1/authz/sdk/authorization.check (the `POSTv1authzsdkauthorizationCheck` operationId) request,
 // with any type of body and a specified content type.
 //
@@ -29791,6 +30553,72 @@ func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupListWithResponse(ctx 
 		return nil, err
 	}
 	return ParsePOSTv1studiosdkversionsWarmupListResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleDeleteWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupScheduleDeleteWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupScheduleDeleteWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupScheduleDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleDeleteWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_delete (the `POSTv1studiosdkversionsWarmupScheduleDelete` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupScheduleDeleteWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleDeleteParams, body POSTv1studiosdkversionsWarmupScheduleDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleDeleteResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupScheduleDelete(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupScheduleDeleteResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleGetWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupScheduleGetWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupScheduleGetWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupScheduleGetResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleGetWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_get (the `POSTv1studiosdkversionsWarmupScheduleGet` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupScheduleGetWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleGetParams, body POSTv1studiosdkversionsWarmupScheduleGetJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleGetResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupScheduleGet(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupScheduleGetResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleSaveWithBodyWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request,
+// with any type of body and a specified content type.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupScheduleSaveWithBodyWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleSaveResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupScheduleSaveWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupScheduleSaveResponse(rsp)
+}
+
+// POSTv1studiosdkversionsWarmupScheduleSaveWithResponse performs a POST /v1/studio/sdk/versions.warmup_schedule_save (the `POSTv1studiosdkversionsWarmupScheduleSave` operationId) request.
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) POSTv1studiosdkversionsWarmupScheduleSaveWithResponse(ctx context.Context, params *POSTv1studiosdkversionsWarmupScheduleSaveParams, body POSTv1studiosdkversionsWarmupScheduleSaveJSONRequestBody, reqEditors ...RequestEditorFn) (*POSTv1studiosdkversionsWarmupScheduleSaveResponse, error) {
+	rsp, err := c.POSTv1studiosdkversionsWarmupScheduleSave(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePOSTv1studiosdkversionsWarmupScheduleSaveResponse(rsp)
 }
 
 // ParsePOSTv1authzsdkauthorizationCheckResponse parses an HTTP response from a POSTv1authzsdkauthorizationCheckWithResponse call
@@ -32140,6 +32968,84 @@ func ParsePOSTv1studiosdkversionsWarmupListResponse(rsp *http.Response) (*POSTv1
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest Wire34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsWarmupScheduleDeleteResponse parses an HTTP response from a POSTv1studiosdkversionsWarmupScheduleDeleteWithResponse call
+func ParsePOSTv1studiosdkversionsWarmupScheduleDeleteResponse(rsp *http.Response) (*POSTv1studiosdkversionsWarmupScheduleDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsWarmupScheduleDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsWarmupScheduleGetResponse parses an HTTP response from a POSTv1studiosdkversionsWarmupScheduleGetWithResponse call
+func ParsePOSTv1studiosdkversionsWarmupScheduleGetResponse(rsp *http.Response) (*POSTv1studiosdkversionsWarmupScheduleGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsWarmupScheduleGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OutputA32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePOSTv1studiosdkversionsWarmupScheduleSaveResponse parses an HTTP response from a POSTv1studiosdkversionsWarmupScheduleSaveWithResponse call
+func ParsePOSTv1studiosdkversionsWarmupScheduleSaveResponse(rsp *http.Response) (*POSTv1studiosdkversionsWarmupScheduleSaveResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &POSTv1studiosdkversionsWarmupScheduleSaveResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Output48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

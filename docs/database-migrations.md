@@ -39,9 +39,10 @@ Each basename has both `.mysql.sql` and `.sqlite.sql` variants in
 | 26 | 27 | `027-namespace-settings` | Namespace settings and reader resource-check opt-in |
 | 27 | 28 | `028-permanent-removal` | Deletion receipts, version allocation counter, retained publication history |
 | 28 | 29 | `029-warmup-deadline` | Accepted warmup deadlines |
+| 29 | 30 | `030-warmup-schedules` | Durable interval schedules; existing run history unchanged |
 
-For example, layout 26 needs scripts 027, 028, and 029 in that order. Layout 29
-needs none. Missing, conflicting, older-than-23, or newer-than-29 layout markers
+For example, layout 26 needs scripts 027, 028, 029, and 030 in that order. Layout 30
+needs none. Missing, conflicting, older-than-23, or newer-than-30 layout markers
 need a separately reviewed upgrade path; do not guess or alter the marker.
 
 The marker is an operator guide, not proof of the physical schema. A previous
@@ -208,3 +209,15 @@ of shared Authz data with its other consumers.
 Migration 029 leaves historical deadlines `NULL`; those runs retain their
 `requested_at + 5m` budget. Newly accepted jobs store their configured deadline.
 See [warmup deadline configuration](warmup-dependency-runtime.md).
+
+## Recurring warmup schedules (29→30)
+
+Apply `schema/migrations/030-warmup-schedules.mysql.sql` or its `.sqlite.sql`
+counterpart after stopping writers and taking the backup described above.
+The migration creates one table and its due-time index, then records layout 30;
+it does not change existing run statuses, deadlines, diagnostics, or cached data.
+
+Before enabling the host scheduler, configure a renewing verified service
+credential provider and grant that identity ordinary warmup publish authority
+and required connector visibility. See [warmup scheduling](warmup-scheduling.md).
+The browser does not supply credentials, deadlines, or background execution inputs.

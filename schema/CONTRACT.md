@@ -70,3 +70,15 @@ Apply `029-warmup-deadline` explicitly after layout 28, with writers stopped and
 a backup. Startup continues to verify existing databases without altering them.
 Upgrade every recovery host before enabling longer warmup budgets: old binaries
 ignore the new deadline. No application database or public reader schema changes.
+
+Version 30 adds `component_warmup_schedules`, one interval schedule per numbered
+component version. It stores UTC cadence, an enabled flag, a revision token,
+audit fields, and an informational latest-run reference. There is no occurrence
+history table and no change to existing warmup-run rows. The version foreign key
+prevents dangling targets; native ownership checks retain namespace integrity.
+`namespaces.namespace_id` is not a unique relational key and is not referenced
+by a foreign key. Native removal graphs delete schedules with their owned version.
+
+Apply `030-warmup-schedules` explicitly after layout 29 with writers stopped.
+The host starts recurring triggering only when its verified system credential
+provider is supplied. Startup verifies existing storage without migrating it.

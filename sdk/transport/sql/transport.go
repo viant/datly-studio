@@ -317,6 +317,8 @@ func (t *Transport) Invoke(ctx context.Context, operation string, input, output 
 		return t.testVersionRelation(ctx, input, output)
 	case sdk.OperationVersionTestCompose:
 		return t.testVersionCompose(ctx, input, output)
+	case sdk.OperationWarmupScheduleGet, sdk.OperationWarmupScheduleSave, sdk.OperationWarmupScheduleDelete:
+		return t.ManageWarmupSchedule(ctx, operation, input, output)
 	case sdk.OperationVersionWarmup:
 		return t.warmupVersion(ctx, input, output)
 	case sdk.OperationVersionInvalidateCache:
@@ -494,7 +496,7 @@ func (t *Transport) authorize(ctx context.Context, operation string, input any) 
 	case sdk.OperationACLUpsert, sdk.OperationACLDelete,
 		sdk.OperationAuthorizationPredicateCreate, sdk.OperationAuthorizationPredicateGet, sdk.OperationAuthorizationPredicateList, sdk.OperationAuthorizationPredicateUpdate, sdk.OperationAuthorizationPredicateDelete, sdk.OperationAuthorizationPredicateTypes:
 		permission = "publish"
-	case sdk.OperationPublicationPublish, sdk.OperationPublicationRemove, sdk.OperationPublicationRollback, sdk.OperationPublicationEventsList, sdk.OperationRuntimeStatus, sdk.OperationVersionWarmup, sdk.OperationVersionWarmupGet, sdk.OperationVersionWarmupList, sdk.OperationVersionInvalidateCache:
+	case sdk.OperationPublicationPublish, sdk.OperationPublicationRemove, sdk.OperationPublicationRollback, sdk.OperationPublicationEventsList, sdk.OperationRuntimeStatus, sdk.OperationVersionWarmup, sdk.OperationVersionWarmupGet, sdk.OperationVersionWarmupList, sdk.OperationVersionInvalidateCache, sdk.OperationWarmupScheduleGet, sdk.OperationWarmupScheduleSave, sdk.OperationWarmupScheduleDelete:
 		permission = "publish"
 	}
 	// resolveNamespace has already verified the selected namespace's visibility.
@@ -2013,7 +2015,7 @@ func (t *Transport) warmupVersion(ctx context.Context, input, output any) error 
 	if strings.TrimSpace(in.ReportID) == "" || in.VersionNo <= 0 {
 		return invalid(errors.New("reportId and versionNo are required"))
 	}
-	return t.startWarmupRun(ctx, in, output)
+	return t.startWarmupRun(ctx, in, output, nil)
 }
 
 func (t *Transport) invalidateVersionCache(ctx context.Context, input, output any) error {

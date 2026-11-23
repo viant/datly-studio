@@ -11,6 +11,9 @@ import (
 	"flag"
 	"fmt"
 	versiondelete "github.com/viant/datly-studio/studio/report_versions/delete"
+	scheduledelete "github.com/viant/datly-studio/studio/report_warmup_schedules/delete"
+	scheduleget "github.com/viant/datly-studio/studio/report_warmup_schedules/get"
+	schedulesave "github.com/viant/datly-studio/studio/report_warmup_schedules/save"
 	componentdelete "github.com/viant/datly-studio/studio/reports/delete"
 	"os"
 	"path/filepath"
@@ -693,6 +696,30 @@ func run(ctx context.Context, output string) error {
 	if err != nil {
 		return err
 	}
+	schedulegetHandler, err := (scheduleget.Component{}).DatlyHandler("NewSchedule")()
+	if err != nil {
+		return err
+	}
+	scheduleget, err := compile(reflect.TypeFor[scheduleget.Component](), reflect.TypeFor[scheduleget.Input](), reflect.TypeFor[scheduleget.Output](), resources, types, codec, schedulegetHandler)
+	if err != nil {
+		return err
+	}
+	schedulesaveHandler, err := (schedulesave.Component{}).DatlyHandler("NewSchedule")()
+	if err != nil {
+		return err
+	}
+	schedulesave, err := compile(reflect.TypeFor[schedulesave.Component](), reflect.TypeFor[schedulesave.Input](), reflect.TypeFor[schedulesave.Output](), resources, types, codec, schedulesaveHandler)
+	if err != nil {
+		return err
+	}
+	scheduledeleteHandler, err := (scheduledelete.Component{}).DatlyHandler("NewSchedule")()
+	if err != nil {
+		return err
+	}
+	scheduledelete, err := compile(reflect.TypeFor[scheduledelete.Component](), reflect.TypeFor[scheduledelete.Input](), reflect.TypeFor[scheduledelete.Output](), resources, types, codec, scheduledeleteHandler)
+	if err != nil {
+		return err
+	}
 	versionWarmupHandler, err := (versionwarmup.Component{}).DatlyHandler("NewWarmup")()
 	if err != nil {
 		return err
@@ -907,7 +934,7 @@ func run(ctx context.Context, output string) error {
 
 	document, err := (openapi.Generator{}).Generate(ctx, openapi.Request{
 		Info:       openapi3.Info{Title: "Datly Studio SDK", Version: "1.0.0"},
-		Components: []*registry.RegisteredComponent{componentDelete, versionDelete, auditexportComponent, auditstatusComponent, auditconfigureComponent, auditlistComponent, auth, namedPolicy, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, codecTypes, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorDiscover, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSettingsGet, namespaceSettingsUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
+		Components: []*registry.RegisteredComponent{componentDelete, versionDelete, auditexportComponent, auditstatusComponent, auditconfigureComponent, auditlistComponent, auth, namedPolicy, policyGet, policyContext, policyCreate, policyReplace, authorizationCheck, accessList, accessGet, accessContext, accessReplace, aclList, aclDelete, aclUpsert, codecTypes, predicateTypes, predicateGet, predicateCreate, predicateUpdate, predicateDelete, predicateList, connectorList, connectorOne, connectorCreate, connectorDiscover, connectorSchemas, connectorTables, connectorTable, connectorTest, connectorTestSQL, previewExecution, connectorActivate, connectorDelete, connectorDisable, connectorUpdate, namespaceList, namespaceOne, namespaceCreate, namespaceDelete, namespaceUpdate, namespaceSettingsGet, namespaceSettingsUpdate, namespaceSkillList, namespaceSkillGet, namespaceSkillCreate, namespaceSkillUpdate, namespaceSkillDelete, namespaceSkillRevisions, namespaceSkillPublish, namespaceSkillUnpublish, reportList, reportOne, reportCreate, reportUpdate, publicationOne, publicationHistory, publicationPublish, publicationRollback, publicationUnpublish, versionOne, versionCreate, versionClone, versionLoad, versionArchive, versionInspect, versionApply, versionBuilder, versionValidate, versionTestView, versionTestRelation, versionTestCompose, versionWarmup, scheduleget, schedulesave, scheduledelete, versionPage, versionExport, versionDescriptor, versionDownload, resourceSnapshot, resourceUpsertFile, resourceDeleteFile, resourceUpsertFolder, resourceDeleteFolder, resourceUpsertSkill, resourceDeleteSkill, warmupOne, warmupPage, runtimeStatus},
 		Routes: []spec.RouteRef{
 			{Method: "POST", Path: "/v1/studio/sdk/components.delete"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.delete"},
@@ -988,6 +1015,10 @@ func run(ctx context.Context, output string) error {
 			{Method: "POST", Path: "/v1/studio/sdk/versions.test_relation"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.test_compose"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.warmup"},
+			{Method: "POST", Path: "/v1/studio/sdk/versions.warmup_schedule_get"},
+			{Method: "POST", Path: "/v1/studio/sdk/versions.warmup_schedule_save"},
+			{Method: "POST", Path: "/v1/studio/sdk/versions.warmup_schedule_delete"},
+
 			{Method: "POST", Path: "/v1/studio/sdk/versions.list"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.export_dql"},
 			{Method: "POST", Path: "/v1/studio/sdk/versions.descriptor"},

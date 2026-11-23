@@ -7,5 +7,5 @@ import "embed"
 // DatlyResourceNamespace identifies this package's generated resource filesystem.
 const ReportDatlyResourceNamespace = "studio_reports_store_removal_report"
 
-//go:embed "sql/bundle_bindings.sql" "sql/current_deletion.sql" "sql/current_report.sql" "sql/current_version.sql" "sql/deletion.sql" "sql/publications.sql" "sql/read.sql" "sql/report_keys.sql" "sql/version.sql" "sql/warmup.sql" "sql/warmup_snapshot.sql"
+//go:embed "sql/bundle_bindings.sql" "sql/current_deletion.sql" "sql/current_report.sql" "sql/current_schedule.sql" "sql/current_version.sql" "sql/deletion.sql" "sql/publications.sql" "sql/read.sql" "sql/report_keys.sql" "sql/schedule.sql" "sql/version.sql" "sql/warmup.sql" "sql/warmup_snapshot.sql"
 var ReportDatlyResources embed.FS

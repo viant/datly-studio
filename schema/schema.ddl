@@ -475,6 +475,29 @@ CREATE TABLE runtime_generations (
         CHECK (status IN ('building', 'active', 'failed', 'retired'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE component_warmup_schedules (
+    schedule_id VARCHAR(64) NOT NULL,
+    namespace_id VARCHAR(64) NOT NULL,
+    report_id VARCHAR(64) NOT NULL,
+    version_no INT NOT NULL,
+    interval_seconds BIGINT NOT NULL,
+    first_run_at DATETIME(6) NOT NULL,
+    next_due_at DATETIME(6) NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    revision BIGINT NOT NULL DEFAULT 1,
+    last_run_id VARCHAR(64) NULL,
+    created_at DATETIME(6) NOT NULL,
+    created_by VARCHAR(128) NOT NULL,
+    updated_at DATETIME(6) NOT NULL,
+    updated_by VARCHAR(128) NOT NULL,
+    PRIMARY KEY (schedule_id),
+    UNIQUE KEY uq_component_warmup_schedules_version (report_id, version_no),
+    CONSTRAINT fk_component_warmup_schedules_version FOREIGN KEY (report_id, version_no) REFERENCES component_versions(report_id, version_no),
+    CONSTRAINT chk_component_warmup_schedules_interval CHECK (interval_seconds > 0),
+    CONSTRAINT chk_component_warmup_schedules_revision CHECK (revision > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE INDEX idx_component_warmup_schedules_due ON component_warmup_schedules(enabled, next_due_at, schedule_id);
+
 CREATE TABLE component_warmup_runs (
     namespace_id            VARCHAR(64) NOT NULL DEFAULT '',
     run_id                  VARCHAR(64) NOT NULL,
@@ -709,7 +732,7 @@ CREATE TABLE schema_version (
     version                 INTEGER NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO schema_version(version) VALUES (29);
+INSERT INTO schema_version(version) VALUES (30);
 
 CREATE TABLE tool_call_audit (
     id BIGINT NOT NULL AUTO_INCREMENT,

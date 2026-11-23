@@ -20,12 +20,13 @@ type RemovalReport struct {
 
 // RemovalVersion is generated canonical view metadata for report.
 type RemovalVersion struct {
-	ReportId       string           `json:"reportId" sqlx:"report_id,primaryKey"`
-	NamespaceId    string           `json:"namespaceId" sqlx:"namespace_id"`
-	VersionNo      int              `json:"versionNo" sqlx:"version_no,primaryKey"`
-	SourceRevision *int64           `json:"sourceRevision" sqlx:"source_revision"`
-	ShouldDelete   bool             `json:"shouldDelete" sqlx:"should_delete"`
-	Warmup         []*RemovalWarmup `json:"warmup" on:"ReportId:version.report_id=ReportId:warmup.report_id,VersionNo:version.version_no=VersionNo:warmup.version_no" sql:"uri=studio_reports_store_removal_snapshot_report:sql/warmup.sql" view:"warmup,type=RemovalWarmup,table=component_warmup_runs,selectorNoLimit=true"`
+	ReportId       string             `json:"reportId" sqlx:"report_id,primaryKey"`
+	NamespaceId    string             `json:"namespaceId" sqlx:"namespace_id"`
+	VersionNo      int                `json:"versionNo" sqlx:"version_no,primaryKey"`
+	SourceRevision *int64             `json:"sourceRevision" sqlx:"source_revision"`
+	ShouldDelete   bool               `json:"shouldDelete" sqlx:"should_delete"`
+	Warmup         []*RemovalWarmup   `json:"warmup" on:"ReportId:version.report_id=ReportId:warmup.report_id,VersionNo:version.version_no=VersionNo:warmup.version_no" sql:"uri=studio_reports_store_removal_snapshot_report:sql/warmup.sql" view:"warmup,type=RemovalWarmup,table=component_warmup_runs,selectorNoLimit=true"`
+	Schedule       []*RemovalSchedule `json:"schedule" on:"ReportId:version.report_id=ReportId:schedule.report_id,VersionNo:version.version_no=VersionNo:schedule.version_no,NamespaceId:version.namespace_id=NamespaceId:schedule.namespace_id" sql:"uri=studio_reports_store_removal_snapshot_report:sql/schedule.sql" view:"schedule,type=RemovalSchedule,table=component_warmup_schedules,selectorNoLimit=true"`
 }
 
 // RemovalWarmup is generated canonical view metadata for report.
@@ -34,5 +35,15 @@ type RemovalWarmup struct {
 	ReportId     string `json:"reportId" sqlx:"report_id"`
 	VersionNo    int    `json:"versionNo" sqlx:"version_no"`
 	Status       string `json:"status" sqlx:"status"`
+	ShouldDelete bool   `json:"shouldDelete" sqlx:"should_delete"`
+}
+
+// RemovalSchedule is generated canonical view metadata for report.
+type RemovalSchedule struct {
+	ScheduleId   string `json:"scheduleId" sqlx:"schedule_id"`
+	NamespaceId  string `json:"namespaceId" sqlx:"namespace_id"`
+	ReportId     string `json:"reportId" sqlx:"report_id"`
+	VersionNo    int    `json:"versionNo" sqlx:"version_no"`
+	Revision     *int64 `json:"revision" sqlx:"revision"`
 	ShouldDelete bool   `json:"shouldDelete" sqlx:"should_delete"`
 }

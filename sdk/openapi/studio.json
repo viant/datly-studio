@@ -819,6 +819,26 @@
           }
         }
       },
+      "Input_6852a546610b3666465782addfd94d4137a3222a1fe550a71816b7cbc70fd233": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "firstRunAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "intervalSeconds": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Input_71f300e4492dfb2e7896f28bb40eda0284261da644ef97b9256cae2ba1742eee": {
         "type": "object",
         "properties": {
@@ -1037,6 +1057,15 @@
             "$ref": "#/components/schemas/Input_b1c1e89e6619cb826e546ecf8347ad7b1464c14d32806b70e5e920cf5d1d5578"
           },
           "revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Input_8ffbe5d1c054b261c896f089118618013bde63cf883b10712aca6ec3f6da9db8": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
             "type": "integer",
             "format": "int64"
           }
@@ -2570,6 +2599,61 @@
           }
         }
       },
+      "Output_425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "firstRunAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "intervalSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastRunId": {
+            "type": "string",
+            "nullable": true
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "nextDueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "scheduleId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Output_449a47a8e9ea6ae974f687ac5b55486e7e726cc8043ed75e896c8b78c8b99391": {
         "type": "object",
         "properties": {
@@ -2622,6 +2706,25 @@
           },
           "label": {
             "type": "string"
+          }
+        }
+      },
+      "Output_48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8": {
+        "type": "object",
+        "properties": {
+          "schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_a91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           }
         }
       },
@@ -2985,6 +3088,61 @@
           }
         }
       },
+      "Output_6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "firstRunAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "intervalSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastRunId": {
+            "type": "string",
+            "nullable": true
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "nextDueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "scheduleId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Output_6e81e11a33076e68bb3d8b58da936317e65e2cb7c08f61adc82433c8705924b4": {
         "type": "object",
         "properties": {
@@ -3098,6 +3256,25 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "Output_7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084": {
+        "type": "object",
+        "properties": {
+          "schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_6aee4788dadfdfc23b2234504c2b03c70227ad05253dad7018bb94773392b806"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
           }
         }
       },
@@ -3501,6 +3678,25 @@
           }
         }
       },
+      "Output_a32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931": {
+        "type": "object",
+        "properties": {
+          "schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Output_425499d46119a41d3d8b3213212df77a09654122a5763508e77c69040bdd9c54"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        }
+      },
       "Output_a620c9cdb7932d674689ffd84ac85dbcb429685fe710c1877cda1038de84d261": {
         "type": "object",
         "properties": {
@@ -3641,6 +3837,61 @@
           },
           "version": {
             "type": "string"
+          }
+        }
+      },
+      "Output_a91600a660b2dab58eb22cb43e342d31080469f0a247ad4d303ccaa3d831ca9b": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "firstRunAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "intervalSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastRunId": {
+            "type": "string",
+            "nullable": true
+          },
+          "namespaceId": {
+            "type": "string"
+          },
+          "nextDueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reportId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "scheduleId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -17051,6 +17302,176 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Wire_34bf0e88b3a420c7ebd2b96f24f5cb26490558416af1d276ad0e58ea91aac052"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/versions.warmup_schedule_delete": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/versions.warmup_schedule_delete",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "$ref": "#/components/schemas/Input_8ffbe5d1c054b261c896f089118618013bde63cf883b10712aca6ec3f6da9db8"
+                  },
+                  "reportId": {
+                    "type": "string"
+                  },
+                  "versionNo": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "reportId",
+                  "versionNo",
+                  "input"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_7aa496cd97c17b771884aede33cfa5ea7911baa4bf67722cd150158f4d483084"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/versions.warmup_schedule_get": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/versions.warmup_schedule_get",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reportId": {
+                    "type": "string"
+                  },
+                  "versionNo": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "reportId",
+                  "versionNo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_a32ef5ac0552e8e93e6757a06e1cf92e3c56c6678c58bd96e576fefc38207931"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/v1/studio/sdk/versions.warmup_schedule_save": {
+      "post": {
+        "operationId": "POST:/v1/studio/sdk/versions.warmup_schedule_save",
+        "parameters": [
+          {
+            "name": "X-Studio-Namespace",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "$ref": "#/components/schemas/Input_6852a546610b3666465782addfd94d4137a3222a1fe550a71816b7cbc70fd233"
+                  },
+                  "reportId": {
+                    "type": "string"
+                  },
+                  "versionNo": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "reportId",
+                  "versionNo",
+                  "input"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Output_48e3c2284cd7ee4ee0fc2a5ae16b582a5fb879d1b81d31a724501410ae7051e8"
                 }
               }
             }

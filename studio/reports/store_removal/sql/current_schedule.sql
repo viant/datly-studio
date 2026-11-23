@@ -1,0 +1,2 @@
+SELECT r.schedule_id, r.namespace_id, r.report_id, r.version_no, r.revision FROM (SELECT * FROM (SELECT s.schedule_id,s.namespace_id,s.report_id,s.version_no,s.revision,FALSE AS should_delete FROM component_warmup_schedules s
+) schedule) r WHERE $criteria.CompositeIn("r", $Unsafe.ProjectCurrentScheduleParentKeys($CurrentVersion))

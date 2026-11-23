@@ -181,3 +181,33 @@ func (h *ReceiptRules) AfterQueue(context.Context, *RemovalReceipt, xhandler.Lif
 	return nil
 }
 func (h *ReceiptRules) Finalize(context.Context, *Input, *Output, xhandler.Outcome) error { return nil }
+
+// ScheduleRules retains optimistic concurrency for a version-owned schedule.
+type ScheduleRules struct{}
+
+func ScheduleRulesDatlyType() reflect.Type { return reflect.TypeFor[ScheduleRules]() }
+
+var ScheduleRulesDatly = ScheduleRulesDatlyType()
+
+func (h *ScheduleRules) Init(ctx context.Context, row *RemovalSchedule, state xhandler.LifecycleContext[RemovalSchedule, RemovalVersion, Output]) error {
+	if row == nil || state.Previous == nil || !row.ShouldDelete || row.Revision == nil {
+		return dependency("Warmup schedule changed before deletion")
+	}
+	return nil
+}
+
+func (h *ScheduleRules) Validate(ctx context.Context, row *RemovalSchedule, state xhandler.LifecycleContext[RemovalSchedule, RemovalVersion, Output]) error {
+	return nil
+}
+
+func (h *ScheduleRules) AfterSequence(ctx context.Context, row *RemovalSchedule, state xhandler.LifecycleContext[RemovalSchedule, RemovalVersion, Output]) error {
+	return nil
+}
+
+func (h *ScheduleRules) AfterQueue(ctx context.Context, row *RemovalSchedule, state xhandler.LifecycleContext[RemovalSchedule, RemovalVersion, Output]) error {
+	return nil
+}
+
+func (h *ScheduleRules) Finalize(ctx context.Context, input *Input, output *Output, outcome xhandler.Outcome) error {
+	return nil
+}

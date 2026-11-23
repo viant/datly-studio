@@ -60,7 +60,7 @@ func warmupActor(ctx context.Context) sdk.Principal {
 	return sdk.SystemPrincipal()
 }
 
-func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityRequest, output any) error {
+func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityRequest, output any, schedule *sdk.WarmupSchedule) error {
 	timeout, err := warmupoperation.Timeout(t.WarmupOperationTimeout)
 	if err != nil {
 		return err
@@ -92,6 +92,11 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 		if active[0].ReportID != in.ReportID {
 			return internal(errors.New("warmup active-key reader returned a mismatched report"))
 		}
+		if schedule != nil {
+			if err := t.consumeWarmupSchedule(ctx, schedule, nil, active[0].RunID, t.now().UTC().Truncate(time.Microsecond)); err != nil {
+				return err
+			}
+		}
 		return assign(output, active[0])
 	}
 	runID, err := generatedWarmupRunID()
@@ -100,7 +105,7 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	}
 	now := t.now().UTC().Truncate(time.Microsecond)
 	deadline := now.Add(timeout).Truncate(time.Microsecond)
-	if err = t.writeWarmupRun(ctx, &storedwriter.StoredWarmupRun{NamespaceId: namespaceID, RunId: runID, ReportId: in.ReportID,
+	acceptedRow := &storedwriter.StoredWarmupRun{NamespaceId: namespaceID, RunId: runID, ReportId: in.ReportID,
 		VersionNo: in.VersionNo, SourceRevision: version.SourceRevision, SpecHash: version.SpecHash,
 		PlanKey: planKey, ActiveKey: &activeKey, Status: "accepted", RequestedBy: requestedBy,
 		TargetJson: json.RawMessage(`{}`), RequestedAt: now, DeadlineAt: &deadline, CreatedAt: &now, CreatedBy: &requestedBy,
@@ -108,7 +113,13 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 		Has: &storedwriter.StoredWarmupRunHas{NamespaceId: true, RunId: true, ReportId: true, VersionNo: true,
 			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
 			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true, DeadlineAt: true,
-			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}); err != nil {
+			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}
+	if schedule != nil {
+		err = t.consumeWarmupSchedule(ctx, schedule, acceptedRow, runID, now)
+	} else {
+		err = t.writeWarmupRun(ctx, acceptedRow)
+	}
+	if err != nil {
 		return classify(err, "warmup run", runID)
 	}
 	run, err := t.readWarmupRun(ctx, in.ReportID, runID)

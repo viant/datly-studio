@@ -41,6 +41,7 @@ type RemovalVersion struct {
 	SourceRevision *int64             `json:",omitempty" sqlx:"source_revision" writer:"concurrency"`
 	ShouldDelete   bool               `json:",omitempty" sqlx:"-" writer:"delete"`
 	Warmup         []*RemovalWarmup   `on:"ReportId:version.report_id=ReportId:warmup.report_id,VersionNo:version.version_no=VersionNo:warmup.version_no" sql:"uri=studio_reports_store_removal_report:sql/warmup.sql" view:"warmup,type=RemovalWarmup,entityHooks=WarmupRules,table=component_warmup_runs,selectorNoLimit=true"`
+	Schedule       []*RemovalSchedule `on:"ReportId:version.report_id=ReportId:schedule.report_id,VersionNo:version.version_no=VersionNo:schedule.version_no,NamespaceId:version.namespace_id=NamespaceId:schedule.namespace_id" sql:"uri=studio_reports_store_removal_report:sql/schedule.sql" view:"schedule,type=RemovalSchedule,entityHooks=ScheduleRules,table=component_warmup_schedules,selectorNoLimit=true"`
 	Has            *RemovalVersionHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"RemovalVersionHas"`
 }
 
@@ -51,6 +52,7 @@ type RemovalVersionHas struct {
 	SourceRevision bool
 	ShouldDelete   bool
 	Warmup         bool
+	Schedule       bool
 }
 
 // RemovalWarmup is generated canonical view metadata for report.
@@ -68,6 +70,26 @@ type RemovalWarmupHas struct {
 	ReportId     bool
 	VersionNo    bool
 	Status       bool
+	ShouldDelete bool
+}
+
+// RemovalSchedule is generated canonical view metadata for report.
+type RemovalSchedule struct {
+	ScheduleId   string              `json:",omitempty" sqlx:"schedule_id,primaryKey"`
+	NamespaceId  string              `json:",omitempty" sqlx:"namespace_id"`
+	ReportId     string              `json:",omitempty" sqlx:"report_id"`
+	VersionNo    int                 `json:",omitempty" sqlx:"version_no"`
+	Revision     *int64              `json:",omitempty" sqlx:"revision" writer:"concurrency"`
+	ShouldDelete bool                `json:",omitempty" sqlx:"-" writer:"delete"`
+	Has          *RemovalScheduleHas `diff:"-" format:"-" json:"-" setMarker:"true" sqlx:"-" typeName:"RemovalScheduleHas"`
+}
+
+type RemovalScheduleHas struct {
+	ScheduleId   bool
+	NamespaceId  bool
+	ReportId     bool
+	VersionNo    bool
+	Revision     bool
 	ShouldDelete bool
 }
 
@@ -127,6 +149,15 @@ type CurrentVersionView struct {
 	NamespaceId    string `json:"namespaceId,omitempty" sqlx:"namespace_id"`
 	VersionNo      int    `json:"versionNo,omitempty" sqlx:"version_no,primaryKey"`
 	SourceRevision *int64 `json:"sourceRevision,omitempty" sqlx:"source_revision"`
+}
+
+// CurrentScheduleView is generated canonical view metadata for report.
+type CurrentScheduleView struct {
+	ScheduleId  string `json:"scheduleId,omitempty" sqlx:"schedule_id,primaryKey"`
+	NamespaceId string `json:"namespaceId,omitempty" sqlx:"namespace_id"`
+	ReportId    string `json:"reportId,omitempty" sqlx:"report_id"`
+	VersionNo   int    `json:"versionNo,omitempty" sqlx:"version_no"`
+	Revision    *int64 `json:"revision,omitempty" sqlx:"revision"`
 }
 
 // CurrentDeletionView is generated canonical view metadata for report.

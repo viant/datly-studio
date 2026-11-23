@@ -80,7 +80,13 @@ func Execute(ctx context.Context, session xhandler.Session, request Request) (*s
 		if request.VersionNo > 0 && (version.SourceRevision == nil || *version.SourceRevision != request.ExpectedSourceRevision) {
 			return nil, publisherguard.PublicError(409, "Version source revision changed; reload before deleting")
 		}
-		selected := &stored.RemovalVersion{ReportId: version.ReportId, NamespaceId: version.NamespaceId, VersionNo: version.VersionNo, SourceRevision: version.SourceRevision, ShouldDelete: true, Has: &stored.RemovalVersionHas{ReportId: true, NamespaceId: true, VersionNo: true, SourceRevision: true, ShouldDelete: true, Warmup: true}}
+		selected := &stored.RemovalVersion{ReportId: version.ReportId, NamespaceId: version.NamespaceId, VersionNo: version.VersionNo, SourceRevision: version.SourceRevision, ShouldDelete: true, Has: &stored.RemovalVersionHas{ReportId: true, NamespaceId: true, VersionNo: true, SourceRevision: true, ShouldDelete: true, Warmup: true, Schedule: true}}
+		for _, schedule := range version.Schedule {
+			if schedule == nil {
+				continue
+			}
+			selected.Schedule = append(selected.Schedule, &stored.RemovalSchedule{ScheduleId: schedule.ScheduleId, NamespaceId: schedule.NamespaceId, ReportId: schedule.ReportId, VersionNo: schedule.VersionNo, Revision: schedule.Revision, ShouldDelete: true, Has: &stored.RemovalScheduleHas{ScheduleId: true, NamespaceId: true, ReportId: true, VersionNo: true, Revision: true, ShouldDelete: true}})
+		}
 		for _, run := range version.Warmup {
 			if run == nil {
 				continue

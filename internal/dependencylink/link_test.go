@@ -172,6 +172,13 @@ var linkedComponentHolders = []struct {
 	{"github.com/viant/datly-studio/studio/report_warmup_runs/store_expired", "WarmupRunComponent"},
 	{"github.com/viant/datly-studio/studio/report_warmup_runs/store_read", "WarmupRunComponent"},
 	{"github.com/viant/datly-studio/studio/report_warmup_runs/store_write", "WarmupRunComponent"},
+	{"github.com/viant/datly-studio/studio/report_warmup_schedules/get", "Component"},
+	{"github.com/viant/datly-studio/studio/report_warmup_schedules/save", "Component"},
+	{"github.com/viant/datly-studio/studio/report_warmup_schedules/delete", "Component"},
+	{"github.com/viant/datly-studio/studio/report_warmup_schedules/store_read", "ScheduleComponent"},
+	{"github.com/viant/datly-studio/studio/report_warmup_schedules/store_write", "ScheduleComponent"},
+	{"github.com/viant/datly-studio/studio/report_warmup_schedules/store_admit", "ScheduleComponent"},
+
 	{"github.com/viant/datly-studio/studio/report_publications/reader", "PublicationComponent"},
 	{"github.com/viant/datly-studio/studio/report_publications/get", "PublicationComponent"},
 	{"github.com/viant/datly-studio/studio/report_publications/mutate", "PublishComponent"},

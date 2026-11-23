@@ -1153,6 +1153,348 @@ func (index ReportHandlerCurrentVersionGroupedByReportIdAndNamespaceId) Has(key 
 	return ok
 }
 
+type ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey struct {
+	ReportId    string
+	VersionNo   int
+	NamespaceId string
+}
+
+func ReportHandlerCurrentVersionIndexByReportIdAndVersionNoAndNamespaceIdKey(value *CurrentVersionView) (ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey, bool) {
+	var zero ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey
+	if value == nil {
+		return zero, false
+	}
+	return ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey{ReportId: value.ReportId, VersionNo: value.VersionNo, NamespaceId: value.NamespaceId}, true
+}
+
+type ReportHandlerCurrentVersionIndexedByReportIdAndVersionNoAndNamespaceId map[ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey]*CurrentVersionView
+
+func (rows ReportHandlerCurrentVersionSlice) IndexByReportIdAndVersionNoAndNamespaceId() (ReportHandlerCurrentVersionIndexedByReportIdAndVersionNoAndNamespaceId, error) {
+	result := make(ReportHandlerCurrentVersionIndexedByReportIdAndVersionNoAndNamespaceId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentVersionIndexByReportIdAndVersionNoAndNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ReportHandlerCurrentVersionSlice.IndexByReportIdAndVersionNoAndNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ReportHandlerCurrentVersionIndexedByReportIdAndVersionNoAndNamespaceId) Has(key ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentVersionGroupedByReportIdAndVersionNoAndNamespaceId map[ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey][]*CurrentVersionView
+
+func (rows ReportHandlerCurrentVersionSlice) GroupByReportIdAndVersionNoAndNamespaceId() ReportHandlerCurrentVersionGroupedByReportIdAndVersionNoAndNamespaceId {
+	result := make(ReportHandlerCurrentVersionGroupedByReportIdAndVersionNoAndNamespaceId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentVersionIndexByReportIdAndVersionNoAndNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ReportHandlerCurrentVersionGroupedByReportIdAndVersionNoAndNamespaceId) Has(key ReportHandlerCurrentVersionReportIdAndVersionNoAndNamespaceIdKey) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleSlice []*CurrentScheduleView
+
+func ReportHandlerCurrentScheduleIndexByScheduleIdKey(value *CurrentScheduleView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.ScheduleId, true
+}
+
+type ReportHandlerCurrentScheduleIndexedByScheduleId map[string]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) IndexByScheduleId() (ReportHandlerCurrentScheduleIndexedByScheduleId, error) {
+	result := make(ReportHandlerCurrentScheduleIndexedByScheduleId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByScheduleIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ReportHandlerCurrentScheduleSlice.IndexByScheduleId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ReportHandlerCurrentScheduleIndexedByScheduleId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleGroupedByScheduleId map[string][]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) GroupByScheduleId() ReportHandlerCurrentScheduleGroupedByScheduleId {
+	result := make(ReportHandlerCurrentScheduleGroupedByScheduleId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByScheduleIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ReportHandlerCurrentScheduleGroupedByScheduleId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func ReportHandlerCurrentScheduleIndexByNamespaceIdKey(value *CurrentScheduleView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.NamespaceId, true
+}
+
+type ReportHandlerCurrentScheduleIndexedByNamespaceId map[string]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) IndexByNamespaceId() (ReportHandlerCurrentScheduleIndexedByNamespaceId, error) {
+	result := make(ReportHandlerCurrentScheduleIndexedByNamespaceId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ReportHandlerCurrentScheduleSlice.IndexByNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ReportHandlerCurrentScheduleIndexedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleGroupedByNamespaceId map[string][]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) GroupByNamespaceId() ReportHandlerCurrentScheduleGroupedByNamespaceId {
+	result := make(ReportHandlerCurrentScheduleGroupedByNamespaceId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ReportHandlerCurrentScheduleGroupedByNamespaceId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func ReportHandlerCurrentScheduleIndexByReportIdKey(value *CurrentScheduleView) (string, bool) {
+	var zero string
+	if value == nil {
+		return zero, false
+	}
+	return value.ReportId, true
+}
+
+type ReportHandlerCurrentScheduleIndexedByReportId map[string]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) IndexByReportId() (ReportHandlerCurrentScheduleIndexedByReportId, error) {
+	result := make(ReportHandlerCurrentScheduleIndexedByReportId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByReportIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ReportHandlerCurrentScheduleSlice.IndexByReportId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ReportHandlerCurrentScheduleIndexedByReportId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleGroupedByReportId map[string][]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) GroupByReportId() ReportHandlerCurrentScheduleGroupedByReportId {
+	result := make(ReportHandlerCurrentScheduleGroupedByReportId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByReportIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ReportHandlerCurrentScheduleGroupedByReportId) Has(key string) bool {
+	_, ok := index[key]
+	return ok
+}
+func ReportHandlerCurrentScheduleIndexByVersionNoKey(value *CurrentScheduleView) (int, bool) {
+	var zero int
+	if value == nil {
+		return zero, false
+	}
+	return value.VersionNo, true
+}
+
+type ReportHandlerCurrentScheduleIndexedByVersionNo map[int]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) IndexByVersionNo() (ReportHandlerCurrentScheduleIndexedByVersionNo, error) {
+	result := make(ReportHandlerCurrentScheduleIndexedByVersionNo)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByVersionNoKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ReportHandlerCurrentScheduleSlice.IndexByVersionNo")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ReportHandlerCurrentScheduleIndexedByVersionNo) Has(key int) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleGroupedByVersionNo map[int][]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) GroupByVersionNo() ReportHandlerCurrentScheduleGroupedByVersionNo {
+	result := make(ReportHandlerCurrentScheduleGroupedByVersionNo)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByVersionNoKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ReportHandlerCurrentScheduleGroupedByVersionNo) Has(key int) bool {
+	_, ok := index[key]
+	return ok
+}
+func ReportHandlerCurrentScheduleIndexByRevisionKey(value *CurrentScheduleView) (int64, bool) {
+	var zero int64
+	if value == nil {
+		return zero, false
+	}
+	if value.Revision == nil {
+		return zero, false
+	}
+	return *value.Revision, true
+}
+
+type ReportHandlerCurrentScheduleIndexedByRevision map[int64]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) IndexByRevision() (ReportHandlerCurrentScheduleIndexedByRevision, error) {
+	result := make(ReportHandlerCurrentScheduleIndexedByRevision)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByRevisionKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ReportHandlerCurrentScheduleSlice.IndexByRevision")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ReportHandlerCurrentScheduleIndexedByRevision) Has(key int64) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleGroupedByRevision map[int64][]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) GroupByRevision() ReportHandlerCurrentScheduleGroupedByRevision {
+	result := make(ReportHandlerCurrentScheduleGroupedByRevision)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByRevisionKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ReportHandlerCurrentScheduleGroupedByRevision) Has(key int64) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey struct {
+	ReportId    string
+	VersionNo   int
+	NamespaceId string
+}
+
+func ReportHandlerCurrentScheduleIndexByReportIdAndVersionNoAndNamespaceIdKey(value *CurrentScheduleView) (ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey, bool) {
+	var zero ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey
+	if value == nil {
+		return zero, false
+	}
+	return ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey{ReportId: value.ReportId, VersionNo: value.VersionNo, NamespaceId: value.NamespaceId}, true
+}
+
+type ReportHandlerCurrentScheduleIndexedByReportIdAndVersionNoAndNamespaceId map[ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) IndexByReportIdAndVersionNoAndNamespaceId() (ReportHandlerCurrentScheduleIndexedByReportIdAndVersionNoAndNamespaceId, error) {
+	result := make(ReportHandlerCurrentScheduleIndexedByReportIdAndVersionNoAndNamespaceId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByReportIdAndVersionNoAndNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("ambiguous application index ReportHandlerCurrentScheduleSlice.IndexByReportIdAndVersionNoAndNamespaceId")
+		}
+		result[key] = row
+	}
+	return result, nil
+}
+func (index ReportHandlerCurrentScheduleIndexedByReportIdAndVersionNoAndNamespaceId) Has(key ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey) bool {
+	_, ok := index[key]
+	return ok
+}
+
+type ReportHandlerCurrentScheduleGroupedByReportIdAndVersionNoAndNamespaceId map[ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey][]*CurrentScheduleView
+
+func (rows ReportHandlerCurrentScheduleSlice) GroupByReportIdAndVersionNoAndNamespaceId() ReportHandlerCurrentScheduleGroupedByReportIdAndVersionNoAndNamespaceId {
+	result := make(ReportHandlerCurrentScheduleGroupedByReportIdAndVersionNoAndNamespaceId)
+	for _, row := range rows {
+		key, ok := ReportHandlerCurrentScheduleIndexByReportIdAndVersionNoAndNamespaceIdKey(row)
+		if !ok {
+			continue
+		}
+		result[key] = append(result[key], row)
+	}
+	return result
+}
+func (index ReportHandlerCurrentScheduleGroupedByReportIdAndVersionNoAndNamespaceId) Has(key ReportHandlerCurrentScheduleReportIdAndVersionNoAndNamespaceIdKey) bool {
+	_, ok := index[key]
+	return ok
+}
+
 type ReportHandlerCurrentDeletionSlice []*CurrentDeletionView
 
 func ReportHandlerCurrentDeletionIndexByComponentIdKey(value *CurrentDeletionView) (string, bool) {
@@ -1387,22 +1729,26 @@ func (index ReportHandlerCurrentDeletionGroupedByDeletedBy) Has(key string) bool
 }
 
 type ReportHandlerReadIndexes struct {
-	Publications                                  ReportHandlerPublicationsSlice
-	BundleBindings                                ReportHandlerBundleBindingsSlice
-	WarmupSnapshot                                ReportHandlerWarmupSnapshotSlice
-	WarmupSnapshotByRunId                         ReportHandlerWarmupSnapshotIndexedByRunId
-	WarmupSnapshotGroupedByReportIdAndVersionNo   ReportHandlerWarmupSnapshotGroupedByReportIdAndVersionNo
-	CurrentReport                                 ReportHandlerCurrentReportSlice
-	CurrentReportById                             ReportHandlerCurrentReportIndexedById
-	CurrentReportGroupedByIdAndNamespaceId        ReportHandlerCurrentReportGroupedByIdAndNamespaceId
-	CurrentReportGroupedById                      ReportHandlerCurrentReportGroupedById
-	CurrentVersion                                ReportHandlerCurrentVersionSlice
-	CurrentVersionByKey                           ReportHandlerCurrentVersionIndexedByKey
-	CurrentVersionGroupedByReportIdAndNamespaceId ReportHandlerCurrentVersionGroupedByReportIdAndNamespaceId
-	CurrentVersionGroupedByKey                    ReportHandlerCurrentVersionGroupedByKey
-	CurrentDeletion                               ReportHandlerCurrentDeletionSlice
-	CurrentDeletionByComponentId                  ReportHandlerCurrentDeletionIndexedByComponentId
-	CurrentDeletionGroupedByComponentId           ReportHandlerCurrentDeletionGroupedByComponentId
+	Publications                                               ReportHandlerPublicationsSlice
+	BundleBindings                                             ReportHandlerBundleBindingsSlice
+	WarmupSnapshot                                             ReportHandlerWarmupSnapshotSlice
+	WarmupSnapshotByRunId                                      ReportHandlerWarmupSnapshotIndexedByRunId
+	WarmupSnapshotGroupedByReportIdAndVersionNo                ReportHandlerWarmupSnapshotGroupedByReportIdAndVersionNo
+	CurrentReport                                              ReportHandlerCurrentReportSlice
+	CurrentReportById                                          ReportHandlerCurrentReportIndexedById
+	CurrentReportGroupedByIdAndNamespaceId                     ReportHandlerCurrentReportGroupedByIdAndNamespaceId
+	CurrentReportGroupedById                                   ReportHandlerCurrentReportGroupedById
+	CurrentVersion                                             ReportHandlerCurrentVersionSlice
+	CurrentVersionByKey                                        ReportHandlerCurrentVersionIndexedByKey
+	CurrentVersionGroupedByReportIdAndNamespaceId              ReportHandlerCurrentVersionGroupedByReportIdAndNamespaceId
+	CurrentVersionGroupedByKey                                 ReportHandlerCurrentVersionGroupedByKey
+	CurrentVersionGroupedByReportIdAndVersionNoAndNamespaceId  ReportHandlerCurrentVersionGroupedByReportIdAndVersionNoAndNamespaceId
+	CurrentSchedule                                            ReportHandlerCurrentScheduleSlice
+	CurrentScheduleByScheduleId                                ReportHandlerCurrentScheduleIndexedByScheduleId
+	CurrentScheduleGroupedByReportIdAndVersionNoAndNamespaceId ReportHandlerCurrentScheduleGroupedByReportIdAndVersionNoAndNamespaceId
+	CurrentDeletion                                            ReportHandlerCurrentDeletionSlice
+	CurrentDeletionByComponentId                               ReportHandlerCurrentDeletionIndexedByComponentId
+	CurrentDeletionGroupedByComponentId                        ReportHandlerCurrentDeletionGroupedByComponentId
 }
 
 func BuildReportHandlerReadIndexes(ctx context.Context, input *Input) (*ReportHandlerReadIndexes, error) {
@@ -1795,6 +2141,88 @@ func BuildReportHandlerReadIndexes(ctx context.Context, input *Input) (*ReportHa
 		}
 		result.CurrentVersionGroupedByReportIdAndNamespaceId = result.CurrentVersion.GroupByReportIdAndNamespaceId()
 		result.CurrentVersionGroupedByKey = result.CurrentVersion.GroupByKey()
+		result.CurrentVersionGroupedByReportIdAndVersionNoAndNamespaceId = result.CurrentVersion.GroupByReportIdAndVersionNoAndNamespaceId()
+	}
+	{
+		projection, err := metadata.Projection("CurrentSchedule")
+		if err != nil {
+			return nil, err
+		}
+		if (xshape.Runtime{}).IsNil(projection) {
+			return nil, fmt.Errorf("application read projection is unavailable: CurrentSchedule")
+		}
+		inputAccess, err := xshape.Linked(reflect.TypeOf((*Input)(nil)).Elem()).Accessor("CurrentSchedule")
+		if err != nil {
+			return nil, err
+		}
+		carrier, err := inputAccess.Get(input)
+		if err != nil {
+			return nil, err
+		}
+		value := carrier.Interface()
+		if projection.DirectOutput() && projection.RootHolder() != "" {
+			return nil, fmt.Errorf("direct application read cannot declare a root holder")
+		}
+		if !projection.DirectOutput() {
+			holder := projection.RootHolder()
+			if holder == "" {
+				return nil, fmt.Errorf("wrapped read projection requires a canonical root holder")
+			}
+			accessor, err := xshape.Linked(carrier.Type()).Accessor(holder)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := (xshape.Collection[CurrentScheduleView]{}).Pointers(reflect.Zero(accessor.Type()).Interface()); err != nil {
+				return nil, err
+			}
+			root, present, err := accessor.GetOptional(value)
+			if err != nil {
+				return nil, err
+			}
+			if present {
+				value = root.Interface()
+			} else {
+				value = []*CurrentScheduleView(nil)
+			}
+		}
+		rows, err := (xshape.Collection[CurrentScheduleView]{}).Pointers(value)
+		if err != nil {
+			return nil, err
+		}
+		for ordinal, row := range rows {
+			if row == nil {
+				continue
+			}
+			loaded, err := projection.Fields(ordinal)
+			if err != nil {
+				return nil, err
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ScheduleId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentSchedule.ScheduleId")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("NamespaceId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentSchedule.NamespaceId")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("ReportId") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentSchedule.ReportId")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("VersionNo") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentSchedule.VersionNo")
+			}
+			if (xshape.Runtime{}).IsNil(loaded) || !loaded.Has("Revision") {
+				return nil, fmt.Errorf("application index field was not loaded: CurrentSchedule.Revision")
+			}
+		}
+		cloned, err := (xshape.Runtime{}).CloneValue(rows, xshape.CloneOptions{})
+		if err != nil {
+			return nil, err
+		}
+		result.CurrentSchedule = ReportHandlerCurrentScheduleSlice(cloned.([]*CurrentScheduleView))
+		result.CurrentScheduleByScheduleId, err = result.CurrentSchedule.IndexByScheduleId()
+		if err != nil {
+			return nil, err
+		}
+		result.CurrentScheduleGroupedByReportIdAndVersionNoAndNamespaceId = result.CurrentSchedule.GroupByReportIdAndVersionNoAndNamespaceId()
 	}
 	{
 		projection, err := metadata.Projection("CurrentDeletion")

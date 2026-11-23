@@ -30,6 +30,7 @@ import (
 	studiocodecs "github.com/viant/datly-studio/runtime/codecs"
 	runtimehost "github.com/viant/datly-studio/runtime/host"
 	"github.com/viant/datly-studio/runtime/namespacemcp"
+	"github.com/viant/datly-studio/sdk"
 	studiocatalog "github.com/viant/datly-studio/studio/catalog"
 	authoring "github.com/viant/datly-studio/studio/host"
 	namespacechange "github.com/viant/datly-studio/studio/namespaces/change"
@@ -48,6 +49,9 @@ type Endpoints struct{ HTTP, AdminMCP, NamespaceMCP, NativeHTTP string }
 // Options are trusted process bindings. Namespaces and application definitions
 // are never accepted here from browser or agent requests.
 type Options struct {
+	// WarmupSchedulerCredentials renews the verified service identity. Nil leaves
+	// recurring triggering disabled; schedules and manual warmup remain available.
+	WarmupSchedulerCredentials sdk.SystemCredentialProvider
 	// Brand is the linked application name; the separate Data Studio entry retains its own name.
 	Brand   string
 	Native  datlycmd.Options
@@ -359,6 +363,19 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 			return err
 		}
 		browser.Login = &studioapi.Login{AuthorizationURL: login.Endpoint.AuthURL, TokenURL: login.Endpoint.TokenURL, ClientID: login.ClientID, ClientSecret: login.ClientSecret, RedirectURL: origin + "/v1/studio/auth/callback", Scopes: login.Scopes}
+	}
+	if options.WarmupSchedulerCredentials != nil {
+		schedulerCtx, stopScheduler := context.WithCancel(ctx)
+		schedulerDone := make(chan struct{})
+		go func() {
+			defer close(schedulerDone)
+			if e := authoring.RunWarmupScheduler(schedulerCtx, db, authoringConfig, options.WarmupSchedulerCredentials, studiocodecs.New(readerJWT), func(err error) {
+				fmt.Fprintln(options.Diagnostics, "scheduled warmup admission did not complete:", err)
+			}); e != nil && schedulerCtx.Err() == nil {
+				fmt.Fprintln(options.Diagnostics, "warmup scheduler stopped:", e)
+			}
+		}()
+		defer func() { stopScheduler(); <-schedulerDone }()
 	}
 	if options.ConfigureBrowser != nil {
 		if err := options.ConfigureBrowser(&browser, endpoints, group); err != nil {

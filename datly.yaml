@@ -104,6 +104,12 @@ GoBootstrap:
     - github.com/viant/datly-studio/studio/report_versions/test_relation
     - github.com/viant/datly-studio/studio/report_versions/test_compose
     - github.com/viant/datly-studio/studio/report_versions/warmup
+    - github.com/viant/datly-studio/studio/report_warmup_schedules/get
+    - github.com/viant/datly-studio/studio/report_warmup_schedules/save
+    - github.com/viant/datly-studio/studio/report_warmup_schedules/delete
+    - github.com/viant/datly-studio/studio/report_warmup_schedules/store_read
+    - github.com/viant/datly-studio/studio/report_warmup_schedules/store_write
+    - github.com/viant/datly-studio/studio/report_warmup_schedules/store_admit
     - github.com/viant/datly-studio/studio/report_versions/store_head
     - github.com/viant/datly-studio/studio/report_versions/store_insert
     - github.com/viant/datly-studio/studio/report_versions/store_import

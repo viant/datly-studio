@@ -1606,6 +1606,33 @@ var postV1StudioSdkVersionsWarmupList = (options) => (options.client ?? client).
     ...options.headers
   }
 });
+var postV1StudioSdkVersionsWarmupScheduleDelete = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.warmup_schedule_delete",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsWarmupScheduleGet = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.warmup_schedule_get",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
+var postV1StudioSdkVersionsWarmupScheduleSave = (options) => (options.client ?? client).post({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/v1/studio/sdk/versions.warmup_schedule_save",
+  ...options,
+  headers: {
+    "Content-Type": "application/json",
+    ...options.headers
+  }
+});
 export {
   posTv1StudiosdkversionsInvalidateCache,
   postV1AuthzSdkAuthorizationCheck,
@@ -1698,5 +1725,8 @@ export {
   postV1StudioSdkVersionsValidate,
   postV1StudioSdkVersionsWarmup,
   postV1StudioSdkVersionsWarmupGet,
-  postV1StudioSdkVersionsWarmupList
+  postV1StudioSdkVersionsWarmupList,
+  postV1StudioSdkVersionsWarmupScheduleDelete,
+  postV1StudioSdkVersionsWarmupScheduleGet,
+  postV1StudioSdkVersionsWarmupScheduleSave
 };
