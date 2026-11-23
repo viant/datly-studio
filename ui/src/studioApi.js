@@ -14,6 +14,7 @@ import { postV1StudioSdkPreviewExecute } from './generated/studioClient.gen.js';
 import { postV1StudioSdkVersionsValidate } from './generated/studioClient.gen.js';
 import { postV1StudioSdkVersionsTestView, postV1StudioSdkVersionsTestRelation, postV1StudioSdkVersionsTestCompose } from './generated/studioClient.gen.js';
 import { postV1StudioSdkResourcesUpsertFile, postV1StudioSdkResourcesDeleteFile, postV1StudioSdkResourcesUpsertFolder, postV1StudioSdkResourcesDeleteFolder, postV1StudioSdkResourcesUpsertSkill, postV1StudioSdkResourcesDeleteSkill } from './generated/studioClient.gen.js';
+import {postV1StudioSdkVersionsWarmupScheduleGet,postV1StudioSdkVersionsWarmupScheduleSave,postV1StudioSdkVersionsWarmupScheduleDelete} from './generated/studioClient.gen.js';
 import { postV1StudioSdkVersionsBuilder } from './generated/studioClient.gen.js';
 import { postV1StudioSdkRuntimeStatus } from './generated/studioClient.gen.js';
 import { postV1StudioSdkPublicationsPublish, postV1StudioSdkPublicationsRollback, postV1StudioSdkPublicationsUnpublish } from './generated/studioClient.gen.js';
@@ -441,6 +442,9 @@ export class StudioAPI {
   testReaderView(reportId, versionNo, view, input = {}, limit = 50) { return this.nativeRequest(postV1StudioSdkVersionsTestView, 'versions.test_view', { reportId, versionNo, view, input: { input, limit } }); }
   testReaderRelation(reportId, versionNo, relation, input = {}, limit = 50) { return this.nativeRequest(postV1StudioSdkVersionsTestRelation, 'versions.test_relation', { reportId, versionNo, relation, input: { input, limit } }); }
   testCubeCompose(reportId, versionNo, input) { return this.nativeRequest(postV1StudioSdkVersionsTestCompose, 'versions.test_compose', { reportId, versionNo, input }); }
+  getWarmupSchedule(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsWarmupScheduleGet, 'versions.warmup_schedule_get', {reportId,versionNo}); }
+  saveWarmupSchedule(reportId, versionNo, input) { return this.nativeRequest(postV1StudioSdkVersionsWarmupScheduleSave, 'versions.warmup_schedule_save', {reportId,versionNo,input}); }
+  deleteWarmupSchedule(reportId, versionNo, input) { return this.nativeRequest(postV1StudioSdkVersionsWarmupScheduleDelete, 'versions.warmup_schedule_delete', {reportId,versionNo,input}); }
   warmupReader(reportId, versionNo) { return this.nativeRequest(postV1StudioSdkVersionsWarmup, 'versions.warmup', { reportId, versionNo }); }
   getWarmupRun(reportId, runId) { return this.nativeRequest(postV1StudioSdkVersionsWarmupGet, 'versions.warmup_get', { reportId, runId }); }
   listWarmupRuns(reportId, versionNo, input = {}) { return this.nativeRequest(postV1StudioSdkVersionsWarmupList, 'versions.warmup_list', { reportId, versionNo, input }); }

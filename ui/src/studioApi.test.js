@@ -996,3 +996,29 @@ test('predicate handler lookup carries the selected namespace and supports unsco
  await api.fetchMCPDataSource(source,{});
  assert.deepEqual(calls.at(-1),{operation:'authorization_predicates.types',input:{}});
 });
+
+test('warmup schedules preserve envelopes, exact cadence and zero/false mutation fields',async()=>{
+ const calls=[];const firstRunAt='2026-12-01T06:00:00.123456Z';
+ const api=new StudioAPI({mode:'development',apiBaseURL:'http://127.0.0.1:8080',development:{subject:'owner'}},{fetcher:async request=>{
+  calls.push({url:request.url,body:JSON.parse(await request.text())});
+  return response(calls.length===2?{schedule:{reportId:'reader',versionNo:2,revision:1,intervalSeconds:3601,firstRunAt,enabled:false}}:{});
+ }});
+ assert.deepEqual(await api.getWarmupSchedule('reader',2),{});
+ const input={expectedRevision:0,intervalSeconds:3601,firstRunAt,enabled:false};
+ const result=await api.saveWarmupSchedule('reader',2,input);assert.equal(result.schedule.enabled,false);assert.equal(result.schedule.firstRunAt,firstRunAt);
+ assert.deepEqual(await api.deleteWarmupSchedule('reader',2,{expectedRevision:1}),{});
+ assert.deepEqual(calls.map(call=>call.url.split('/').at(-1)),['versions.warmup_schedule_get','versions.warmup_schedule_save','versions.warmup_schedule_delete']);
+ assert.deepEqual(calls.map(call=>call.body),[{reportId:'reader',versionNo:2},{reportId:'reader',versionNo:2,input},{reportId:'reader',versionNo:2,input:{expectedRevision:1}}]);
+});
+
+test('warmup schedule MCP bindings retain namespace selection and reject late scope responses',async()=>{
+ const calls=[];let hold=false,release;
+ const api=new StudioAPI({mode:'authenticated',apiBaseURL:'https://studio.example',authentication:{mode:'bff'}},{nativeCallTool:async(name,input,options)=>{calls.push({name,input,headers:options.headers});if(hold)await new Promise(resolve=>{release=resolve;});return {};},fetcher:()=>{throw new Error('Unexpected HTTP fallback');}});
+ api.setNamespace('a'.repeat(64));
+ await api.getWarmupSchedule('reader',2);
+ const input={expectedRevision:0,intervalSeconds:3601,firstRunAt:'2026-12-01T06:00:00.123456Z',enabled:false};
+ await api.saveWarmupSchedule('reader',2,input);await api.deleteWarmupSchedule('reader',2,{expectedRevision:3});
+ assert.deepEqual(calls.map(call=>call.name),['studio.sdk.versions.warmup_schedule_get','studio.sdk.versions.warmup_schedule_save','studio.sdk.versions.warmup_schedule_delete']);
+ assert.deepEqual(calls[1].input,{reportId:'reader',versionNo:2,input});assert.ok(calls.every(call=>call.headers['X-Studio-Namespace']==='a'.repeat(64)));
+ hold=true;const pending=api.getWarmupSchedule('reader',2);await Promise.resolve();api.setNamespace('b'.repeat(64));release();await assert.rejects(pending,error=>error.code==='namespace_changed');
+});

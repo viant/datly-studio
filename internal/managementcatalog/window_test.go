@@ -179,3 +179,59 @@ func TestPortableWorkbenchBindsChildWindowsToProducerNamespace(t *testing.T) {
 		}
 	}
 }
+
+func TestWorkbenchWarmupScheduleBindings(t *testing.T) {
+	definitions, err := managementWindow(Config{Namespace: "custom-admin", ProviderIdentity: "studio", MCPService: "admin"}, "reader-workbench")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope types.WindowResourceEnvelope
+	if err = json.Unmarshal(definitions[0].JSON, &envelope); err != nil {
+		t.Fatal(err)
+	}
+	for _, variant := range envelope.Variants {
+		spec := variant.Window.View.Content.ReaderWorkbench
+		for name, operation := range map[string]string{"getWarmupSchedule": "get", "saveWarmupSchedule": "save", "deleteWarmupSchedule": "delete"} {
+			binding, ok := spec.Operations[name]
+			if !ok {
+				t.Fatalf("missing %s", name)
+			}
+			raw, _ := json.Marshal(binding)
+			var value map[string]any
+			if err = json.Unmarshal(raw, &value); err != nil {
+				t.Fatal(err)
+			}
+			if value["responseSelector"] != nil || value["responseDefault"] != nil {
+				t.Fatalf("schedule envelope was projected: %s", raw)
+			}
+			parameters := value["parameters"].(map[string]any)
+			if parameters["reportId"].(map[string]any)["arg"] != float64(0) || parameters["versionNo"].(map[string]any)["arg"] != float64(1) {
+				t.Fatalf("wrong identity arguments: %s", raw)
+			}
+			if operation != "get" && (value["mutation"] != true || parameters["input"].(map[string]any)["arg"] != float64(2)) {
+				t.Fatalf("mutation input is incomplete: %s", raw)
+			}
+		}
+	}
+	found := 0
+	for _, definition := range definitions {
+		var value struct {
+			DataSource ds.DataSource `json:"dataSource"`
+		}
+		if err = json.Unmarshal(definition.JSON, &value); err != nil {
+			t.Fatal(err)
+		}
+		for _, operation := range []string{"get", "save", "delete"} {
+			if value.DataSource.ID != "workbench_"+operation+"_warmup_schedule" {
+				continue
+			}
+			found++
+			if value.DataSource.Backend.Method != "studio.sdk.versions.warmup_schedule_"+operation || value.DataSource.Backend.Service != "admin" || value.DataSource.Cache == nil || value.DataSource.Cache.Enabled == nil || *value.DataSource.Cache.Enabled {
+				t.Fatalf("incorrect native schedule datasource: %+v", value.DataSource)
+			}
+		}
+	}
+	if found != 3 {
+		t.Fatalf("found %d schedule datasources", found)
+	}
+}

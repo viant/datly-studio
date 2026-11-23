@@ -299,6 +299,25 @@ window:
               versionNo: *a2
               input:
                 arg: 2
+          getWarmupSchedule:
+            dataSourceRef: workbench_get_warmup_schedule
+            parameters: *a3
+          saveWarmupSchedule:
+            dataSourceRef: workbench_save_warmup_schedule
+            mutation: true
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              input:
+                arg: 2
+          deleteWarmupSchedule:
+            dataSourceRef: workbench_delete_warmup_schedule
+            mutation: true
+            parameters:
+              reportId: *a1
+              versionNo: *a2
+              input:
+                arg: 2
           warmupReader:
             dataSourceRef: workbench_warmup_reader
             parameters: *a3
@@ -635,6 +654,30 @@ dataSources:
     backend:
       kind: mcp_tool
       method: studio.sdk.versions.test_compose
+    cache:
+      enabled: false
+  workbench_get_warmup_schedule:
+    id: workbench_get_warmup_schedule
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.warmup_schedule_get
+    cache:
+      enabled: false
+  workbench_save_warmup_schedule:
+    id: workbench_save_warmup_schedule
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.warmup_schedule_save
+    cache:
+      enabled: false
+  workbench_delete_warmup_schedule:
+    id: workbench_delete_warmup_schedule
+    cardinality: object
+    backend:
+      kind: mcp_tool
+      method: studio.sdk.versions.warmup_schedule_delete
     cache:
       enabled: false
   workbench_warmup_reader:
