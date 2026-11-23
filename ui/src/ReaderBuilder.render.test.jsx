@@ -212,7 +212,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     await screen.findByRole('heading',{name:'Component graph'});
     await user.click(screen.getByRole('button',{name:'Products',exact:true}));
     expect(await screen.findByText('lookup',{exact:true})).toBeTruthy();
-    await waitFor(()=>expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:true}));
+    await waitFor(()=>expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:true,includePreviewInput:false,includeEffectiveWarmup:false}));
     expect(api.getTable).not.toHaveBeenCalled();
   });
 
@@ -227,7 +227,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     await screen.findByRole('heading', { name: 'Component graph' });
     await user.click(screen.getByRole('button', { name: 'Products', exact: true }));
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Columns' }).parentElement.textContent).toContain('3 available'));
-    await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:true}));
+    await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:true,includePreviewInput:false,includeEffectiveWarmup:false}));
     expect(api.getTable).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: /CHANNEL c.NAME string field Edit/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: /CHANNEL_LABEL c.NAME string field Edit/ })).toBeTruthy();
@@ -277,12 +277,18 @@ describe('ReaderBuilder graph-first authoring', () => {
   test('sends scoped preview to the server and surfaces an authorization denial', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
+    inspection.version.reportId = 'vendor';
+    inspection.previewInput = {reportId:'vendor', versionNo:1, sourceRevision:4, schema:{type:'object', properties:{}}};
     inspection.structure.declarations = [{ parameter: { name: 'AuthorizedPublisherIDs', source: { kind: 'param', name: 'Auth.Scope.IDs' }, typeExpr: '[]int' } }];
     const api = { listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }), inspectVersion: vi.fn().mockResolvedValue(inspection), previewReader: vi.fn().mockRejectedValue(new Error('Verified publisher scope is unavailable')) };
     render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', defaultConnectorName: 'main' }} onBack={vi.fn()}/>);
     await screen.findByRole('heading', { name: 'Component graph' });
     expect(screen.getByRole('button', { name: 'Run preview', exact: true }).disabled).toBe(false);
     await user.click(screen.getByRole('button', { name: 'Run preview', exact: true }));
+    expect(api.previewReader).not.toHaveBeenCalled();
+    await waitFor(()=>expect(screen.getByRole('button',{name:'Run with parameters'}).disabled).toBe(false));
+    expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:false,includePreviewInput:true,includeEffectiveWarmup:false});
+    await user.click(screen.getByRole('button',{name:'Run with parameters'}));
     await waitFor(() => expect(api.previewReader).toHaveBeenCalledWith('vendor', 1, {}, 50, '/vendors', false));
     expect(await screen.findByText('Verified publisher scope is unavailable')).toBeTruthy();
     expect(screen.queryByText('UI preview is unavailable: this reader requires a verified runtime entity scope.')).toBeNull();
@@ -319,7 +325,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     await waitFor(()=>expect(screen.getByRole('button',{name:'Publish selected version'}).disabled).toBe(false));
     await user.click(screen.getByRole('button',{name:'Publish selected version'}));
     await screen.findByText('Published version is now v13 · generation 28.');
-    expect(api.inspectVersion.mock.calls.at(-1)).toEqual(['vendor',13,{discoverColumns:false}]);
+    expect(api.inspectVersion.mock.calls.at(-1)).toEqual(['vendor',13,{discoverColumns:false,includePreviewInput:false,includeEffectiveWarmup:false}]);
     expect(screen.getByRole('combobox',{name:'Publish version'}).value).toBe('13');
     const versionSelector=screen.getByRole('combobox',{name:'Component version'});
     expect(versionSelector.value).toBe('13');
@@ -350,6 +356,8 @@ describe('ReaderBuilder graph-first authoring', () => {
   test('opens preview without stacking workspaces and does not steal navigation on completion', async () => {
     const user=userEvent.setup();
     const inspection=readerFixture();
+    inspection.version.reportId = 'vendor';
+    inspection.previewInput = {reportId:'vendor', versionNo:1, sourceRevision:4, schema:{type:'object', properties:{}}};
     let finish;
     const api={listVersions:vi.fn().mockResolvedValue({items:[inspection.version]}),inspectVersion:vi.fn().mockResolvedValue(inspection),previewReader:vi.fn(()=>new Promise(resolve=>{finish=resolve;}))};
     forgeAPI(api,inspection);
@@ -359,6 +367,10 @@ describe('ReaderBuilder graph-first authoring', () => {
     expect(api.previewReader).not.toHaveBeenCalled();
     expect(screen.queryByRole('heading',{name:'Component graph'})).toBeNull();
     await user.click(screen.getByRole('button',{name:'Run preview',exact:true}));
+    expect(api.previewReader).not.toHaveBeenCalled();
+    await waitFor(()=>expect(screen.getByRole('button',{name:'Run with parameters'}).disabled).toBe(false));
+    expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:false,includePreviewInput:true,includeEffectiveWarmup:false});
+    await user.click(screen.getByRole('button',{name:'Run with parameters'}));
     expect(screen.getByRole('status').textContent).toContain('Running preview');
     await user.click(screen.getByRole('tab',{name:'Inputs',exact:true}));
     await user.click(screen.getByRole('button',{name:'Add input'}));
@@ -376,6 +388,8 @@ describe('ReaderBuilder graph-first authoring', () => {
   test('clears a prior preview when the next run is denied', async () => {
     const user = userEvent.setup();
     const inspection = readerFixture();
+    inspection.version.reportId = 'vendor';
+    inspection.previewInput = {reportId:'vendor', versionNo:1, sourceRevision:4, schema:{type:'object', properties:{}}};
     const api = {
       listVersions: vi.fn().mockResolvedValue({ items: [inspection.version] }),
       inspectVersion: vi.fn().mockResolvedValue(inspection),
@@ -384,6 +398,10 @@ describe('ReaderBuilder graph-first authoring', () => {
     render(<ReaderBuilder api={api} report={{ id: 'vendor', title: 'Vendor Catalog', namespace: 'general', defaultConnectorName: 'main' }} onBack={vi.fn()} />);
     await screen.findByRole('heading', { name: 'Component graph' });
     await user.click(screen.getByRole('button', { name: 'Run preview' }));
+    expect(api.previewReader).not.toHaveBeenCalled();
+    await waitFor(()=>expect(screen.getByRole('button',{name:'Run with parameters'}).disabled).toBe(false));
+    expect(api.inspectVersion).toHaveBeenCalledWith('vendor',1,{discoverColumns:false,includePreviewInput:true,includeEffectiveWarmup:false});
+    await user.click(screen.getByRole('button',{name:'Run with parameters'}));
     expect(await screen.findByRole('heading', { name: 'Reader preview' })).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'Run preview' }));
     await waitFor(() => expect(screen.getByText('Scoped preview denied')).toBeTruthy());
@@ -717,7 +735,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     await user.click(screen.getByRole('button', { name: 'Retry discovery' }));
     expect(await screen.findByRole('button', { name: /ID ID int vendor Settings/ })).toBeTruthy();
     expect(api.getTable).not.toHaveBeenCalled();
-    expect(api.inspectVersion).toHaveBeenCalledWith('retry',1,{discoverColumns:true});
+    expect(api.inspectVersion).toHaveBeenCalledWith('retry',1,{discoverColumns:true,includePreviewInput:false,includeEffectiveWarmup:false});
   });
 
   test('saves embedded SQL bytes without trimming its closing comment newline', async () => {
@@ -743,7 +761,7 @@ describe('ReaderBuilder graph-first authoring', () => {
   test('restores focus to the component heading after conflict reload', async () => {
     const user=userEvent.setup();
     const inspection=readerFixture();
-    const conflict=Object.assign(new Error('version source revision does not match'),{code:'conflict'});
+    const conflict=Object.assign(new Error('version source revision does not match'),{code:'conflict',field:'sourceRevision'});
     const api={
       listVersions:vi.fn().mockResolvedValue({items:[inspection.version]}),
       inspectVersion:vi.fn().mockResolvedValue(inspection),
@@ -789,7 +807,7 @@ describe('ReaderBuilder graph-first authoring', () => {
     const editor = await screen.findByRole('textbox',{name:'Vendor SQL source'});
     await user.clear(editor); await user.type(editor,structural.structure.views[0].sql);
     await user.click(screen.getByRole('button',{name:'Save SQL'}));
-    await waitFor(()=>expect(api.inspectVersion).toHaveBeenLastCalledWith('vendor',1,{discoverColumns:true}));
+    await waitFor(()=>expect(api.inspectVersion).toHaveBeenLastCalledWith('vendor',1,{discoverColumns:true,includePreviewInput:false,includeEffectiveWarmup:false}));
     await user.click(screen.getByRole('tab',{name:'Graph'}));
     await user.click(screen.getByRole('heading',{name:'Component graph'}).closest('.studio-graph-panel').querySelector('.studio-view-select'));
     await user.click(screen.getByRole('button',{name:'Manage columns'}));
@@ -830,7 +848,7 @@ test('ignores an old inspection after switching components', async () => {
     listConnectors: vi.fn().mockResolvedValue({items: []}),
   };
   const view = render(<ReaderBuilder api={api} report={{id: 'first', title: 'First', versionNo: 1}} onBack={vi.fn()}/>);
-  await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('first', 1, {discoverColumns:false}));
+  await waitFor(() => expect(api.inspectVersion).toHaveBeenCalledWith('first', 1, {discoverColumns:false,includePreviewInput:false,includeEffectiveWarmup:false}));
   view.rerender(<ReaderBuilder api={api} report={{id: 'second', title: 'Second', versionNo: 1}} onBack={vi.fn()}/>);
   await user.click(await screen.findByRole('button', {name: 'Edit component'}));
   expect(screen.getByText('/second-component', {exact: false})).toBeTruthy();
@@ -853,7 +871,7 @@ test('automatically requests SQL column discovery for aggregates without table c
  const graph=await screen.findByRole('heading',{name:'Component graph'});
  await user.click(graph.closest('.studio-graph-panel').querySelector('.studio-view-select'));
  expect(await screen.findByRole('button',{name:/TotalRows total_rows int/})).toBeTruthy();
- expect(api.inspectVersion).toHaveBeenCalledWith('aggregate',1,{discoverColumns:true});
+ expect(api.inspectVersion).toHaveBeenCalledWith('aggregate',1,{discoverColumns:true,includePreviewInput:false,includeEffectiveWarmup:false});
  expect(api.getTable).not.toHaveBeenCalled();
  await user.click(screen.getByRole('tab',{name:'Outputs',exact:true}));
  await user.click(screen.getByRole('tab',{name:'Result columns'}));
