@@ -26,6 +26,7 @@ import (
 	jwtlib "github.com/golang-jwt/jwt/v5"
 	accessstore "github.com/viant/authz/component/store/sql"
 	"github.com/viant/datly-studio/internal/bffauth"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/schema"
 	"github.com/viant/datly-studio/studio/predicatecatalog/testdata/extension"
 	mcpschema "github.com/viant/mcp-protocol/schema"
@@ -172,7 +173,7 @@ INSERT INTO tasks VALUES(1,101,'alpha-101'),(2,102,'beta-102'),(3,103,'gamma-103
 	}
 	for reportID, dql := range reports {
 		scope := "example.com/runtime/" + reportID
-		if _, err = studio.Exec(`INSERT INTO components(id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,?,?,'owner','active','source',?,?,1,?,?)`, reportID, reportID, reportID, scope, reportID, now, now); err != nil {
+		if _, err = studio.Exec(`INSERT INTO components(namespace_id,last_version_no,id,slug,title,owner_id,status,default_connector_name,component_scope,component_name,etag,created_at,updated_at) VALUES(?,1,?,?,?,'owner','active','source',?,?,1,?,?)`, namespaceaccess.ID("owner", "general"), reportID, reportID, reportID, scope, reportID, now, now); err != nil {
 			t.Fatal(err)
 		}
 		if _, err = studio.Exec(`INSERT INTO component_versions(report_id,version_no,state,authoring_mode,authored_dql,generated_dql,component_spec_json,spec_format_version,spec_hash,type_manifest_json,compile_status,datly_version,compiler_version,source_revision,created_by,created_at) VALUES(?,1,'published','dql',?,?,'{}','studio.v1','hash','{}','valid','v1','studio.v1',1,'owner',?)`, reportID, dql, dql, now); err != nil {

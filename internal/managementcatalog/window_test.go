@@ -22,8 +22,9 @@ func TestNamespaceWindowPortableContract(t *testing.T) {
 				byURI[definition.URI] = definition
 			}
 			// Includes two component deletion bindings, two catalog deletion
-			// datasources, and the workbench version-deletion datasource.
-			if len(definitions) != 273 || definitions[1].URI != "window://"+namespace+"/namespaces" {
+			// datasources, the workbench version-deletion datasource, and three
+			// warmup-schedule datasources (get, save, delete).
+			if len(definitions) != 276 || definitions[1].URI != "window://"+namespace+"/namespaces" {
 				t.Fatalf("unexpected resource count: %d", len(definitions))
 			}
 			var envelope types.WindowResourceEnvelope
