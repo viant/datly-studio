@@ -116,7 +116,7 @@ require (
 	github.com/viant/afsc v1.18.0 // indirect
 	github.com/viant/authz v0.1.2-0.20261120021755-0f9133fa20f0
 	github.com/viant/authz/component v0.0.0-20261022171511-cc9325165338
-	github.com/viant/forge v0.3.47-0.20261123223223-0bb81c082fef
+	github.com/viant/forge v0.3.47-0.20261124233543-904d810c091b
 	github.com/viant/gmetric v0.3.2 // indirect
 	github.com/viant/gosh v0.3.1-0.20261007222529-b829eaaf687b // indirect
 	github.com/viant/govalidator v0.3.4-0.20260913213120-027a9dd54d73 // indirect
