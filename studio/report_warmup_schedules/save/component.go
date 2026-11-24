@@ -20,7 +20,7 @@ type Input struct {
 	Auth        *studioauth.Output          `parameter:"Auth,kind=component,in=GET:/v1/studio/auth/context,dataType=*studioauth.Output,required=true" json:"-"`
 	ReportID    string                      `parameter:"ReportID,kind=body,in=reportId,dataType=string,required=true" json:"reportId"`
 	VersionNo   int                         `parameter:"VersionNo,kind=body,in=versionNo,dataType=int,required=true" json:"versionNo"`
-	Input       sdk.SaveWarmupScheduleInput `parameter:"Input,kind=body,in=input,dataType=sdk.SaveWarmupScheduleInput,required=true" json:"input"`
+	Input       sdk.SaveWarmupScheduleInput `parameter:"Input,kind=body,in=input,dataType=sdk.SaveWarmupScheduleInput,required=true,errorCode=400,errorMessage=Invalid schedule input: firstRunAt must be a complete RFC3339 timestamp including a timezone" json:"input"`
 }
 type Output struct {
 	Response *sdk.WarmupScheduleResult `parameter:"Response,kind=output,in=body,dataType=*sdk.WarmupScheduleResult" json:"-"`

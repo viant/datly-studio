@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"math"
 	"time"
+
+	"github.com/viant/datly-studio/sdk"
 )
 
 func Validate(seconds int64, first time.Time) error {
 	if seconds <= 0 || seconds > math.MaxInt64/int64(time.Second) {
-		return fmt.Errorf("intervalSeconds must be positive and fit a native duration")
+		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Field: "intervalSeconds", Message: "intervalSeconds must be positive and fit a native duration"}
 	}
-	if first.IsZero() {
-		return fmt.Errorf("firstRunAt is required")
+	stored := first.UTC().Truncate(time.Microsecond)
+	if stored.IsZero() || first.Year() < 1 || stored.Year() < 1 {
+		const message = "firstRunAt must be a complete, nonzero timestamp with a year of at least 1"
+		return &sdk.Error{Code: sdk.ErrorInvalidArgument, Field: "firstRunAt", Message: message,
+			Diagnostics: []sdk.Diagnostic{{Severity: "error", Code: "invalid_argument", Field: "firstRunAt", Message: message}}}
 	}
 	return nil
 }

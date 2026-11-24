@@ -779,6 +779,9 @@ LEFT JOIN (SELECT ID, NAME FROM RECORDS ${predicate.Builder().CombineAnd($predic
 			t.Fatal("timed out job retained its active key")
 		}
 	})
+	t.Run("schedule timestamp validation", func(t *testing.T) {
+		testWarmupScheduleTimestamps(ctx, t, db, namespace, bearer, addresses[0], addresses[1])
+	})
 	t.Run("recurring warmup management and service authorization", func(t *testing.T) {
 		testWarmupSchedules(ctx, t, db, namespace, bearer, addresses[0], authoring, jwtFixture, callRaw)
 	})

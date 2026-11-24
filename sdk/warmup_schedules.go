@@ -32,7 +32,7 @@ type WarmupSchedule struct {
 type SaveWarmupScheduleInput struct {
 	ExpectedRevision int64     `json:"expectedRevision"`
 	IntervalSeconds  int64     `json:"intervalSeconds"`
-	FirstRunAt       time.Time `json:"firstRunAt"`
+	FirstRunAt       time.Time `json:"firstRunAt" format:"timeLayout=2006-01-02T15:04:05Z07:00"`
 	Enabled          bool      `json:"enabled"`
 }
 type DeleteWarmupScheduleInput struct {

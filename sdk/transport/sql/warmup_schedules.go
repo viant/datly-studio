@@ -124,6 +124,10 @@ func (t *Transport) ManageWarmupSchedule(ctx context.Context, operation string, 
 		Input     sdk.SaveWarmupScheduleInput `json:"input"`
 	}
 	if e := decode(input, &in); e != nil {
+		var parseError *time.ParseError
+		if errors.As(e, &parseError) {
+			return &sdk.Error{Code: sdk.ErrorInvalidArgument, Field: "firstRunAt", Message: "firstRunAt must be a complete RFC3339 timestamp including a timezone", Cause: e}
+		}
 		return invalid(e)
 	}
 	if in.ReportID == "" || in.VersionNo <= 0 {
@@ -177,7 +181,7 @@ func (t *Transport) ManageWarmupSchedule(ctx context.Context, operation string, 
 	remove := operation == sdk.OperationWarmupScheduleDelete
 	if !remove {
 		if e := warmupschedule.Validate(in.Input.IntervalSeconds, in.Input.FirstRunAt); e != nil {
-			return invalid(e)
+			return e
 		}
 		first := in.Input.FirstRunAt.UTC().Truncate(time.Microsecond)
 		if current == nil || s.IntervalSeconds != in.Input.IntervalSeconds || !s.FirstRunAt.Equal(first) {
