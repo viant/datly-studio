@@ -4,6 +4,7 @@ import (
 	context "context"
 	"fmt"
 	"github.com/viant/datly-studio/internal/namespaceaccess"
+	"github.com/viant/datly-studio/internal/warmuplog"
 	rhandler "github.com/viant/datly/runtime/handler"
 	xhandler "github.com/viant/xdatly/handler"
 	reflect "reflect"
@@ -87,6 +88,7 @@ func (hooks *WarmupRunRules) AfterQueue(ctx context.Context, entity *StoredWarmu
 	return nil
 }
 func (hooks *WarmupRunRules) Finalize(ctx context.Context, input *Input, output *Output, outcome xhandler.Outcome) error {
+	warmuplog.RecordCompletion(ctx, outcome)
 	return nil
 }
 

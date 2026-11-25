@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/logtest"
 	"github.com/viant/datly-studio/sdk"
 	runwrite "github.com/viant/datly-studio/studio/report_warmup_runs/store_write"
 	"testing"
@@ -12,6 +13,7 @@ import (
 )
 
 func TestWarmupScheduleManagementAndAtomicAdmission(t *testing.T) {
+	logs := logtest.CaptureLogs(t)
 	f := newImportFixtureDSN(t, "?_txlock=immediate&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)")
 	v, e := f.client.Versions().Create(f.ctx, f.report.ID, sdk.CreateVersionInput{AuthoringMode: "dql", AuthoredDQL: "SELECT 1"})
 	if e != nil {
@@ -50,6 +52,12 @@ func TestWarmupScheduleManagementAndAtomicAdmission(t *testing.T) {
 	if e = f.transport.consumeWarmupSchedule(f.ctx, s, row, row.RunId, now); e == nil {
 		t.Fatal("child failure was ignored")
 	}
+	for _, event := range logs.Entries() {
+		if event["msg"] == "Studio warmup run admitted" {
+			t.Fatal("rolled-back admission was logged as committed")
+		}
+	}
+
 	after, e := f.client.Versions().GetWarmupSchedule(f.ctx, f.report.ID, v.VersionNo)
 	if e != nil || after.Schedule.Revision != 1 || !after.Schedule.NextDueAt.Equal(s.NextDueAt) {
 		t.Fatalf("partial schedule update %+v %v", after, e)
@@ -60,6 +68,19 @@ func TestWarmupScheduleManagementAndAtomicAdmission(t *testing.T) {
 	if e = f.transport.consumeWarmupSchedule(f.ctx, s, row, row.RunId, now); e != nil {
 		t.Fatal(e)
 	}
+	admitted := 0
+	for _, event := range logs.Entries() {
+		if event["msg"] == "Studio warmup run admitted" {
+			admitted++
+			if event["schedule_id"] != s.ScheduleID || event["namespace_id"] != s.NamespaceID || event["run_id"] != row.RunId || event["scheduled_occurrence"] != s.NextDueAt.Format(time.RFC3339Nano) || event["next_due_at"] != now.Add(time.Hour).Format(time.RFC3339Nano) {
+				t.Fatalf("admission correlation: %+v", event)
+			}
+		}
+	}
+	if admitted != 1 {
+		t.Fatalf("committed admission events=%d", admitted)
+	}
+
 	after, e = f.client.Versions().GetWarmupSchedule(f.ctx, f.report.ID, v.VersionNo)
 	if e != nil {
 		t.Fatal(e)
@@ -113,6 +134,7 @@ func TestWarmupScheduleInvalidConfiguration(t *testing.T) {
 }
 
 func TestWarmupScheduleCoversExistingActiveRun(t *testing.T) {
+	logs := logtest.CaptureLogs(t)
 	f := newImportFixtureDSN(t, "?_txlock=immediate&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)")
 	f.transport.Now = nil
 	v, e := f.client.Versions().Create(f.ctx, f.report.ID, sdk.CreateVersionInput{AuthoringMode: "dql", AuthoredDQL: "SELECT 1"})
@@ -143,6 +165,22 @@ func TestWarmupScheduleCoversExistingActiveRun(t *testing.T) {
 	if covered.RunID != manual.RunID {
 		t.Fatal("created a second run instead of coalescing")
 	}
+	coveredEvents := 0
+	for _, event := range logs.Entries() {
+		if event["msg"] == "Studio warmup run admitted" {
+			t.Fatal("coalescing reported a new run")
+		}
+		if event["msg"] == "Studio warmup occurrence covered" {
+			coveredEvents++
+			if event["run_id"] != manual.RunID || event["schedule_id"] != saved.Schedule.ScheduleID {
+				t.Fatalf("covered correlation: %+v", event)
+			}
+		}
+	}
+	if coveredEvents != 1 {
+		t.Fatalf("covered events=%d", coveredEvents)
+	}
+
 	after, e := f.client.Versions().GetWarmupSchedule(f.ctx, f.report.ID, v.VersionNo)
 	if e != nil || after.Schedule.Revision != 2 || after.Schedule.LastRunID == nil || *after.Schedule.LastRunID != manual.RunID {
 		t.Fatalf("coalesced schedule %+v %v", after, e)

@@ -83,3 +83,30 @@ A crash after acceptance commits but before dispatch can leave the run accepted
 without execution. Existing expiry recovery eventually marks it failed. This
 version does not resume accepted work after a crash and makes no exactly-once
 execution promise. Forge schedule management UI is a separate consuming change.
+
+## Lifecycle diagnostics
+
+Studio emits structured warmup lifecycle events through its existing server
+logger. Native view/cache logging remains controlled by the existing `Logging`
+configuration, including `IncludeSQL`; lifecycle events never include SQL,
+credentials, connection strings, or remote response bodies.
+
+Events distinguish confirmed admission from coverage by an existing active run.
+They include schedule, namespace, component/version, run, occurrence, and next-due
+identifiers where available. Worker diagnostics distinguish startup failures,
+execution outcomes, and terminal-persistence failures. Execution events report
+`execution_elapsed_ms`, native `completed_cases` and `entries`, and timeout
+information; they do not assert that the terminal status was persisted.
+`commit_uncertain` is emitted only for explicit native unknown-commit evidence.
+
+The scheduler reports its one-second polling interval at startup and its shutdown
+outcome after the loop and owned cleanup exit. This does not mean accepted workers
+have been joined. There are no successful-poll or token-reuse events.
+
+Repeated failures are scoped to one scheduler's credential provider, or to a
+schedule and owning stage. Studio logs the initial failure, bounded classification
+changes, summaries at most once per minute, and recovery after that same operation
+succeeds. Suppression tracks at most 1,024 keys with aggregate overflow reporting;
+idle keys expire after 15 minutes. Expiry, including after schedule removal, does
+not produce a recovery event. The optional legacy scheduler error callback remains
+available to embedders; the shared host no longer duplicates failures to stderr.

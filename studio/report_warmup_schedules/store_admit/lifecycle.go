@@ -3,9 +3,11 @@ package store_admit
 import (
 	context "context"
 	"fmt"
+	"github.com/viant/datly-studio/internal/warmuplog"
 	"github.com/viant/datly-studio/internal/warmupschedule"
 	"github.com/viant/datly-studio/sdk/executionguard"
 	xhandler "github.com/viant/xdatly/handler"
+	"log/slog"
 	reflect "reflect"
 )
 
@@ -58,5 +60,26 @@ func (hooks *ScheduleRules) AfterQueue(ctx context.Context, entity *StoredSchedu
 	return executionguard.Check(ctx)
 }
 func (hooks *ScheduleRules) Finalize(ctx context.Context, input *Input, output *Output, outcome xhandler.Outcome) error {
+	warmuplog.RecordCompletion(ctx, outcome)
+	if !outcome.CommitConfirmed() || input == nil {
+		return nil
+	}
+	for _, row := range input.Schedules {
+		if row == nil || row.LastRunId == nil {
+			continue
+		}
+		scope := warmuplog.Scope{ScheduleID: row.ScheduleId, NamespaceID: row.NamespaceId, ComponentID: row.ReportId, VersionNo: row.VersionNo, RunID: *row.LastRunId}
+		for _, previous := range input.CurrentSchedule {
+			if previous == nil || previous.ScheduleId != row.ScheduleId {
+				continue
+			}
+			event := "Studio warmup occurrence covered"
+			if len(row.Run) == 1 {
+				event = "Studio warmup run admitted"
+			}
+			warmuplog.Emit(ctx, slog.LevelInfo, event, scope, "scheduled_occurrence", previous.NextDueAt, "next_due_at", row.NextDueAt)
+			break
+		}
+	}
 	return nil
 }

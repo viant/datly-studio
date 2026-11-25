@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/viant/bindly/locator"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/internal/warmuplog"
 	"github.com/viant/datly-studio/sdk/executionguard"
 	"reflect"
 	"strings"
@@ -233,6 +234,11 @@ func (*handler) Exec(ctx context.Context, session xhandler.Session, input *Input
 			// bounded visibility deadline and let expiry recovery handle a crash.
 			time.Sleep(20 * time.Millisecond)
 		}
+		failure := jobCtx.Err()
+		if failure == nil {
+			failure = fmt.Errorf("accepted warmup commit was not visible within its bound")
+		}
+		warmuplog.Failure(jobCtx, warmuplog.Scope{NamespaceID: namespaceID, ComponentID: reportID, VersionNo: versionNo, RunID: runID}, "acceptance_visibility", "Studio warmup worker startup failed", failure)
 	}()
 	return nil
 }

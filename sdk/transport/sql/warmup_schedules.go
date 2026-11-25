@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/viant/bindly/resource"
 	"github.com/viant/datly-studio/internal/readercomponent"
+	"github.com/viant/datly-studio/internal/warmuplog"
 	"github.com/viant/datly-studio/internal/warmupschedule"
 	"github.com/viant/datly-studio/sdk"
 	runwrite "github.com/viant/datly-studio/studio/report_warmup_runs/store_write"
@@ -242,21 +243,30 @@ func (t *Transport) RunDueWarmupSchedules(ctx context.Context) error {
 	now := t.now().UTC()
 	rows, e := t.readWarmupSchedules(ctx, "", 0, &now)
 	if e != nil {
+		warmuplog.Failure(ctx, warmuplog.Scope{}, "schedule_scan", "Studio warmup schedule scan failed", e)
 		return e
 	}
+	warmuplog.Recovered(ctx, warmuplog.Scope{}, "schedule_scan")
 	var failures []error
 	for _, s := range rows {
 		if e := ctx.Err(); e != nil {
 			return e
 		}
-		selected := sdk.WithNamespaceSelection(ctx, s.NamespaceID)
+		scope := warmuplog.Scope{ScheduleID: s.ScheduleID, NamespaceID: s.NamespaceID, ComponentID: s.ReportID, VersionNo: s.VersionNo}
+		selected := sdk.WithNamespaceSelection(warmuplog.WithScope(ctx, scope), s.NamespaceID)
 		selected, e = t.resolveNamespace(selected)
-		if e == nil {
+		if e != nil {
+			warmuplog.Failure(ctx, scope, "namespace", "Studio warmup admission rejected", e)
+		} else {
+			warmuplog.Recovered(ctx, scope, "namespace")
 			e = t.authorize(selected, sdk.OperationVersionWarmup, versionIdentityRequest{ReportID: s.ReportID, VersionNo: s.VersionNo})
-		}
-		if e == nil {
-			var result sdk.WarmupRun
-			e = t.startWarmupRun(selected, versionIdentityRequest{ReportID: s.ReportID, VersionNo: s.VersionNo}, &result, s)
+			if e != nil {
+				warmuplog.Failure(ctx, scope, "authorization", "Studio warmup admission rejected", e)
+			} else {
+				warmuplog.Recovered(ctx, scope, "authorization")
+				var result sdk.WarmupRun
+				e = t.startWarmupRun(selected, versionIdentityRequest{ReportID: s.ReportID, VersionNo: s.VersionNo}, &result, s)
+			}
 		}
 		if e != nil {
 			failures = append(failures, fmt.Errorf("schedule %s: %w", s.ScheduleID, e))

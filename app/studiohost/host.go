@@ -369,11 +369,9 @@ func Serve(parent context.Context, config *hostconfig.Config, options Options) e
 		schedulerDone := make(chan struct{})
 		go func() {
 			defer close(schedulerDone)
-			if e := authoring.RunWarmupScheduler(schedulerCtx, db, authoringConfig, options.WarmupSchedulerCredentials, studiocodecs.New(readerJWT), func(err error) {
-				fmt.Fprintln(options.Diagnostics, "scheduled warmup admission did not complete:", err)
-			}); e != nil && schedulerCtx.Err() == nil {
-				fmt.Fprintln(options.Diagnostics, "warmup scheduler stopped:", e)
-			}
+			// The scheduler owns structured lifecycle/failure diagnostics. Keep the
+			// legacy error observer available to other embedders without duplicating it.
+			_ = authoring.RunWarmupScheduler(schedulerCtx, db, authoringConfig, options.WarmupSchedulerCredentials, studiocodecs.New(readerJWT), nil)
 		}()
 		defer func() { stopScheduler(); <-schedulerDone }()
 	}

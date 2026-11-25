@@ -2,21 +2,15 @@ package sqltransport
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
-	"log"
+	"github.com/viant/datly-studio/internal/logtest"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/viant/datly-studio/sdk"
 )
-
-type terminalDiagnosticLog chan string
-
-func (w terminalDiagnosticLog) Write(p []byte) (int, error) {
-	w <- string(p)
-	return len(p), nil
-}
 
 type terminalDiagnosticWarmup struct{ status string }
 
@@ -45,34 +39,65 @@ func TestWarmupTerminalPersistenceDiagnostic(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			messages := make(terminalDiagnosticLog, 8)
-			previous := log.Writer()
-			log.SetOutput(messages)
-			t.Cleanup(func() { log.SetOutput(previous) })
+			logs := logtest.CaptureLogs(t)
 			f.transport.Warmup = terminalDiagnosticWarmup{status: status}
 			run, err := f.client.Versions().Warmup(f.ctx, f.report.ID, v.VersionNo)
 			if err != nil {
 				t.Fatal(err)
 			}
-			select {
-			case message := <-messages:
-				for _, part := range []string{"Studio warmup terminal persistence failed:", run.RunID, f.report.ID, "version_no=1", `intended_status="` + status + `"`, "error_type="} {
-					if !strings.Contains(message, part) {
-						t.Fatalf("missing %q in diagnostic %q", part, message)
-					}
-				}
-				for _, secret := range []string{"private-storage-canary", "fixture-secret", "private execution error", "CREATE TRIGGER"} {
-					if strings.Contains(message, secret) {
-						t.Fatalf("diagnostic exposes private error detail: %q", message)
-					}
-				}
-			case <-time.After(3 * time.Second):
-				t.Fatal("terminal write failure was not logged")
+
+			waitCtx, cancel := context.WithTimeout(f.ctx, 3*time.Second)
+			defer cancel()
+			event := logs.Wait(waitCtx, t, "Studio warmup terminal persistence failed")
+			if event["run_id"] != run.RunID || event["component_id"] != f.report.ID || event["version_no"] != float64(1) || event["intended_status"] != status || event["stage"] != "terminal_persistence" || event["transaction_state"] != "rolled_back" {
+				t.Fatalf("persistence event: %+v", event)
 			}
+			execution := logs.Wait(waitCtx, t, "Studio warmup execution finished")
+			if execution["run_id"] != run.RunID || execution["outcome"] != status || execution["timed_out"] != (status == "partial") {
+				t.Fatalf("execution event: %+v", execution)
+			}
+			data, _ := json.Marshal(logs.Entries())
+			for _, secret := range []string{"private-storage-canary", "fixture-secret", "private execution error", "CREATE TRIGGER"} {
+				if strings.Contains(string(data), secret) {
+					t.Fatalf("diagnostic exposes private detail: %s", data)
+				}
+			}
+
 			persisted, err := f.client.Versions().WarmupRun(f.ctx, f.report.ID, run.RunID)
 			if err != nil || persisted.Status != "running" || persisted.CompletedAt != nil {
 				t.Fatalf("failed write must not fabricate a terminal record: %+v err=%v", persisted, err)
 			}
 		})
+	}
+}
+
+func TestWarmupStartupReadFailureDiagnostic(t *testing.T) {
+	f := newImportFixture(t)
+	version, err := f.client.Versions().Create(f.ctx, f.report.ID, sdk.CreateVersionInput{AuthoringMode: "dql", AuthoredDQL: "SELECT 1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The business operation must not run if its committed running record cannot
+	// be read. This fixture fault exercises the actual native transition/read.
+	if _, err = f.db.ExecContext(f.ctx, `CREATE TRIGGER remove_running AFTER UPDATE ON component_warmup_runs WHEN NEW.status='running' BEGIN DELETE FROM component_warmup_runs WHERE run_id=NEW.run_id; END`); err != nil {
+		t.Fatal(err)
+	}
+	logs := logtest.CaptureLogs(t)
+	warmup := &countedWarmup{status: "completed"}
+	f.transport.Warmup = warmup
+	run, err := f.client.Versions().Warmup(f.ctx, f.report.ID, version.VersionNo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(f.ctx, 3*time.Second)
+	defer cancel()
+	event := logs.Wait(ctx, t, "Studio warmup worker startup failed")
+	if event["run_id"] != run.RunID || event["stage"] != "worker_start_read" || warmup.calls != 0 {
+		t.Fatalf("startup failure: %+v calls=%d", event, warmup.calls)
+	}
+	for _, entry := range logs.Entries() {
+		if entry["msg"] == "Studio warmup execution finished" || entry["msg"] == "Studio warmup terminal persistence failed" {
+			t.Fatalf("startup incorrectly reported as execution/persistence completion: %+v", entry)
+		}
 	}
 }

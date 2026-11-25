@@ -7,9 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/viant/datly-studio/internal/warmuplog"
 	"github.com/viant/datly-studio/internal/warmupoperation"
 	"github.com/viant/datly-studio/sdk/executionguard"
-	"log"
+	"log/slog"
 	"reflect"
 	"strings"
 	"time"
@@ -60,15 +61,38 @@ func warmupActor(ctx context.Context) sdk.Principal {
 	return sdk.SystemPrincipal()
 }
 
-func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityRequest, output any, schedule *sdk.WarmupSchedule) error {
+func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityRequest, output any, schedule *sdk.WarmupSchedule) (err error) {
+	scope := warmuplog.FromContext(ctx)
+	if schedule != nil {
+		scope = warmuplog.Scope{ScheduleID: schedule.ScheduleID, NamespaceID: schedule.NamespaceID, ComponentID: in.ReportID, VersionNo: in.VersionNo}
+		ctx = warmuplog.WithScope(ctx, scope)
+	}
+	stage := "configuration"
+	advance := func(next string) {
+		if schedule != nil {
+			warmuplog.Recovered(ctx, scope, stage)
+		}
+		stage = next
+	}
+	defer func() {
+		if schedule != nil {
+			if err != nil {
+				warmuplog.Failure(ctx, scope, stage, "Studio warmup admission rejected", err)
+			} else {
+				warmuplog.Recovered(ctx, scope, stage)
+			}
+		}
+	}()
 	timeout, err := warmupoperation.Timeout(t.WarmupOperationTimeout)
 	if err != nil {
 		return err
 	}
+	advance("version_read")
 	version, err := t.getVersionValue(ctx, in.ReportID, in.VersionNo)
 	if err != nil {
 		return err
 	}
+	advance("namespace_read")
 	namespaceID, err := t.resourceWorkspaceID(ctx, nil, in.ReportID)
 	if err != nil {
 		return err
@@ -78,9 +102,11 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	activeKey := fmt.Sprintf("%s:%d:%s", in.ReportID, in.VersionNo, planKey)
 	t.warmupMu.Lock()
 	defer t.warmupMu.Unlock()
+	advance("expiry_recovery")
 	if err = t.recoverExpiredWarmupRuns(ctx, t.now()); err != nil {
 		return err
 	}
+	advance("active_run_read")
 	active, err := t.readWarmupRows(ctx, &storedreader.Input{ReportId: in.ReportID, ActiveKey: activeKey, PageLimit: 2})
 	if err != nil {
 		return internal(err)
@@ -93,12 +119,16 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 			return internal(errors.New("warmup active-key reader returned a mismatched report"))
 		}
 		if schedule != nil {
+			scope.RunID = active[0].RunID
+			advance("admission_commit")
 			if err := t.consumeWarmupSchedule(ctx, schedule, nil, active[0].RunID, t.now().UTC().Truncate(time.Microsecond)); err != nil {
 				return err
 			}
 		}
+		advance("response_projection")
 		return assign(output, active[0])
 	}
+	advance("run_identity")
 	runID, err := generatedWarmupRunID()
 	if err != nil {
 		return internal(err)
@@ -114,6 +144,7 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 			SourceRevision: true, SpecHash: true, PlanKey: true, ActiveKey: true,
 			Status: true, RequestedBy: true, TargetJson: true, RequestedAt: true, DeadlineAt: true,
 			CreatedAt: true, CreatedBy: true, UpdatedAt: true, UpdatedBy: true}}
+	advance("admission_commit")
 	if schedule != nil {
 		err = t.consumeWarmupSchedule(ctx, schedule, acceptedRow, runID, now)
 	} else {
@@ -122,6 +153,8 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	if err != nil {
 		return classify(err, "warmup run", runID)
 	}
+	scope.RunID = runID
+	advance("accepted_run_read")
 	run, err := t.readWarmupRun(ctx, in.ReportID, runID)
 	if err != nil {
 		return err
@@ -129,6 +162,7 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 	if run.UpdatedAt == nil {
 		return internal(errors.New("warmup run has no updated_at token"))
 	}
+	advance("dispatch")
 	jobCtx, cancel := context.WithDeadline(context.WithoutCancel(ctx), deadline)
 	jobCtx, releaseServerGuard := executionguard.Capture(jobCtx, ctx)
 	go func() {
@@ -136,23 +170,38 @@ func (t *Transport) startWarmupRun(ctx context.Context, in versionIdentityReques
 		defer cancel()
 		t.executeWarmupRun(jobCtx, runID, in.ReportID, in.VersionNo, *run.UpdatedAt)
 	}()
+	advance("response_projection")
 	return assign(output, run)
 }
 
 func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string, versionNo int, expectedUpdatedAt time.Time) {
+	scope := warmuplog.FromContext(ctx)
+	scope.ComponentID, scope.VersionNo, scope.RunID = reportID, versionNo, runID
 	started := t.now()
 	actor := warmupActor(ctx).Subject
 	if err := t.writeWarmupRun(context.WithoutCancel(ctx), &storedwriter.StoredWarmupRun{
 		RunId: runID, Status: "running", UpdatedAt: &expectedUpdatedAt, UpdatedBy: &actor, StartedAt: &started,
 		Has: &storedwriter.StoredWarmupRunHas{RunId: true, Status: true, UpdatedAt: true,
 			UpdatedBy: true, StartedAt: true}}); err != nil {
+		warmuplog.Failure(ctx, scope, "worker_start_write", "Studio warmup worker startup failed", err)
 		return
 	}
+	warmuplog.Recovered(ctx, scope, "worker_start_write")
 	startedRun, err := t.readWarmupRun(context.WithoutCancel(ctx), reportID, runID)
 	if err != nil || startedRun.UpdatedAt == nil {
+		if err == nil {
+			err = errors.New("warmup running token unavailable")
+		}
+		warmuplog.Failure(ctx, scope, "worker_start_read", "Studio warmup worker startup failed", err)
 		return
 	}
+	warmuplog.Recovered(ctx, scope, "worker_start_read")
+	if scope.NamespaceID == "" {
+		scope.NamespaceID, _ = sdk.NamespaceSelectionFromContext(ctx)
+	}
+	executionStarted := time.Now()
 	result, runErr := t.Warmup.Warmup(ctx, reportID, versionNo)
+	executionElapsed := time.Since(executionStarted)
 	completed := t.now()
 	status := "completed"
 	var diagnostics []sdk.Diagnostic
@@ -166,9 +215,19 @@ func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string
 	if result == nil {
 		result = &sdk.WarmupResult{}
 	}
+	fields := []any{"outcome", status, "execution_elapsed_ms", float64(executionElapsed) / float64(time.Millisecond), "completed_cases", result.CompletedCases, "entries", result.Entries, "timed_out", errors.Is(runErr, context.DeadlineExceeded)}
+	if deadline, ok := ctx.Deadline(); ok {
+		fields = append(fields, "deadline_at", deadline)
+	}
+	if runErr != nil {
+		code, message := warmuplog.Diagnostic(runErr)
+		fields = append(fields, "error_code", code, "diagnostic", message)
+	}
+	warmuplog.Emit(ctx, slog.LevelInfo, "Studio warmup execution finished", scope, fields...)
 	targetJSON, _ := json.Marshal(result.Target)
 	diagnosticsJSON, _ := json.Marshal(diagnostics)
-	if err := t.writeWarmupRun(context.WithoutCancel(ctx), &storedwriter.StoredWarmupRun{
+	persistCtx, completion := warmuplog.CaptureCompletion(context.WithoutCancel(ctx))
+	if err := t.writeWarmupRun(persistCtx, &storedwriter.StoredWarmupRun{
 		RunId: runID, Status: status, UpdatedAt: startedRun.UpdatedAt, UpdatedBy: &actor,
 		CacheName: warmupOptionalString(result.Target.CacheName), CacheProvider: warmupOptionalString(result.Target.CacheProvider),
 		ConnectorName: warmupOptionalString(result.Target.ConnectorName), IndexColumn: warmupOptionalString(result.Target.IndexColumn),
@@ -182,7 +241,9 @@ func (t *Transport) executeWarmupRun(ctx context.Context, runID, reportID string
 			Entries: true, DurationNs: true, TargetJson: true, DiagnosticsJson: true, CompletedAt: true}}); err != nil {
 		// Use the existing server log, not the run store that just failed.
 		// Storage error text can contain SQL, connection details or credentials.
-		log.Printf("Studio warmup terminal persistence failed: run_id=%q report_id=%q version_no=%d intended_status=%q error_type=%T", runID, reportID, versionNo, status, err)
+		warmuplog.Failure(ctx, scope, "terminal_persistence", "Studio warmup terminal persistence failed", err, append([]any{"intended_status", status}, completion.Fields()...)...)
+	} else {
+		warmuplog.Recovered(ctx, scope, "terminal_persistence")
 	}
 }
 

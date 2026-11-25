@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"errors"
-	"log"
+	"github.com/viant/datly-studio/internal/logtest"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -176,10 +176,7 @@ func TestWarmupTerminalNativeTransactionRetry(t *testing.T) {
 			f.transport.DB = db
 			warmup := &countedWarmup{status: tc.status}
 			f.transport.Warmup = warmup
-			messages := make(terminalDiagnosticLog, 8)
-			previous := log.Writer()
-			log.SetOutput(messages)
-			t.Cleanup(func() { log.SetOutput(previous) })
+			logs := logtest.CaptureLogs(t)
 			f.transport.ExecuteAcceptedWarmupRun(f.ctx, "retry-run", f.report.ID, v.VersionNo, now)
 			wantCalls := 1
 			if tc.persisted == "accepted" {
@@ -188,9 +185,25 @@ func TestWarmupTerminalNativeTransactionRetry(t *testing.T) {
 			if warmup.calls != wantCalls || fault.attempts.Load() != tc.attempts {
 				t.Fatalf("business executions=%d write attempts=%d, want %d/%d", warmup.calls, fault.attempts.Load(), wantCalls, tc.attempts)
 			}
-			if logged := len(messages) != 0; logged != tc.logged {
-				t.Fatalf("logged=%v want=%v", logged, tc.logged)
+
+			var terminalLogs, start, execution int
+			for _, event := range logs.Entries() {
+				switch event["msg"] {
+				case "Studio warmup terminal persistence failed":
+					terminalLogs++
+					if (event["commit_uncertain"] == true) != tc.unknownCommit {
+						t.Fatalf("uncertain commit: %+v", event)
+					}
+				case "Studio warmup worker startup failed":
+					start++
+				case "Studio warmup execution finished":
+					execution++
+				}
 			}
+			if (terminalLogs == 1) != tc.logged || execution != wantCalls || (start == 1) != (tc.persisted == "accepted") {
+				t.Fatalf("lifecycle logs terminal=%d start=%d execution=%d", terminalLogs, start, execution)
+			}
+
 			var status string
 			var completed sql.NullTime
 			var key sql.NullString
