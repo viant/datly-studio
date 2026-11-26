@@ -50,13 +50,13 @@ allowed-tools: missing.tool
 		}
 	}
 	versions := []studiors.Version{{ReportID: "report", VersionNo: 1}}
-	if err := validateSkillToolReferences(context.Background(), db, versions, nil); err != nil {
+	if err := validateSkillToolReferences(context.Background(), db, versions, nil, nil); err != nil {
 		t.Fatalf("exact identity: %v", err)
 	}
 	if _, err := db.Exec(`DELETE FROM component_resource_files WHERE report_id='report' AND version_no=1 AND namespace='guide.docs' AND resource_path='manual/nested/SKILL.md'`); err != nil {
 		t.Fatal(err)
 	}
-	err = validateSkillToolReferences(context.Background(), db, versions, nil)
+	err = validateSkillToolReferences(context.Background(), db, versions, nil, nil)
 	if !errors.Is(err, sql.ErrNoRows) || !strings.Contains(err.Error(), "skill guide content") {
 		t.Fatalf("missing exact content error = %v", err)
 	}

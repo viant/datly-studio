@@ -41,7 +41,7 @@ func TestValidateSkillToolReferencesRejectsUnknownAndDuplicateTools(t *testing.T
 		if _, err = db.Exec(`INSERT INTO component_resource_files VALUES('report',1,'guide.docs','guide/SKILL.md',?)`, content); err != nil {
 			t.Fatal(err)
 		}
-		return validateSkillToolReferences(context.Background(), db, []studiors.Version{{ReportID: "report", VersionNo: 1}}, []*registry.RegisteredComponent{component})
+		return validateSkillToolReferences(context.Background(), db, []studiors.Version{{ReportID: "report", VersionNo: 1}}, []*registry.RegisteredComponent{component}, nil)
 	}
 	if err = check("---\nname: guide\ndescription: Guide\nallowed-tools: records.read\n---\nUse it."); err != nil {
 		t.Fatalf("valid tool list: %v", err)

@@ -22,7 +22,7 @@ import (
 )
 
 func TestNamespaceColdStartIsolatesMissingReaderSource(t *testing.T) {
-	for _, failure := range []string{"missing_source", "invalid_dql", "invalid_resource", "broken_connector"} {
+	for _, failure := range []string{"missing_source", "invalid_dql", "invalid_resource", "broken_connector", "skill_references_broken"} {
 		t.Run(failure, func(t *testing.T) { testNamespaceReaderIsolation(t, failure) })
 	}
 }
@@ -76,6 +76,20 @@ SELECT r.*,type(r,'Row') FROM (SELECT id,name FROM %s) r`, id, id, id, table)
 	}
 	if failure == "invalid_resource" {
 		_, err = db.Exec(`INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('broken',1,'invalid','fixture','../escape','unsafe',6,'fixture',0,CURRENT_TIMESTAMP)`)
+		require.NoError(t, err)
+	}
+	if failure == "skill_references_broken" {
+		content := "---\nname: fixture-guide\ndescription: Requires both readers\nallowed-tools: healthy broken\n---\nUse the readers."
+		_, err = db.Exec(`INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('healthy',1,'guide','fixture','guide/SKILL.md',?,?,'fixture',0,CURRENT_TIMESTAMP)`, []byte(content), len(content))
+		require.NoError(t, err)
+		_, err = db.Exec(`INSERT INTO component_resource_folders(report_id,version_no,folder_id,namespace,root_path,uri_prefix,ordinal) VALUES('healthy',1,'docs','fixture','guide','skill://fixture-guide/',0)`)
+		require.NoError(t, err)
+		_, err = db.Exec(`INSERT INTO component_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES('healthy',1,'fixture-guide','docs','.',0)`)
+		require.NoError(t, err)
+		content = "---\nname: independent-guide\ndescription: Uses a healthy reader\nallowed-tools: healthy\n---\nUse the healthy reader."
+		_, err = db.Exec(`INSERT INTO component_resource_files(report_id,version_no,resource_id,namespace,resource_path,content,content_size,content_sha256,is_binary,created_at) VALUES('healthy',1,'independent','fixture','guide/independent-guide/SKILL.md',?,?,'fixture-2',0,CURRENT_TIMESTAMP)`, []byte(content), len(content))
+		require.NoError(t, err)
+		_, err = db.Exec(`INSERT INTO component_skill_roots(report_id,version_no,skill_id,folder_id,skill_root,ordinal) VALUES('healthy',1,'independent-guide','docs','independent-guide',1)`)
 		require.NoError(t, err)
 	}
 	config := Config{NamespaceID: ns, HTTP: Listener{Address: "127.0.0.1:0"}, MCP: Listener{Address: "127.0.0.1:0"}, Authentication: Authentication{DefaultMode: "public"}, Studio: Studio{Driver: "sqlite", DSN: dsn}, Admin: Admin{Token: "fixture"}, RootDir: root}
@@ -137,6 +151,22 @@ SELECT r.*,type(r,'Row') FROM (SELECT id,name FROM %s) r`, id, id, id, table)
 		require.NoError(t, json.NewDecoder(resp.Body).Decode(&result))
 		return result
 	}
+	verifySkills := func(dependentAvailable bool) {
+		t.Helper()
+		result := call("skills/list", map[string]any{})
+		require.Nil(t, result["error"])
+		body, e := json.Marshal(result["result"])
+		require.NoError(t, e)
+		require.Contains(t, string(body), "independent-guide")
+		if dependentAvailable {
+			require.Contains(t, string(body), "Requires both readers")
+		} else {
+			require.NotContains(t, string(body), "Requires both readers")
+		}
+	}
+	if failure == "skill_references_broken" {
+		verifySkills(false)
+	}
 	listed := call("tools/list", map[string]any{})
 	encoded, _ := json.Marshal(listed)
 	require.Contains(t, string(encoded), `"name":"healthy"`)
@@ -179,6 +209,9 @@ SELECT r.*,type(r,'Row') FROM (SELECT id,name FROM %s) r`, id, id, id, table)
 	}
 	require.NoError(t, service.Reload(ctx, 0))
 	require.Empty(t, service.RuntimeDiagnostics())
+	if failure == "skill_references_broken" {
+		verifySkills(true)
+	}
 	response, err = http.Get("http://" + address + "/broken")
 	require.NoError(t, err)
 	data, err = io.ReadAll(response.Body)

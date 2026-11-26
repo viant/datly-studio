@@ -44,6 +44,11 @@ the unavailable component, version and preparation stage; publication state is
 not rewritten as a successful new publication. Repair the source or dependency,
 then reload through the existing publication/runtime workflow.
 
+If a component skill references an unavailable tool during recovery, the
+runtime omits that skill from discovery until the next successful load of its
+dependencies. Other declared skills in the same resource folder remain
+discoverable. Normal resource permissions continue to govern the folder's files.
+
 New candidate publications and exact-version validation remain strict and
 atomic. Cancellation, shared catalog/identity failures and namespace-wide
 security changes do not become successful partial publications. Row

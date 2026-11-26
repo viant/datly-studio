@@ -705,8 +705,30 @@ func (s *Service) compileDefinitionsObserved(ctx context.Context, seed *typecata
 		}
 		loadedResources.Folders = folders
 	}
-	if err = validateSkillToolReferences(ctx, s.studio, versions, registrations); err != nil {
+	var onMissingSkillTool func(skillRootKey, string)
+	var unavailableSkills map[skillRootKey]bool
+	if len(failed) > 0 {
+		unavailableSkills = map[skillRootKey]bool{}
+		onMissingSkillTool = func(key skillRootKey, id string) {
+			unavailableSkills[key] = true
+			slog.WarnContext(ctx, "Studio skill references an unavailable tool", "namespaceId", s.config.NamespaceID, "componentId", key.reportID, "skillId", id)
+		}
+	}
+	if err = validateSkillToolReferences(ctx, s.studio, versions, registrations, onMissingSkillTool); err != nil {
 		return nil, err
+	}
+	if len(unavailableSkills) > 0 {
+		for i := range loadedResources.Folders {
+			folder := &loadedResources.Folders[i]
+			reportID := loadedResources.ResourceReports[folder.URIPrefix]
+			retained := folder.Skills[:0]
+			for _, root := range folder.Skills {
+				if !unavailableSkills[skillRootKey{reportID, folder.Namespace, folder.Root, root}] {
+					retained = append(retained, root)
+				}
+			}
+			folder.Skills = retained
+		}
 	}
 	// Published components bind their access context as an ordinary Datly
 	// component dependency; the context component is server-owned and
@@ -865,10 +887,15 @@ func requireReaderOnlyContract(component *spec.Component) error {
 	return nil
 }
 
+type skillRootKey struct {
+	reportID, namespace, folder, root string
+}
+
 // validateSkillToolReferences makes the frontmatter contract authoritative at
 // publication time. UI selection is helpful, but direct SDK callers must not
 // be able to publish a skill that names a non-existent tool.
-func validateSkillToolReferences(ctx context.Context, db *sql.DB, versions []studiors.Version, components []*registry.RegisteredComponent) error {
+// During recovery, the caller may omit skill roots whose tools are unavailable.
+func validateSkillToolReferences(ctx context.Context, db *sql.DB, versions []studiors.Version, components []*registry.RegisteredComponent, onMissingTool func(skillRootKey, string)) error {
 	// Native skills/list and skills/get are protocol methods, not callable tools.
 	// Frontmatter tool references must name an actual published component tool.
 	known := map[string]bool{}
@@ -918,6 +945,7 @@ func validateSkillToolReferences(ctx context.Context, db *sql.DB, versions []stu
 				return fmt.Errorf("skill %s: %w", skillID, parseErr)
 			}
 			seen := map[string]bool{}
+			missingTool := false
 			for _, name := range items {
 				if strings.TrimSpace(name) == "" {
 					return fmt.Errorf("skill %s has an invalid tool reference", skillID)
@@ -927,8 +955,14 @@ func validateSkillToolReferences(ctx context.Context, db *sql.DB, versions []stu
 				}
 				seen[name] = true
 				if !known[name] {
-					return fmt.Errorf("skill %s references MCP tool %q absent from this generation", skillID, name)
+					if onMissingTool == nil {
+						return fmt.Errorf("skill %s references MCP tool %q absent from this generation", skillID, name)
+					}
+					missingTool = true
 				}
+			}
+			if missingTool {
+				onMissingTool(skillRootKey{version.ReportID, namespace, folder, root}, skillID)
 			}
 		}
 	}
