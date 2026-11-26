@@ -148,13 +148,14 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 		return nil, fmt.Errorf("dynamic runtime status returned %s", response.Status)
 	}
 	var payload struct {
-		NamespaceID        string `json:"namespaceId"`
-		MCPURL             string `json:"mcpUrl"`
-		AuthenticationMode string `json:"authenticationMode"`
-		Status             string `json:"status"`
-		Revision           int64  `json:"revision"`
+		Diagnostics        []sdk.Diagnostic `json:"diagnostics,omitempty"`
+		NamespaceID        string           `json:"namespaceId"`
+		MCPURL             string           `json:"mcpUrl"`
+		AuthenticationMode string           `json:"authenticationMode"`
+		Status             string           `json:"status"`
+		Revision           int64            `json:"revision"`
 	}
-	if err = json.NewDecoder(io.LimitReader(response.Body, 4096)).Decode(&payload); err != nil {
+	if err = json.NewDecoder(io.LimitReader(response.Body, 1<<20)).Decode(&payload); err != nil {
 		return nil, err
 	}
 	if namespaceID, selected := sdk.NamespaceSelectionFromContext(ctx); selected && payload.NamespaceID != namespaceID {
@@ -176,7 +177,7 @@ func (c *Client) ProbeRuntime(ctx context.Context) (*sdk.RuntimeHost, error) {
 			return nil, fmt.Errorf("dynamic runtime MCP endpoint is invalid")
 		}
 	}
-	return &sdk.RuntimeHost{NamespaceID: payload.NamespaceID, MCPURL: payload.MCPURL, AuthenticationMode: payload.AuthenticationMode, Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
+	return &sdk.RuntimeHost{Diagnostics: payload.Diagnostics, NamespaceID: payload.NamespaceID, MCPURL: payload.MCPURL, AuthenticationMode: payload.AuthenticationMode, Status: payload.Status, Revision: payload.Revision, CheckedAt: time.Now().UTC()}, nil
 }
 
 // Connection reads the deployed namespace's virtual Agently configuration.

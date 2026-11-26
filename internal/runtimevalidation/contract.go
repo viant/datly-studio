@@ -59,6 +59,10 @@ func contractDiagnostic(err error) (sdk.Diagnostic, bool) {
 			code, stage, field = "runtime_discovery_query", "contract.discovery", "authoredDql"
 			summary = "The configured source rejected the column-discovery query."
 			hint = "Verify connector access, source existence, SQL dialect, and expression types with a bounded source-schema probe. Runtime discovery queries may differ from the authored SQL."
+		case strings.HasPrefix(message, "load SQLX table metadata for "):
+			code, stage, field = "runtime_discovery_table_metadata", "contract.discovery", "authoredDql"
+			summary = "The source table metadata required by this reader is unavailable."
+			hint = "Verify that the configured catalog, schema and table or view still exist and are accessible to the connector."
 		case strings.HasPrefix(message, "resolve SQL dialect: "):
 			code, stage, field = "runtime_discovery_dialect", "contract.discovery", "defaultConnectorName"
 			summary = "The connector SQL dialect could not be resolved."

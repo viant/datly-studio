@@ -38,6 +38,7 @@ import (
 	"github.com/viant/datly-studio/internal/connectorsecret"
 	"github.com/viant/datly-studio/internal/resourceartifact"
 	studiors "github.com/viant/datly-studio/runtime/resources"
+	"github.com/viant/datly-studio/sdk"
 	sdkrelease "github.com/viant/datly-studio/sdk/artifactrelease"
 	studiohost "github.com/viant/datly-studio/studio/host"
 	"github.com/viant/datly/application"
@@ -92,6 +93,9 @@ type Service struct {
 	secrets                connectorsecret.Resolver
 	mu                     sync.Mutex
 	runtimePolicyMu        sync.Mutex
+	reloadMu               sync.Mutex
+	diagnosticMu           sync.RWMutex
+	readerDiagnostics      []sdk.Diagnostic
 	releaseSyncController  *sdkrelease.Controller
 	releaseSyncCancel      context.CancelFunc
 	releaseSyncDone        chan struct{}
@@ -208,21 +212,39 @@ func (s *Service) Reload(ctx context.Context, generation int64) error {
 }
 
 func (s *Service) reload(ctx context.Context, candidate *int64) error {
+	s.reloadMu.Lock()
+	defer s.reloadMu.Unlock()
+	var failures []sdk.Diagnostic
 	revision := s.manager.Revision() + 1
 	if candidate != nil && *candidate > 0 && uint64(*candidate) > revision {
 		revision = uint64(*candidate)
 	}
-	return s.manager.Reload(ctx, application.Request{Revision: revision, Compile: func(ctx context.Context, seed *typecatalog.Catalog) (*application.Build, error) {
-		return s.compile(ctx, seed, candidate)
+	err := s.manager.Reload(ctx, application.Request{Revision: revision, Compile: func(ctx context.Context, seed *typecatalog.Catalog) (*application.Build, error) {
+		return s.compileObserved(ctx, seed, candidate, &failures)
 	}})
+	if err == nil {
+		s.diagnosticMu.Lock()
+		s.readerDiagnostics = failures
+		s.diagnosticMu.Unlock()
+	}
+	return err
 }
 
 func (s *Service) compile(ctx context.Context, seed *typecatalog.Catalog, candidate *int64) (*application.Build, error) {
+	return s.compileObserved(ctx, seed, candidate, nil)
+}
+
+func (s *Service) compileObserved(ctx context.Context, seed *typecatalog.Catalog, candidate *int64, failures *[]sdk.Diagnostic) (*application.Build, error) {
 	definitions, err := s.definitions(ctx, candidate)
 	if err != nil {
 		return nil, err
 	}
-	build, err := s.compileDefinitions(ctx, seed, definitions)
+	// Candidate publication remains atomic. Recovery of already published readers
+	// can omit a failed family while retaining independent healthy families.
+	if candidate != nil || s.config.NamespaceID == "" {
+		failures = nil
+	}
+	build, err := s.compileDefinitionsObserved(ctx, seed, definitions, failures)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +282,39 @@ func (s *Service) extendNamespaceBuild(ctx context.Context, build *application.B
 	return build, nil
 }
 
-func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (_ *application.Build, err error) {
+func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (*application.Build, error) {
+	return s.compileDefinitionsObserved(ctx, seed, definitions, nil, inspect...)
+}
+
+func (s *Service) compileDefinitionsObserved(ctx context.Context, seed *typecatalog.Catalog, definitions []definition, failures *[]sdk.Diagnostic, inspect ...func(definition, *registry.RegisteredComponent, *studiors.Loaded) error) (_ *application.Build, err error) {
+	failed := map[string]bool{}
+	isolate := func(d definition, stage string, cause error) bool {
+		if failures == nil || ctx.Err() != nil || errors.Is(cause, context.Canceled) || errors.Is(cause, context.DeadlineExceeded) {
+			return false
+		}
+		// Namespace-wide security tightening retains its existing atomic failure
+		// and immediate runtime guard. It is not corrupt reader source recovery.
+		var internalRequired *predicatepolicy.InternalComponentRequiredError
+		var authRequired *predicatepolicy.RequiredError
+		if errors.As(cause, &internalRequired) || errors.As(cause, &authRequired) {
+			return false
+		}
+		if failed[d.reportID] {
+			return true
+		}
+		failed[d.reportID] = true
+		diagnostics := runtimevalidation.Diagnostics(runtimevalidation.Wrap(stage, cause))
+		for i := range diagnostics {
+			if diagnostics[i].Stage == "" {
+				diagnostics[i].Stage = stage
+			}
+			diagnostics[i].Field = d.reportID
+			diagnostics[i].Hint = fmt.Sprintf("Reader %s version %d is unavailable. %s", d.reportID, d.versionNo, diagnostics[i].Hint)
+		}
+		*failures = append(*failures, diagnostics...)
+		slog.ErrorContext(ctx, "Studio reader compilation failed", "namespaceId", s.config.NamespaceID, "componentId", d.reportID, "version", d.versionNo, "stage", stage, "diagnostics", diagnostics, "causeType", fmt.Sprintf("%T", cause))
+		return true
+	}
 	policyRegistry := s.runtimePolicyRegistry()
 	started := time.Now()
 	defer func() {
@@ -293,7 +347,11 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		versions = append(versions, studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo})
 	}
 	phaseStarted = time.Now()
-	loadedResources, err := studiors.Load(ctx, s.studio, versions)
+	byVersion := make(map[studiors.Version]definition, len(definitions))
+	for _, d := range definitions {
+		byVersion[studiors.Version{ReportID: d.reportID, VersionNo: d.versionNo}] = d
+	}
+	loadedResources, err := studiors.LoadRecovering(ctx, s.studio, versions, func(v studiors.Version, err error) bool { return isolate(byVersion[v], "resources", err) })
 	if err != nil {
 		return nil, err
 	}
@@ -329,14 +387,21 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	}
 	compiledArtifactTiming(ctx, "namespace.connectors.read", time.Since(phaseStarted), 0)
 	phaseStarted = time.Now()
-	pooled, err = openRuntimeConnectorSet(ctx, definitions, active, s.secrets, func(definition definition) fs.FS {
+	connectorDefinitions := definitions[:0:0]
+	for _, d := range definitions {
+		if !failed[d.reportID] {
+			connectorDefinitions = append(connectorDefinitions, d)
+		}
+	}
+	pooled, err = openRuntimeConnectorSetObserved(ctx, connectorDefinitions, active, s.secrets, func(definition definition) fs.FS {
 		return loadedResources.ByVersion[studiors.Version{ReportID: definition.reportID, VersionNo: definition.versionNo}]
-	}, types, s.predicates, s.config.Const)
+	}, types, s.predicates, s.config.Const, isolate)
 	if err != nil {
 		return nil, err
 	}
 	compiledArtifactTiming(ctx, "namespace.connectors.open", time.Since(phaseStarted), 0)
 	type contractResult struct {
+		failure  error
 		sources  *runtimeSources
 		contract *transcribe.RuntimeContract
 		elapsed  time.Duration
@@ -494,12 +559,25 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		return contractResult{sources: sources, contract: contract, elapsed: time.Since(started)}, nil
 	}
 	phaseStarted = time.Now()
+	// Connector preparation already identified any reader-local failures.
+	pending := definitions[:0:0]
+	for _, definition := range definitions {
+		if !failed[definition.reportID] {
+			pending = append(pending, definition)
+		}
+	}
+	definitions = pending
 	prepared, parallelErr := compileContracts(ctx, definitions, func(compileCtx context.Context, definition definition) (contractResult, error) {
 		catalog, cloneErr := seed.Clone()
 		if cloneErr != nil {
 			return contractResult{}, cloneErr
 		}
-		return compileOne(compileCtx, definition, catalog)
+		result, compileErr := compileOne(compileCtx, definition, catalog)
+		if failures != nil && compileErr != nil && compileCtx.Err() == nil {
+			result.failure = compileErr
+			return result, nil
+		}
+		return result, compileErr
 	})
 	compiledArtifactTiming(ctx, "namespace.contracts.stage", time.Since(phaseStarted), 0)
 	if parallelErr != nil {
@@ -518,16 +596,40 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		} else {
 			current = prepared[i]
 		}
+		if current.failure != nil {
+			// Retry only the failed contract with types supplied by successful earlier
+			// readers. Independent successful contracts are never recompiled.
+			current, err = compileOne(ctx, definition, types)
+			if err != nil {
+				if isolate(definition, "contract", err) {
+					err = nil
+					continue
+				}
+				return nil, err
+			}
+		}
 		sources, contract := current.sources, current.contract
 		publicPolicies[definition.reportID] = policyRegistry.Entry(namespaceaccess.ID(definition.owner, definition.namespace), definition.policy)
-		if mergeErr := mergeTypes(types, contract.Types); mergeErr != nil {
+		nextTypes, cloneErr := types.Clone()
+		if cloneErr != nil {
+			return nil, cloneErr
+		}
+		if mergeErr := mergeTypes(nextTypes, contract.Types); mergeErr != nil {
 			err = mergeErr
+			if isolate(definition, "contract", err) {
+				err = nil
+				continue
+			}
 			return nil, err
 		}
 		contractFinished := time.Now()
 		compilation, buildErr := report.NewProjectCompiler(report.ProjectConfig{Types: contract.Types}).CompileArtifacts([]bootstrap.ArtifactInput{{Const: s.config.Const, Component: contract.Component, InputType: contract.InputType, OutputType: contract.OutputType, Types: contract.Types, Resources: contract.Resources, CodecFactory: s.codecs}})
 		if buildErr != nil {
 			err = buildErr
+			if isolate(definition, "artifact", err) {
+				err = nil
+				continue
+			}
 			return nil, err
 		}
 		artifactsFinished := time.Now()
@@ -560,6 +662,10 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 		}))
 		if registerErr != nil {
 			err = registerErr
+			if isolate(definition, "reader", err) {
+				err = nil
+				continue
+			}
 			return nil, err
 		}
 		registrationsElapsed += time.Since(artifactsFinished)
@@ -567,6 +673,7 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 			"contractMs", float64(current.elapsed)/float64(time.Millisecond),
 			"artifactsMs", float64(artifactsFinished.Sub(contractFinished))/float64(time.Millisecond),
 			"runtimeMs", float64(time.Since(artifactsFinished))/float64(time.Millisecond))
+		types = nextTypes
 		registrations = append(registrations, compiledRegistrations...)
 		for _, registered := range compiledRegistrations {
 			for _, capture := range inspect {
@@ -579,6 +686,25 @@ func (s *Service) compileDefinitions(ctx context.Context, seed *typecatalog.Cata
 	}
 	compiledArtifactTiming(ctx, "namespace.artifacts.compile", artifactsElapsed, 0)
 	compiledArtifactTiming(ctx, "namespace.runtime.register", registrationsElapsed, 0)
+	if len(failed) > 0 {
+		retained := versions[:0]
+		for _, version := range versions {
+			if !failed[version.ReportID] {
+				retained = append(retained, version)
+			} else {
+				delete(versionByReport, version.ReportID)
+				delete(publicPolicies, version.ReportID)
+			}
+		}
+		versions = retained
+		folders := loadedResources.Folders[:0]
+		for _, folder := range loadedResources.Folders {
+			if !failed[loadedResources.ResourceReports[folder.URIPrefix]] {
+				folders = append(folders, folder)
+			}
+		}
+		loadedResources.Folders = folders
+	}
 	if err = validateSkillToolReferences(ctx, s.studio, versions, registrations); err != nil {
 		return nil, err
 	}
@@ -1011,10 +1137,11 @@ func (s *Service) statusHTTP(response http.ResponseWriter, request *http.Request
 	}
 	response.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(response).Encode(struct {
-		AuthenticationMode string `json:"authenticationMode"`
-		Status             string `json:"status"`
-		Revision           int64  `json:"revision"`
-	}{AuthenticationMode: s.config.Authentication.DefaultMode, Status: "ready", Revision: int64(s.manager.Revision())})
+		AuthenticationMode string           `json:"authenticationMode"`
+		Status             string           `json:"status"`
+		Revision           int64            `json:"revision"`
+		Diagnostics        []sdk.Diagnostic `json:"diagnostics,omitempty"`
+	}{Diagnostics: s.RuntimeDiagnostics(), AuthenticationMode: s.config.Authentication.DefaultMode, Status: "ready", Revision: int64(s.manager.Revision())})
 }
 
 func validAdminToken(expected, actual string) bool {

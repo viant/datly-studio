@@ -34,6 +34,23 @@ discovery catalog acceptance remains outstanding. See the
 remaining coverage. Passing the current suite does not mean every planned
 capability or database dialect has live acceptance coverage.
 
+## Recovering published namespace readers
+
+When loading already-published namespace content, a reader-local source,
+resource snapshot or connector initialization failure excludes that reader
+family from the runtime. Independent healthy readers keep their HTTP/MCP
+exposure. The runtime status remains ready and includes diagnostics identifying
+the unavailable component, version and preparation stage; publication state is
+not rewritten as a successful new publication. Repair the source or dependency,
+then reload through the existing publication/runtime workflow.
+
+New candidate publications and exact-version validation remain strict and
+atomic. Cancellation, shared catalog/identity failures and namespace-wide
+security changes do not become successful partial publications. Row
+authorization and resource access checks still apply to every surviving reader.
+Recovery prepares metadata at generation load and shares native connector pools
+between readers; it does not recompile the catalog on each tool request.
+
 ## Database discovery scopes
 
 The Forge Explorer loads only the connector list when opened. **Load

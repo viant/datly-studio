@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/viant/authz"
+	"github.com/viant/datly-studio/internal/namespaceaccess"
 	"github.com/viant/datly-studio/sdk"
 	sqltransport "github.com/viant/datly-studio/sdk/transport/sql"
 	"github.com/viant/datly-studio/studio/sourcevalidation"
@@ -22,6 +23,14 @@ func TestAtomicPublicationRecoversIncompatibleSiblingGeneration(t *testing.T) {
 		policies[name] = authz.Policy{Mode: "public"}
 	}
 	fixture, err := newScopedHost(t, sources, policies)
+	require.NoError(t, err)
+	// This fixture starts from published rows, bypassing the authoring writer.
+	// Populate the same canonical namespace and version high-water that writer
+	// maintains before exercising SDK creation of the next version.
+	namespaceID := namespaceaccess.ID("owner", "general")
+	_, err = fixture.service.studio.Exec(`INSERT INTO namespaces(namespace_id,owner_id,name,title,status,visibility,mcp_enabled,etag,created_at,updated_at) VALUES(?,'owner','general','General','active','private',TRUE,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`, namespaceID)
+	require.NoError(t, err)
+	_, err = fixture.service.studio.Exec(`UPDATE components SET namespace_id=?,last_version_no=1 WHERE owner_id='owner' AND namespace='general'`, namespaceID)
 	require.NoError(t, err)
 	ctx := sdk.WithPrincipal(context.Background(), sdk.Principal{Subject: "owner"})
 	transport := &sqltransport.Transport{DB: fixture.service.studio, Authorizer: sqltransport.AuthorizerFunc(func(context.Context, sqltransport.AuthorizationRequest) error { return nil }), Activator: fixture.service}

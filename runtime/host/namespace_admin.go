@@ -3,6 +3,7 @@ package host
 import (
 	"encoding/hex"
 	"encoding/json"
+	"github.com/viant/datly-studio/sdk"
 	"io"
 	"net/http"
 	"strings"
@@ -140,12 +141,13 @@ func (g *NamespaceGroup) namespaceStatus(response http.ResponseWriter, request *
 	}
 	response.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(response).Encode(struct {
-		NamespaceID        string `json:"namespaceId"`
-		AuthenticationMode string `json:"authenticationMode"`
-		Status             string `json:"status"`
-		Revision           int64  `json:"revision"`
-		MCPURL             string `json:"mcpUrl"`
-	}{ids[0], mode, "ready", revision, endpoint.URL()})
+		NamespaceID        string           `json:"namespaceId"`
+		AuthenticationMode string           `json:"authenticationMode"`
+		Status             string           `json:"status"`
+		Revision           int64            `json:"revision"`
+		MCPURL             string           `json:"mcpUrl"`
+		Diagnostics        []sdk.Diagnostic `json:"diagnostics,omitempty"`
+	}{ids[0], mode, "ready", revision, endpoint.URL(), g.Listeners.RuntimeDiagnostics(ids[0])})
 }
 
 func (g *NamespaceGroup) namespaceConnection(w http.ResponseWriter, r *http.Request, token string) {

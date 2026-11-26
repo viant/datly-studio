@@ -2560,6 +2560,23 @@ func (t *Transport) runtimeStatus(ctx context.Context, output any) error {
 			host.CheckedAt = checkedAt
 		}
 		value.Host = host
+		// Publication state and runtime availability are separate. A recovered
+		// namespace may serve healthy readers while one published family failed
+		// initialization; do not report that family as callable.
+		if len(host.Diagnostics) > 0 {
+			value.Diagnostics = append(value.Diagnostics, host.Diagnostics...)
+			failed := make(map[string]bool, len(host.Diagnostics))
+			for _, diagnostic := range host.Diagnostics {
+				if diagnostic.Severity == "error" {
+					failed[diagnostic.Field] = true
+				}
+			}
+			for i := range value.Readers {
+				if failed[value.Readers[i].ReportID] {
+					value.Readers[i].Status = "unavailable"
+				}
+			}
+		}
 	}
 	return assign(output, &value)
 }

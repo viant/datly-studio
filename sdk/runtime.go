@@ -119,12 +119,14 @@ type RuntimeStatus struct {
 }
 
 type RuntimeHost struct {
-	NamespaceID        string    `json:"namespaceId,omitempty"`
-	MCPURL             string    `json:"mcpUrl,omitempty"`
-	AuthenticationMode string    `json:"authenticationMode,omitempty"`
-	Status             string    `json:"status"`
-	Revision           int64     `json:"revision,omitempty"`
-	CheckedAt          time.Time `json:"checkedAt"`
+	// Diagnostics identifies unavailable reader families in an otherwise ready namespace.
+	Diagnostics        []Diagnostic `json:"diagnostics,omitempty"`
+	NamespaceID        string       `json:"namespaceId,omitempty"`
+	MCPURL             string       `json:"mcpUrl,omitempty"`
+	AuthenticationMode string       `json:"authenticationMode,omitempty"`
+	Status             string       `json:"status"`
+	Revision           int64        `json:"revision,omitempty"`
+	CheckedAt          time.Time    `json:"checkedAt"`
 }
 
 type RuntimeReader struct {

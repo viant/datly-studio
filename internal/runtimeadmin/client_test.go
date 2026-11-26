@@ -100,7 +100,7 @@ func TestRuntimeProbeCarriesNamespaceSelection(t *testing.T) {
 		if r.Header.Get("X-Studio-Runtime-Token") != "deployment-token" {
 			t.Error("deployment token missing")
 		}
-		_, _ = w.Write([]byte(`{"namespaceId":"` + id + `","mcpUrl":"http://127.0.0.1:8591/mcp","status":"ready","authenticationMode":"required","revision":3}`))
+		_, _ = w.Write([]byte(`{"namespaceId":"` + id + `","mcpUrl":"http://127.0.0.1:8591/mcp","status":"ready","authenticationMode":"required","revision":3,"diagnostics":[{"severity":"error","code":"runtime_contract","field":"unavailable-reader","stage":"contract","message":"Reader unavailable"}]}`))
 	}))
 	defer server.Close()
 	client, err := New(server.URL, "deployment-token", nil)
@@ -110,6 +110,9 @@ func TestRuntimeProbeCarriesNamespaceSelection(t *testing.T) {
 	status, err := client.ProbeRuntime(sdk.WithNamespaceSelection(context.Background(), id))
 	if err != nil || status.Revision != 3 || status.Status != "ready" || status.NamespaceID != id || status.MCPURL != "http://127.0.0.1:8591/mcp" {
 		t.Fatalf("namespace probe=%+v err=%v", status, err)
+	}
+	if len(status.Diagnostics) != 1 || status.Diagnostics[0].Field != "unavailable-reader" {
+		t.Fatal("ready namespace lost its unavailable-reader diagnostic")
 	}
 }
 

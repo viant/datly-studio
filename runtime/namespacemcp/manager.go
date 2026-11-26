@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/viant/datly-studio/sdk"
 	dexec "github.com/viant/datly/exec"
 	mcpserver "github.com/viant/datly/mcp/server"
 )
@@ -54,6 +55,7 @@ type instance struct {
 	cleanup       func(context.Context) error
 	reload        func(context.Context, int64) error
 	status        func() (string, int64)
+	diagnostics   func() []sdk.Diagnostic
 	connection    func(context.Context) (json.RawMessage, error)
 	invalidate    func(context.Context, string, int, string, string) ([]dexec.CacheInvalidation, error)
 	shared        bool
@@ -315,6 +317,10 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 	if source, ok := owner.(interface{ RuntimeStatus() (string, int64) }); ok {
 		status = source.RuntimeStatus
 	}
+	var diagnostics func() []sdk.Diagnostic
+	if source, ok := owner.(interface{ RuntimeDiagnostics() []sdk.Diagnostic }); ok {
+		diagnostics = source.RuntimeDiagnostics
+	}
 	var connection func(context.Context) (json.RawMessage, error)
 	if source, ok := owner.(interface {
 		RuntimeConnection(context.Context) (json.RawMessage, error)
@@ -327,7 +333,7 @@ func (m *Manager) start(ctx context.Context, id string, port int, replace bool, 
 	}); ok {
 		invalidate = source.InvalidatePublishedCacheView
 	}
-	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status, connection: connection, invalidate: invalidate, shared: useShared, native: native, drained: make(chan struct{})}
+	entry := &instance{endpoint: endpoint, requestedPort: port, server: server, done: make(chan struct{}), cleanup: cleanup, reload: reload, status: status, diagnostics: diagnostics, connection: connection, invalidate: invalidate, shared: useShared, native: native, drained: make(chan struct{})}
 	entry.lifetime, entry.cancel = context.WithCancel(context.Background())
 	err = func() error {
 		m.mu.Lock()
@@ -595,4 +601,15 @@ func (m *Manager) NativeHandler(id string) http.Handler {
 		defer detach()
 		entry.native.ServeHTTP(w, r.Clone(ctx))
 	})
+}
+
+// RuntimeDiagnostics is a detached snapshot prepared with the active runtime.
+func (m *Manager) RuntimeDiagnostics(id string) []sdk.Diagnostic {
+	m.mu.Lock()
+	entry := m.entries[id]
+	m.mu.Unlock()
+	if entry == nil || entry.diagnostics == nil {
+		return nil
+	}
+	return entry.diagnostics()
 }

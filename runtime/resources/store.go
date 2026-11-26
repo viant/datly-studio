@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"path"
@@ -47,7 +48,7 @@ type Loaded struct {
 // authority: two active components cannot register different files under the
 // same namespace.
 func Load(ctx context.Context, db *sql.DB, versions []Version) (*Loaded, error) {
-	return load(ctx, db, versions, nil)
+	return load(ctx, db, versions, nil, nil)
 }
 
 // Loader retains only actor-independent native read plans for one DB lifetime.
@@ -77,10 +78,22 @@ func (l *Loader) Load(ctx context.Context, versions []Version) (*Loaded, error) 
 	if l == nil || l.reader == nil {
 		return nil, fmt.Errorf("resource metadata reader is unavailable")
 	}
-	return load(ctx, l.db, versions, l.reader)
+	return load(ctx, l.db, versions, l.reader, nil)
 }
 
-func load(ctx context.Context, db *sql.DB, versions []Version, reader *snapshotReader) (*Loaded, error) {
+// LoadRecovering reuses immutable snapshot loading while allowing the host to
+// omit invalid version-owned resources. Database and identity failures remain fatal.
+// The callback is preparation-only and must not perform an access decision.
+func LoadRecovering(ctx context.Context, db *sql.DB, versions []Version, invalid func(Version, error) bool) (*Loaded, error) {
+	return load(ctx, db, versions, nil, invalid)
+}
+
+type invalidResource struct{ cause error }
+
+func (e *invalidResource) Error() string { return e.cause.Error() }
+func (e *invalidResource) Unwrap() error { return e.cause }
+
+func load(ctx context.Context, db *sql.DB, versions []Version, reader *snapshotReader, invalid func(Version, error) bool) (*Loaded, error) {
 	if db == nil {
 		return nil, fmt.Errorf("Studio database is required")
 	}
@@ -101,39 +114,112 @@ func load(ctx context.Context, db *sql.DB, versions []Version, reader *snapshotR
 		}
 		defer reader.runtime.Shutdown(context.Background())
 	}
-	namespaces := map[string]fstest.MapFS{}
-	versionFiles := map[Version][]resourceFingerprintFile{}
+	// Read each immutable version once, then merge only accepted resources. A bad
+	// version must never leave partially registered files in another reader's store.
+	type snapshot struct {
+		files   []resourceFingerprintFile
+		folders []mcpresource.Folder
+	}
+	snapshots := map[Version]*snapshot{}
+	rejected := map[Version]bool{}
+	reject := func(version Version, cause error) error {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		if rejected[version] {
+			return nil
+		}
+		if invalid == nil || !invalid(version, cause) {
+			return cause
+		}
+		rejected[version] = true
+		return nil
+	}
+	fileOwners := map[string]Version{}
+	folderOwners := map[string]Version{}
 	for _, version := range versions {
-		local := fstest.MapFS{}
 		files, err := reader.files(ctx, version)
 		if err != nil {
 			return nil, err
 		}
+		local := map[string]bool{}
+		item := &snapshot{}
+		var invalidErr error
 		for _, file := range files {
-			// Published compiled contracts are host-private DB artifacts. They
-			// must not become source inputs, public resources, or part of the
-			// fingerprint that decides whether the artifact itself is current.
 			if file.Namespace == resourceartifact.Namespace {
 				continue
 			}
 			if err = validFile(file.Namespace, file.ResourcePath); err != nil {
+				invalidErr = err
+				break
+			}
+			if local[file.ResourcePath] {
+				invalidErr = fmt.Errorf("duplicate default resource path %q for report %s", file.ResourcePath, version.ReportID)
+				break
+			}
+			local[file.ResourcePath] = true
+			item.files = append(item.files, resourceFingerprintFile{Namespace: file.Namespace, Path: file.ResourcePath, Content: append([]byte(nil), file.Content...)})
+		}
+		if invalidErr != nil {
+			if err = reject(version, invalidErr); err != nil {
 				return nil, err
 			}
-			if _, exists := local[file.ResourcePath]; exists {
-				return nil, fmt.Errorf("duplicate default resource path %q for report %s", file.ResourcePath, version.ReportID)
+			continue
+		}
+		item.folders, err = reader.folders(ctx, version)
+		if err != nil {
+			var malformed *invalidResource
+			if !errors.As(err, &malformed) {
+				return nil, err
 			}
-			item := &fstest.MapFile{Data: append([]byte(nil), file.Content...)}
-			versionFiles[version] = append(versionFiles[version], resourceFingerprintFile{Namespace: file.Namespace, Path: file.ResourcePath, Content: append([]byte(nil), file.Content...)})
-			local[file.ResourcePath] = item
-			group, registered := namespaces[file.Namespace]
-			if !registered {
-				group = fstest.MapFS{}
+			if err = reject(version, err); err != nil {
+				return nil, err
 			}
-			if _, exists := group[file.ResourcePath]; exists {
-				return nil, fmt.Errorf("duplicate resource namespace/path %s:%s", file.Namespace, file.ResourcePath)
+			continue
+		}
+		snapshots[version] = item
+		for _, file := range item.files {
+			key := file.Namespace + ":" + file.Path
+			if owner, exists := fileOwners[key]; exists {
+				cause := fmt.Errorf("duplicate resource namespace/path %s", key)
+				if err = reject(version, cause); err != nil {
+					return nil, err
+				}
+				if err = reject(owner, cause); err != nil {
+					return nil, err
+				}
+			} else {
+				fileOwners[key] = version
 			}
-			group[file.ResourcePath] = item
-			namespaces[file.Namespace] = group
+		}
+		for _, folder := range item.folders {
+			if owner, exists := folderOwners[folder.URIPrefix]; exists && owner.ReportID != version.ReportID {
+				cause := fmt.Errorf("resource URI prefix %q is owned by both reports %s and %s", folder.URIPrefix, owner.ReportID, version.ReportID)
+				if err = reject(version, cause); err != nil {
+					return nil, err
+				}
+				if err = reject(owner, cause); err != nil {
+					return nil, err
+				}
+			} else {
+				folderOwners[folder.URIPrefix] = version
+			}
+		}
+	}
+	namespaces := map[string]fstest.MapFS{}
+	for _, version := range versions {
+		if rejected[version] {
+			continue
+		}
+		item := snapshots[version]
+		local := fstest.MapFS{}
+		for _, file := range item.files {
+			entry := &fstest.MapFile{Data: file.Content}
+			local[file.Path] = entry
+			if namespaces[file.Namespace] == nil {
+				namespaces[file.Namespace] = fstest.MapFS{}
+			}
+			namespaces[file.Namespace][file.Path] = entry
 		}
 		if len(local) > 0 {
 			scoped, err := result.Store.WithDefault(local)
@@ -144,42 +230,33 @@ func load(ctx context.Context, db *sql.DB, versions []Version, reader *snapshotR
 		} else {
 			result.ByVersion[version] = result.Store
 		}
+		for _, folder := range item.folders {
+			result.ResourceReports[folder.URIPrefix] = version.ReportID
+		}
+		result.Folders = append(result.Folders, item.folders...)
+		sort.Slice(item.files, func(i, j int) bool {
+			if item.files[i].Namespace == item.files[j].Namespace {
+				return item.files[i].Path < item.files[j].Path
+			}
+			return item.files[i].Namespace < item.files[j].Namespace
+		})
+		sort.Slice(item.folders, func(i, j int) bool { return item.folders[i].URIPrefix < item.folders[j].URIPrefix })
+		raw, err := json.Marshal(struct {
+			Files   []resourceFingerprintFile
+			Folders []mcpresource.Folder
+		}{item.files, item.folders})
+		if err != nil {
+			return nil, err
+		}
+		hash := sha256.Sum256(raw)
+		result.Fingerprints[version] = hex.EncodeToString(hash[:])
 	}
 	for namespace, files := range namespaces {
 		if err := result.Store.Register(namespace, files); err != nil {
 			return nil, err
 		}
 	}
-	for _, version := range versions {
-		folders, err := reader.folders(ctx, version)
-		if err != nil {
-			return nil, err
-		}
-		for _, folder := range folders {
-			if owner, ok := result.ResourceReports[folder.URIPrefix]; ok && owner != version.ReportID {
-				return nil, fmt.Errorf("resource URI prefix %q is owned by both reports %s and %s", folder.URIPrefix, owner, version.ReportID)
-			}
-			result.ResourceReports[folder.URIPrefix] = version.ReportID
-		}
-		result.Folders = append(result.Folders, folders...)
-		files := versionFiles[version]
-		sort.Slice(files, func(i, j int) bool {
-			if files[i].Namespace == files[j].Namespace {
-				return files[i].Path < files[j].Path
-			}
-			return files[i].Namespace < files[j].Namespace
-		})
-		sort.Slice(folders, func(i, j int) bool { return folders[i].URIPrefix < folders[j].URIPrefix })
-		raw, hashErr := json.Marshal(struct {
-			Files   []resourceFingerprintFile
-			Folders []mcpresource.Folder
-		}{files, folders})
-		if hashErr != nil {
-			return nil, hashErr
-		}
-		hash := sha256.Sum256(raw)
-		result.Fingerprints[version] = hex.EncodeToString(hash[:])
-	}
+
 	return result, nil
 }
 
@@ -278,7 +355,7 @@ func (r *snapshotReader) folders(ctx context.Context, version Version) ([]mcpres
 			root = "."
 		}
 		if !fs.ValidPath(root) || strings.Contains(root, "\\") {
-			return nil, fmt.Errorf("invalid skill root %q", root)
+			return nil, &invalidResource{fmt.Errorf("invalid skill root %q", root)}
 		}
 		skills[skill.FolderId] = append(skills[skill.FolderId], root)
 	}
@@ -308,7 +385,7 @@ func (r *snapshotReader) folders(ctx context.Context, version Version) ([]mcpres
 	for _, row := range folderOutput.Folders {
 		folder := mcpresource.Folder{Namespace: row.Namespace, Root: row.RootPath, URIPrefix: row.UriPrefix, Skills: skills[row.FolderId]}
 		if err = (spec.ResourceFolder{Namespace: row.Namespace, Root: row.RootPath, URIPrefix: row.UriPrefix}).Validate(); err != nil {
-			return nil, fmt.Errorf("resource folder %s: %w", row.FolderId, err)
+			return nil, &invalidResource{fmt.Errorf("resource folder %s: %w", row.FolderId, err)}
 		}
 		result = append(result, folder)
 	}

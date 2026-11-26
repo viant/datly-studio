@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/viant/datly-studio/audit"
+	"github.com/viant/datly-studio/sdk"
 	"io/fs"
 	"maps"
 	"net"
@@ -128,4 +129,8 @@ func (s *namespaceRuntimeSource) RuntimeConnection(ctx context.Context) (json.Ra
 
 func (s *namespaceRuntimeSource) InvalidatePublishedCacheView(ctx context.Context, reportID string, version int, routePath, view string) ([]dexec.CacheInvalidation, error) {
 	return s.runtime.InvalidatePublishedCacheView(ctx, reportID, version, routePath, view)
+}
+
+func (s *namespaceRuntimeSource) RuntimeDiagnostics() []sdk.Diagnostic {
+	return s.runtime.RuntimeDiagnostics()
 }

@@ -28,6 +28,7 @@ func TestContractNativeOperationsHaveSafeRepairDiagnostics(t *testing.T) {
 		{"bind discovery SQL: ", "runtime_discovery_bind", "contract.discovery", "authoredDql"},
 		{"build schema-discovery query: ", "runtime_discovery_query_shape", "contract.discovery", "authoredDql"},
 		{"SQLX discovery failed for ", "runtime_discovery_query", "contract.discovery", "authoredDql"},
+		{"load SQLX table metadata for ", "runtime_discovery_table_metadata", "contract.discovery", "authoredDql"},
 		{"resolve SQL dialect: ", "runtime_discovery_dialect", "contract.discovery", "defaultConnectorName"},
 	} {
 		t.Run(tc.code+tc.operation, func(t *testing.T) {

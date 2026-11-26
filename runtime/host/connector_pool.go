@@ -2,6 +2,7 @@ package host
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"sort"
@@ -24,7 +25,7 @@ import (
 // A generation owns Datly's connector set. Readers borrow its named pools;
 // retiring a reader must not close a pool still used by another reader.
 type runtimeConnectorSet struct {
-	native      *connector.Set
+	native      []*connector.Set
 	connections column.Connections
 }
 
@@ -32,16 +33,23 @@ func (p *runtimeConnectorSet) Close() error {
 	if p == nil || p.native == nil {
 		return nil
 	}
-	return p.native.Close()
+	var result error
+	for _, native := range p.native {
+		result = errors.Join(result, native.Close())
+	}
+	return result
 }
 func (p *runtimeConnectorSet) sources(ctx context.Context, name string) (*runtimeSources, error) {
-	db, err := p.native.ResolveDB(ctx, name)
-	if err != nil {
+	if err := ctx.Err(); err != nil {
 		return nil, err
+	}
+	db, ok := p.connections[name]
+	if !ok || db == nil {
+		return nil, fmt.Errorf("dynamic reader connector %q is unavailable", name)
 	}
 	sqlComponent := &dsql.SQLComponent{DB: db}
 	for name, connection := range p.connections {
-		if err = sqlComponent.RegisterConnector(name, connection); err != nil {
+		if err := sqlComponent.RegisterConnector(name, connection); err != nil {
 			return nil, err
 		}
 	}
@@ -52,12 +60,17 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 	if len(constants) > 0 {
 		instance = constants[0]
 	}
+	return openRuntimeConnectorSetObserved(ctx, definitions, active, resolver, resources, types, predicates, instance, nil)
+}
+
+func openRuntimeConnectorSetObserved(ctx context.Context, definitions []definition, active map[string]connectorDefinition, resolver connectorsecret.Resolver, resources func(definition) fs.FS, types *typecatalog.Catalog, predicates *predicatecatalog.Catalog, instance *constant.Values, isolate func(definition, string, error) bool) (*runtimeConnectorSet, error) {
 	available := make([]string, 0, len(active))
 	for name := range active {
 		available = append(available, name)
 	}
 	sort.Strings(available)
 	required := map[string]bool{}
+	owners := map[string][]definition{}
 	for _, definition := range definitions {
 		var resourceFS fs.FS
 		if resources != nil {
@@ -65,13 +78,20 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 		}
 		catalog, err := predicatepolicy.Types(types, definition.policy, predicates)
 		if err != nil {
+			if isolate != nil && isolate(definition, "source_policy", err) {
+				continue
+			}
 			return nil, err
 		}
 		names, err := referencedRuntimeConnectors(ctx, definition, available, resourceFS, catalog, instance)
 		if err != nil {
+			if isolate != nil && isolate(definition, "contract", err) {
+				continue
+			}
 			return nil, err
 		}
 		for _, name := range names {
+			owners[name] = append(owners[name], definition)
 			required[name] = true
 		}
 	}
@@ -81,39 +101,66 @@ func openRuntimeConnectorSet(ctx context.Context, definitions []definition, acti
 	}
 	sort.Strings(names)
 	configs := make([]connector.Config, 0, len(names))
+	rejectConnector := func(name string, err error) bool {
+		if isolate == nil {
+			return false
+		}
+		for _, definition := range owners[name] {
+			if !isolate(definition, "connector", err) {
+				return false
+			}
+		}
+		return true
+	}
 	for _, name := range names {
 		item, ok := active[name]
 		if !ok {
-			return nil, fmt.Errorf("dynamic readers require active Studio connector %q", name)
+			err := fmt.Errorf("dynamic readers require active Studio connector %q", name)
+			if rejectConnector(name, err) {
+				continue
+			}
+			return nil, err
 		}
 		dsn, err := connectorsecret.Resolve(ctx, resolver, item.dsn, item.secretRef, instance)
 		if err != nil {
-			return nil, fmt.Errorf("resolve Studio connector %q secret: %w", name, err)
+			cause := fmt.Errorf("resolve Studio connector %q secret: %w", name, err)
+			if rejectConnector(name, cause) {
+				continue
+			}
+			return nil, cause
 		}
 		configs = append(configs, connector.Config{Name: name, Driver: normalizeDriver(item.driver), DSN: dsn})
 	}
-	defaultName := ""
-	if len(names) > 0 {
-		defaultName = names[0]
-	}
-	native, err := connector.Open(ctx, configs, defaultName)
-	if err != nil {
-		return nil, fmt.Errorf("open dynamic reader connector set: %w", err)
-	}
-	result := &runtimeConnectorSet{native: native, connections: column.Connections{}}
-	for _, name := range names {
-		db, resolveErr := native.ResolveDB(ctx, name)
-		if resolveErr != nil {
-			native.Close()
-			return nil, resolveErr
+	result := &runtimeConnectorSet{connections: column.Connections{}}
+	// Each configured connector owns one native pool shared by every dependent
+	// reader. Opening a failed connector cannot close another connector's pool.
+	for _, config := range configs {
+		name := config.Name
+		native, err := connector.Open(ctx, []connector.Config{config}, name)
+		if err != nil {
+			if rejectConnector(name, err) {
+				continue
+			}
+			_ = result.Close()
+			return nil, err
 		}
-		item := active[name]
-		if err = connectorinit.Configure(ctx, db, item.driver, item.options); err != nil {
-			native.Close()
-			return nil, fmt.Errorf("configure Studio connector %q: %w", name, err)
+		db, err := native.ResolveDB(ctx, name)
+		if err == nil {
+			item := active[name]
+			err = connectorinit.Configure(ctx, db, item.driver, item.options)
 		}
+		if err != nil {
+			_ = native.Close()
+			if rejectConnector(name, err) {
+				continue
+			}
+			_ = result.Close()
+			return nil, err
+		}
+		result.native = append(result.native, native)
 		result.connections[name] = db
 	}
+
 	return result, nil
 }
 
